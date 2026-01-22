@@ -225,7 +225,7 @@ def calculate_net_residential_impact(
 
 def calculate_baseline_trajectory(
     utility: Dict,
-    years: int = 15
+    years: int = 10
 ) -> Dict:
     """Calculate baseline cost trajectory without data center."""
     base_year = TIME_PARAMS['base_year']
@@ -258,7 +258,7 @@ def calculate_baseline_trajectory(
 def calculate_unoptimized_trajectory(
     utility: Dict,
     datacenter: Dict,
-    years: int = 15
+    years: int = 10
 ) -> Dict:
     """Calculate trajectory for firm load scenario."""
     base_year = TIME_PARAMS['base_year']
@@ -313,7 +313,7 @@ def calculate_unoptimized_trajectory(
 def calculate_flexible_trajectory(
     utility: Dict,
     datacenter: Dict,
-    years: int = 15
+    years: int = 10
 ) -> Dict:
     """Calculate trajectory for flexible load scenario."""
     base_year = TIME_PARAMS['base_year']
@@ -367,7 +367,7 @@ def calculate_flexible_trajectory(
 def calculate_dispatchable_trajectory(
     utility: Dict,
     datacenter: Dict,
-    years: int = 15
+    years: int = 10
 ) -> Dict:
     """Calculate trajectory for flexible + generation scenario."""
     base_year = TIME_PARAMS['base_year']

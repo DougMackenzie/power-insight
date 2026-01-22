@@ -55,7 +55,7 @@ const HomePage = ({ onNavigate }) => {
             The Bottom Line for Your Household
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Based on a {formatMW(dataCenter.capacityMW)} data center serving {utility.residentialCustomers.toLocaleString()} residential customers,
+            Based on a {formatMW(dataCenter.capacityMW)} data center in a utility territory that serves {utility.residentialCustomers.toLocaleString()} residential customers,
             here's what your monthly bill could look like in {projectionYears} years:
           </p>
         </div>
