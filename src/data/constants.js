@@ -171,8 +171,8 @@ export const SCENARIOS = {
   flexible: {
     id: 'flexible',
     name: 'Flexible Load',
-    shortName: '95% LF, 80% Peak',
-    description: 'With demand response: higher utilization, reduced peak contribution',
+    shortName: '95% LF, 75% Peak',
+    description: 'With demand response: higher utilization, 25% curtailable (DCFlex validated)',
     color: '#F59E0B', // amber
     colorLight: '#FEF3C7',
   },

@@ -69,9 +69,9 @@ const FlexiblePage = ({ onNavigate }) => {
         </h1>
         <p className="text-lg text-gray-600 max-w-3xl">
           With flexibility, data centers achieve <strong>95% load factor</strong> (vs 80% for firm)
-          while only contributing <strong>80% to peak demand</strong>. This means the same grid
-          can support 25% MORE data center capacity - generating more jobs, more tax revenue,
-          and more utility revenue to offset costs for everyone.
+          while only contributing <strong>75% to peak demand</strong> (25% curtailable, validated by EPRI DCFlex 2024).
+          This means the same grid can support 33% MORE data center capacity - generating more jobs,
+          more tax revenue, and more utility revenue to offset costs for everyone.
         </p>
       </div>
 

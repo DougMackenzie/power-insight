@@ -418,7 +418,7 @@ export const calculateUnoptimizedTrajectory = (
 };
 
 // ============================================
-// FLEXIBLE LOAD SCENARIO (95% LF, 80% Peak)
+// FLEXIBLE LOAD SCENARIO (95% LF, 75% Peak - 25% curtailable)
 // ============================================
 
 /**
@@ -426,7 +426,7 @@ export const calculateUnoptimizedTrajectory = (
  *
  * Flexible load is BETTER for ratepayers because:
  * 1. Higher LF (95% vs 80%) = MORE energy margin revenue
- * 2. Lower peak (80% vs 100%) = LESS infrastructure cost
+ * 2. Lower peak (75% vs 100%) = LESS infrastructure cost (25% curtailable, DCFlex validated)
  * 3. Capacity credits for DR = additional value
  *
  * This combination often results in NET BENEFIT (negative impact)

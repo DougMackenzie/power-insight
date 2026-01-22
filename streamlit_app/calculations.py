@@ -323,7 +323,7 @@ def calculate_flexible_trajectory(
     baseline = calculate_baseline_trajectory(utility, years)
 
     flex_lf = datacenter.get('flex_load_factor', 0.95)
-    flex_peak = datacenter.get('flex_peak_coincidence', 0.80)
+    flex_peak = datacenter.get('flex_peak_coincidence', 0.75)  # 25% curtailable (DCFlex validated)
 
     years_list = []
     monthly_bills = []
@@ -377,7 +377,7 @@ def calculate_dispatchable_trajectory(
     baseline = calculate_baseline_trajectory(utility, years)
 
     flex_lf = datacenter.get('flex_load_factor', 0.95)
-    flex_peak = datacenter.get('flex_peak_coincidence', 0.80)
+    flex_peak = datacenter.get('flex_peak_coincidence', 0.75)  # 25% curtailable (DCFlex validated)
     onsite_gen = datacenter.get('onsite_generation_mw', datacenter['capacity_mw'] * 0.2)
 
     years_list = []

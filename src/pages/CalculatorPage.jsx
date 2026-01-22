@@ -381,32 +381,30 @@ const CalculatorPage = ({ onNavigate }) => {
             <h3 className="font-semibold text-green-900 mb-4">Key Findings for Your Community</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">
-                  {summary.finalYearDifference.unoptimized >= 0 ? 'Firm Load Extra Cost' : 'Firm Load Savings'}
+                <p className="text-sm text-gray-600 mb-1">Optimized DC vs Baseline</p>
+                <p className={`text-2xl font-bold ${summary.finalYearDifference.dispatchable >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {summary.finalYearDifference.dispatchable >= 0
+                    ? `+$${summary.finalYearDifference.dispatchable.toFixed(2)}/mo`
+                    : `-$${Math.abs(summary.finalYearDifference.dispatchable).toFixed(2)}/mo`}
                 </p>
-                <p className={`text-2xl font-bold ${summary.finalYearDifference.unoptimized >= 0 ? 'text-red-600' : 'text-green-600'}`}>
-                  {summary.finalYearDifference.unoptimized >= 0
-                    ? `+$${summary.finalYearDifference.unoptimized.toFixed(2)}/mo`
-                    : `-$${Math.abs(summary.finalYearDifference.unoptimized).toFixed(2)}/mo`}
-                </p>
-                <p className="text-xs text-gray-500">per household vs no data center</p>
+                <p className="text-xs text-gray-500">vs no data center (best case)</p>
               </div>
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Best Case Savings</p>
+                <p className="text-sm text-gray-600 mb-1">Value of Optimization</p>
                 <p className="text-2xl font-bold text-green-600">
                   ${(summary.savingsVsUnoptimized.dispatchable).toFixed(2)}/mo
                 </p>
-                <p className="text-xs text-gray-500">flex + gen vs firm load</p>
+                <p className="text-xs text-gray-500">optimized vs firm load DC</p>
               </div>
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Community-Wide Impact</p>
+                <p className="text-sm text-gray-600 mb-1">Annual Community Benefit</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {formatCurrency((summary.savingsVsUnoptimized.dispatchable * 12 * utility.residentialCustomers))}
                 </p>
-                <p className="text-xs text-gray-500">annual savings, all households</p>
+                <p className="text-xs text-gray-500">optimized vs firm load, all households</p>
               </div>
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Lifetime Savings</p>
+                <p className="text-sm text-gray-600 mb-1">Lifetime Benefit</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {formatCurrency(
                     summary.cumulativeHouseholdCosts.unoptimized - summary.cumulativeHouseholdCosts.dispatchable

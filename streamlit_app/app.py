@@ -519,7 +519,7 @@ with tab5:
     with col2:
         st.metric("vs Firm Load", f"Save ${dispatch_vs_firm:.2f}/mo")
     with col3:
-        net_peak = max(0, st.session_state.datacenter['capacity_mw'] * 0.8 -
+        net_peak = max(0, st.session_state.datacenter['capacity_mw'] * 0.75 -
                       st.session_state.datacenter['onsite_generation_mw'])
         st.metric("Net Peak Draw", f"{net_peak:.0f} MW", "after onsite gen")
 
