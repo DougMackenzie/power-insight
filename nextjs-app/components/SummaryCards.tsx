@@ -14,11 +14,10 @@ interface StatCardProps {
 const StatCard = ({ label, value, subtext, color, highlight = false }: StatCardProps) => {
     return (
         <div
-            className={`p-4 rounded-lg border-2 ${highlight ? 'ring-2 ring-offset-2' : ''}`}
+            className={`p-4 rounded-lg border-2 ${highlight ? 'ring-2 ring-offset-2 ring-green-500' : ''}`}
             style={{
                 borderColor: color,
                 backgroundColor: highlight ? `${color}10` : 'white',
-                ringColor: highlight ? color : undefined,
             }}
         >
             <p className="text-sm text-gray-600 mb-1">{label}</p>
