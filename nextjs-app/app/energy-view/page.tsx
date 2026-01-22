@@ -34,17 +34,25 @@ const COLORS = {
     shiftedHatch: '#7C3AED',    // Purple for hatched area
 };
 
-// Generate realistic summer peak day load profile
-// Based on typical utility load shapes (ERCOT, PJM patterns)
+/**
+ * Generate realistic summer peak day load profile
+ *
+ * Logic:
+ * - DC wants to run at flexLoadFactor (95%) whenever possible
+ * - Grid capacity = systemPeakMW + (firmDC baseline allocation)
+ * - DC serves as much as grid headroom allows
+ * - When DC wants > headroom, the excess becomes "shifted workload"
+ * - Solid colors show only what's actually served (below grid capacity)
+ * - Hatched area shows what would exceed grid capacity
+ */
 function generatePeakDayProfile(
     systemPeakMW: number,
     dcCapacityMW: number,
     firmLoadFactor: number,
     flexLoadFactor: number,
-    flexPeakCoincidence: number,
 ) {
-    // Typical summer peak day shape - smoother curve
-    // Based on actual utility load patterns
+    // Typical summer peak day shape based on ERCOT/PJM data
+    // Normalized to 1.0 at system peak (usually 3-5 PM)
     const hourlyShape = [
         0.62, 0.58, 0.55, 0.53, 0.52, 0.54, // 12am-6am (overnight low)
         0.60, 0.68, 0.76, 0.84, 0.90, 0.94, // 6am-12pm (morning ramp)
@@ -52,24 +60,15 @@ function generatePeakDayProfile(
         0.90, 0.82, 0.75, 0.70, 0.66, 0.64, // 6pm-12am (evening decline)
     ];
 
-    // Peak hours when curtailment would occur (roughly 12pm-8pm on peak day)
-    const peakHours = [12, 13, 14, 15, 16, 17, 18, 19];
+    // DC operating parameters
+    const dcMaxWants = dcCapacityMW * flexLoadFactor;  // 95% - what flex DC wants to draw
+    const dcFirmBaseline = dcCapacityMW * firmLoadFactor; // 80% - firm DC baseline for comparison
 
-    // Data center load is relatively flat (high load factor)
-    // Firm DC runs at constant firmLoadFactor
-    const firmDCConstant = dcCapacityMW * firmLoadFactor;
-
-    // Flexible DC can run higher (flexLoadFactor) but curtails during peaks
-    const flexDCOffPeak = dcCapacityMW * flexLoadFactor;
-    const flexDCAtPeak = dcCapacityMW * flexLoadFactor * flexPeakCoincidence;
-    const curtailmentMW = flexDCOffPeak - flexDCAtPeak;
-
-    // Calculate the "flex bonus" - additional capacity that can be served
-    // Because flex DC only uses 75% at peak, same grid can serve more DC
-    const flexBonusCapacity = dcCapacityMW * flexLoadFactor * (1 - flexPeakCoincidence) / flexPeakCoincidence;
+    // Grid capacity is sized for system peak + firm DC allocation
+    // This is the infrastructure constraint
+    const gridCapacity = systemPeakMW + dcFirmBaseline;
 
     return hourlyShape.map((shape, hour) => {
-        const isPeakHour = peakHours.includes(hour);
         const hourLabel = hour === 0 ? '12 AM' :
                          hour < 12 ? `${hour} AM` :
                          hour === 12 ? '12 PM' :
@@ -78,20 +77,20 @@ function generatePeakDayProfile(
         // Base grid load follows the daily shape
         const baseGrid = systemPeakMW * shape;
 
-        // Firm DC is constant throughout
-        const firmDC = firmDCConstant;
+        // How much headroom is available for DC after serving base grid?
+        const headroomForDC = Math.max(0, gridCapacity - baseGrid);
 
-        // Flex bonus represents additional capacity unlocked
-        // During off-peak: can run at higher load factor
-        // During peak: represents the headroom created by curtailment
-        const flexBonus = isPeakHour ? 0 : (flexDCOffPeak - firmDCConstant);
+        // DC serves as much as it can, limited by what it wants OR grid headroom
+        const dcActuallyServed = Math.min(dcMaxWants, headroomForDC);
 
-        // Shifted workload - only shows during peak hours
-        // This is the load that would exceed grid capacity if not curtailed
-        const shiftedWorkload = isPeakHour ? curtailmentMW : 0;
+        // What gets shifted/curtailed? Only if DC wants more than headroom allows
+        const shiftedWorkload = Math.max(0, dcMaxWants - headroomForDC);
 
-        // Grid capacity line (what the grid can handle)
-        const gridCapacity = systemPeakMW + firmDCConstant;
+        // Break down dcActuallyServed into firm (baseline) vs flex bonus
+        // firmDC = up to the 80% baseline that firm DC would have drawn
+        // flexBonus = any additional DC served beyond that baseline
+        const firmDC = Math.min(dcFirmBaseline, dcActuallyServed);
+        const flexBonus = Math.max(0, dcActuallyServed - dcFirmBaseline);
 
         return {
             hour,
@@ -102,78 +101,109 @@ function generatePeakDayProfile(
             shiftedWorkload,
             gridCapacity,
             // For tooltip
-            totalFirm: baseGrid + firmDC,
-            totalFlex: baseGrid + firmDC + flexBonus,
-            isPeakHour,
+            dcActuallyServed,
+            dcMaxWants,
+            headroomForDC,
         };
     });
 }
 
-// Generate load duration curve (8760 hours sorted by load)
+/**
+ * Generate annual load duration curve (8760 hours sorted by load)
+ *
+ * Creates synthetic annual profile with:
+ * - Seasonal variation (summer peak, winter secondary, spring/fall lower)
+ * - Daily variation (peak afternoon, low overnight)
+ * - Weekend reduction
+ * - Random weather-driven variation
+ */
 function generateLoadDurationCurve(
     systemPeakMW: number,
     dcCapacityMW: number,
     firmLoadFactor: number,
     flexLoadFactor: number,
-    flexPeakCoincidence: number,
 ) {
     const hours = 8760;
-    const hourlyData: { existing: number; withFirmDC: number; withFlexDC: number; curtailed: number }[] = [];
 
-    // Generate synthetic annual load profile
+    // DC parameters
+    const dcMaxWants = dcCapacityMW * flexLoadFactor;
+    const dcFirmBaseline = dcCapacityMW * firmLoadFactor;
+    const gridCapacity = systemPeakMW + dcFirmBaseline;
+
+    // Generate all 8760 hours with realistic load patterns
+    const hourlyData: {
+        baseGrid: number;
+        dcServed: number;
+        firmDC: number;
+        flexBonus: number;
+        shiftedWorkload: number;
+        totalLoad: number;
+    }[] = [];
+
+    // Daily shape (same as peak day)
+    const dailyShape = [
+        0.62, 0.58, 0.55, 0.53, 0.52, 0.54,
+        0.60, 0.68, 0.76, 0.84, 0.90, 0.94,
+        0.97, 0.99, 1.00, 1.00, 0.99, 0.96,
+        0.90, 0.82, 0.75, 0.70, 0.66, 0.64,
+    ];
+
+    // Use seeded random for consistency
+    let seed = 12345;
+    const seededRandom = () => {
+        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+        return seed / 0x7fffffff;
+    };
+
     for (let h = 0; h < hours; h++) {
         const dayOfYear = Math.floor(h / 24);
         const hourOfDay = h % 24;
 
-        // Seasonal factor (summer peak, winter secondary peak, spring/fall lower)
-        const dayAngle = (dayOfYear - 172) * Math.PI / 182.5; // Peak around day 172 (late June)
-        const seasonalFactor = 0.65 + 0.35 * Math.cos(dayAngle);
+        // Seasonal factor: peak in late June/July, secondary peak in winter
+        // Summer peak around day 180 (late June)
+        const dayAngle = (dayOfYear - 180) * Math.PI / 182.5;
+        const summerFactor = Math.cos(dayAngle); // 1.0 in summer, -1.0 in winter
 
-        // Daily shape
-        const hourlyShape = [
-            0.62, 0.58, 0.55, 0.53, 0.52, 0.54,
-            0.60, 0.68, 0.76, 0.84, 0.90, 0.94,
-            0.97, 0.99, 1.00, 1.00, 0.99, 0.96,
-            0.90, 0.82, 0.75, 0.70, 0.66, 0.64,
-        ];
+        // Winter has secondary peak (heating), spring/fall are lowest
+        // Creates ~0.65-1.0 range with summer peak
+        const seasonalFactor = 0.75 + 0.25 * Math.max(summerFactor, summerFactor * 0.3 + 0.2);
 
-        // Weekend reduction
+        // Daily shape factor
+        const dailyFactor = dailyShape[hourOfDay];
+
+        // Weekend reduction (about 12% lower)
         const dayOfWeek = dayOfYear % 7;
         const weekendFactor = (dayOfWeek === 5 || dayOfWeek === 6) ? 0.88 : 1.0;
 
-        // Random variation (+/- 3%)
-        const randomFactor = 0.97 + Math.random() * 0.06;
+        // Weather-driven random variation (+/- 5%)
+        const randomFactor = 0.95 + seededRandom() * 0.10;
 
-        const loadFactor = seasonalFactor * hourlyShape[hourOfDay] * weekendFactor * randomFactor;
-        const existingLoad = systemPeakMW * loadFactor;
+        // Combined load factor
+        const loadFactor = seasonalFactor * dailyFactor * weekendFactor * randomFactor;
+        const baseGrid = systemPeakMW * loadFactor;
 
-        // DC loads
-        const firmDCLoad = dcCapacityMW * firmLoadFactor;
-        const flexDCLoad = dcCapacityMW * flexLoadFactor;
+        // Calculate DC service for this hour
+        const headroomForDC = Math.max(0, gridCapacity - baseGrid);
+        const dcServed = Math.min(dcMaxWants, headroomForDC);
+        const shiftedWorkload = Math.max(0, dcMaxWants - headroomForDC);
 
-        // Determine if this hour requires curtailment (top ~5% of hours)
-        const isHighLoadHour = loadFactor > 0.92 && seasonalFactor > 0.85;
-
-        const flexAtThisHour = isHighLoadHour
-            ? dcCapacityMW * flexLoadFactor * flexPeakCoincidence
-            : flexDCLoad;
-
-        const curtailedAtThisHour = isHighLoadHour
-            ? dcCapacityMW * flexLoadFactor * (1 - flexPeakCoincidence)
-            : 0;
+        const firmDC = Math.min(dcFirmBaseline, dcServed);
+        const flexBonus = Math.max(0, dcServed - dcFirmBaseline);
 
         hourlyData.push({
-            existing: existingLoad,
-            withFirmDC: existingLoad + firmDCLoad,
-            withFlexDC: existingLoad + flexAtThisHour,
-            curtailed: curtailedAtThisHour,
+            baseGrid,
+            dcServed,
+            firmDC,
+            flexBonus,
+            shiftedWorkload,
+            totalLoad: baseGrid + dcServed,
         });
     }
 
-    // Sort by total load (with firm DC) descending to create duration curve
-    const sortedByFirm = [...hourlyData].sort((a, b) => b.withFirmDC - a.withFirmDC);
+    // Sort by total load descending to create duration curve
+    const sorted = [...hourlyData].sort((a, b) => b.totalLoad - a.totalLoad);
 
-    // Sample at intervals for smooth curve
+    // Sample at intervals for smooth curve (200 points)
     const samples = 200;
     const result = [];
 
@@ -184,14 +214,12 @@ function generateLoadDurationCurve(
         result.push({
             hourNumber,
             percentile: (i / samples) * 100,
-            baseGrid: sortedByFirm[idx].existing,
-            firmDC: sortedByFirm[idx].withFirmDC - sortedByFirm[idx].existing,
-            // Flex bonus: additional capacity that can be served with same grid
-            flexBonus: sortedByFirm[idx].withFirmDC < sortedByFirm[0].existing + dcCapacityMW * firmLoadFactor * 0.95
-                ? dcCapacityMW * flexLoadFactor * (1 - flexPeakCoincidence) / flexPeakCoincidence * 0.8
-                : 0,
-            shiftedWorkload: sortedByFirm[idx].curtailed,
-            gridCapacity: sortedByFirm[0].existing + dcCapacityMW * firmLoadFactor,
+            baseGrid: sorted[idx].baseGrid,
+            firmDC: sorted[idx].firmDC,
+            flexBonus: sorted[idx].flexBonus,
+            shiftedWorkload: sorted[idx].shiftedWorkload,
+            gridCapacity,
+            dcServed: sorted[idx].dcServed,
         });
     }
 
@@ -206,7 +234,7 @@ const PeakDayTooltip = ({ active, payload, label }: any) => {
     if (!data) return null;
 
     return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 text-sm min-w-[180px]">
+        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 text-sm min-w-[200px]">
             <p className="font-bold text-gray-900 mb-2 border-b pb-1">{label}</p>
             <div className="space-y-1">
                 <div className="flex justify-between">
@@ -223,10 +251,13 @@ const PeakDayTooltip = ({ active, payload, label }: any) => {
                         <span className="font-medium" style={{ color: COLORS.flexBonus }}>+{formatMW(data.flexBonus)}</span>
                     </div>
                 )}
+                <div className="border-t pt-1 mt-1 text-xs text-gray-500">
+                    DC Served: {formatMW(data.dcActuallyServed)} of {formatMW(data.dcMaxWants)} wanted
+                </div>
                 {data.shiftedWorkload > 0 && (
-                    <div className="flex justify-between border-t pt-1 mt-1">
-                        <span className="text-red-600">Curtailed (25%):</span>
-                        <span className="font-medium text-red-600">{formatMW(data.shiftedWorkload)}</span>
+                    <div className="flex justify-between text-purple-600 font-medium">
+                        <span>Shifted:</span>
+                        <span>{formatMW(data.shiftedWorkload)}</span>
                     </div>
                 )}
             </div>
@@ -250,7 +281,7 @@ const DurationCurveTooltip = ({ active, payload }: any) => {
                     <span className="font-medium">{formatMW(data.baseGrid)}</span>
                 </div>
                 <div className="flex justify-between">
-                    <span style={{ color: COLORS.firmDCStroke }}>Standard Firm:</span>
+                    <span style={{ color: COLORS.firmDCStroke }}>Firm DC:</span>
                     <span className="font-medium" style={{ color: COLORS.firmDCStroke }}>+{formatMW(data.firmDC)}</span>
                 </div>
                 {data.flexBonus > 0 && (
@@ -260,13 +291,13 @@ const DurationCurveTooltip = ({ active, payload }: any) => {
                     </div>
                 )}
                 {data.shiftedWorkload > 0 && (
-                    <div className="flex justify-between text-red-600">
-                        <span>Curtailed (25%):</span>
-                        <span className="font-medium">{formatMW(data.shiftedWorkload)}</span>
+                    <div className="flex justify-between text-purple-600 font-medium">
+                        <span>Shifted:</span>
+                        <span>{formatMW(data.shiftedWorkload)}</span>
                     </div>
                 )}
                 <div className="border-t pt-1 mt-1 text-xs text-gray-500">
-                    Limit: {formatMW(data.gridCapacity)}
+                    Grid Limit: {formatMW(data.gridCapacity)}
                 </div>
             </div>
         </div>
@@ -286,9 +317,8 @@ export default function EnergyViewPage() {
             dataCenter.capacityMW,
             dataCenter.firmLoadFactor,
             dataCenter.flexLoadFactor,
-            dataCenter.flexPeakCoincidence,
         );
-    }, [utility.systemPeakMW, dataCenter]);
+    }, [utility.systemPeakMW, dataCenter.capacityMW, dataCenter.firmLoadFactor, dataCenter.flexLoadFactor]);
 
     const durationCurveData = useMemo(() => {
         return generateLoadDurationCurve(
@@ -296,27 +326,39 @@ export default function EnergyViewPage() {
             dataCenter.capacityMW,
             dataCenter.firmLoadFactor,
             dataCenter.flexLoadFactor,
-            dataCenter.flexPeakCoincidence,
         );
-    }, [utility.systemPeakMW, dataCenter]);
+    }, [utility.systemPeakMW, dataCenter.capacityMW, dataCenter.firmLoadFactor, dataCenter.flexLoadFactor]);
 
     // Calculate key metrics
     const metrics = useMemo(() => {
-        const firmDCMW = dataCenter.capacityMW * dataCenter.firmLoadFactor;
-        const flexDCMW = dataCenter.capacityMW * dataCenter.flexLoadFactor;
-        const curtailmentMW = flexDCMW * (1 - dataCenter.flexPeakCoincidence);
-        const flexBonusMW = curtailmentMW / dataCenter.flexPeakCoincidence;
-        const gridCapacity = utility.systemPeakMW + firmDCMW;
+        const dcFirmBaseline = dataCenter.capacityMW * dataCenter.firmLoadFactor;
+        const dcMaxWants = dataCenter.capacityMW * dataCenter.flexLoadFactor;
+        const gridCapacity = utility.systemPeakMW + dcFirmBaseline;
+
+        // The "flex bonus" is the extra DC we can serve beyond firm baseline
+        // when there's grid headroom available
+        const maxFlexBonus = dcMaxWants - dcFirmBaseline;
+
+        // Calculate hours where shifting occurs and energy metrics
+        const hoursWithShifting = peakDayData.filter(d => d.shiftedWorkload > 0).length;
+        const peakShiftedMW = Math.max(...peakDayData.map(d => d.shiftedWorkload));
+
+        // Annual flex bonus energy (hours where flex bonus is captured)
+        const annualFlexBonusHours = durationCurveData.filter(d => d.flexBonus > 0).length * (8760 / 200);
+        const avgFlexBonus = durationCurveData.reduce((sum, d) => sum + d.flexBonus, 0) / durationCurveData.length;
+        const annualFlexBonusMWh = avgFlexBonus * 8760;
 
         return {
-            firmDCMW,
-            flexDCMW,
-            curtailmentMW,
-            flexBonusMW,
+            dcFirmBaseline,
+            dcMaxWants,
             gridCapacity,
-            additionalSales: flexBonusMW * 8760 * 0.94, // 94% of year at higher capacity
+            maxFlexBonus,
+            hoursWithShifting,
+            peakShiftedMW,
+            annualFlexBonusHours,
+            annualFlexBonusMWh,
         };
-    }, [utility.systemPeakMW, dataCenter]);
+    }, [utility.systemPeakMW, dataCenter, peakDayData, durationCurveData]);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
@@ -339,22 +381,22 @@ export default function EnergyViewPage() {
                 <div className="bg-white rounded-xl border border-gray-200 p-4">
                     <p className="text-sm text-gray-500">Grid Capacity</p>
                     <p className="text-2xl font-bold text-gray-900">{formatMW(metrics.gridCapacity)}</p>
-                    <p className="text-xs text-gray-400">Base + Firm DC</p>
+                    <p className="text-xs text-gray-400">System Peak + Firm DC</p>
                 </div>
                 <div className="bg-green-50 rounded-xl border border-green-200 p-4">
-                    <p className="text-sm text-green-700">Firm DC Load</p>
-                    <p className="text-2xl font-bold text-green-600">{formatMW(metrics.firmDCMW)}</p>
+                    <p className="text-sm text-green-700">Firm DC Baseline</p>
+                    <p className="text-2xl font-bold text-green-600">{formatMW(metrics.dcFirmBaseline)}</p>
                     <p className="text-xs text-green-500">{dataCenter.capacityMW} MW @ {(dataCenter.firmLoadFactor * 100).toFixed(0)}% LF</p>
                 </div>
                 <div className="bg-emerald-50 rounded-xl border border-emerald-200 p-4">
-                    <p className="text-sm text-emerald-700">Flex Bonus Capacity</p>
-                    <p className="text-2xl font-bold text-emerald-600">+{formatMW(metrics.flexBonusMW)}</p>
-                    <p className="text-xs text-emerald-500">Additional MW unlocked</p>
+                    <p className="text-sm text-emerald-700">Max Flex Bonus</p>
+                    <p className="text-2xl font-bold text-emerald-600">+{formatMW(metrics.maxFlexBonus)}</p>
+                    <p className="text-xs text-emerald-500">Additional when headroom exists</p>
                 </div>
-                <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
-                    <p className="text-sm text-amber-700">Peak Curtailment</p>
-                    <p className="text-2xl font-bold text-amber-600">{formatMW(metrics.curtailmentMW)}</p>
-                    <p className="text-xs text-amber-500">25% reduction at peak</p>
+                <div className="bg-purple-50 rounded-xl border border-purple-200 p-4">
+                    <p className="text-sm text-purple-700">Peak Shifted Load</p>
+                    <p className="text-2xl font-bold text-purple-600">{formatMW(metrics.peakShiftedMW)}</p>
+                    <p className="text-xs text-purple-500">{metrics.hoursWithShifting} peak hours/day</p>
                 </div>
             </div>
 
@@ -428,7 +470,7 @@ export default function EnergyViewPage() {
                                 />
                                 <Tooltip content={<PeakDayTooltip />} />
 
-                                {/* Base Grid - bottom layer */}
+                                {/* Base Grid - bottom layer (gray) */}
                                 <Area
                                     type="monotone"
                                     dataKey="baseGrid"
@@ -439,7 +481,7 @@ export default function EnergyViewPage() {
                                     strokeWidth={1}
                                 />
 
-                                {/* Firm DC Load - stacked on base */}
+                                {/* Firm DC Load - stacked on base (light green) */}
                                 <Area
                                     type="monotone"
                                     dataKey="firmDC"
@@ -450,7 +492,7 @@ export default function EnergyViewPage() {
                                     strokeWidth={1}
                                 />
 
-                                {/* Flex Bonus - additional capacity unlocked */}
+                                {/* Flex Bonus - additional DC when headroom exists (dark green) */}
                                 <Area
                                     type="monotone"
                                     dataKey="flexBonus"
@@ -461,7 +503,7 @@ export default function EnergyViewPage() {
                                     strokeWidth={1}
                                 />
 
-                                {/* Shifted Workload - hatched pattern during peak */}
+                                {/* Shifted Workload - load that would exceed grid capacity (hatched purple) */}
                                 {showShiftedWorkload && (
                                     <Area
                                         type="monotone"
@@ -470,12 +512,12 @@ export default function EnergyViewPage() {
                                         stackId="main"
                                         fill="url(#hatchPattern)"
                                         stroke={COLORS.shiftedHatch}
-                                        strokeWidth={1}
-                                        strokeDasharray="4 2"
+                                        strokeWidth={2}
+                                        strokeDasharray="6 3"
                                     />
                                 )}
 
-                                {/* Grid Capacity Line */}
+                                {/* Grid Capacity Line (red dashed) */}
                                 <ReferenceLine
                                     y={metrics.gridCapacity}
                                     stroke={COLORS.gridCapacity}
@@ -495,15 +537,15 @@ export default function EnergyViewPage() {
                         <div className="flex flex-wrap justify-center gap-6 mt-4 pt-4 border-t border-gray-100">
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.baseGrid, border: `1px solid ${COLORS.baseGridStroke}` }}></div>
-                                <span className="text-sm text-gray-600">Base Grid</span>
+                                <span className="text-sm text-gray-600">Base Grid Load</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.firmDC, border: `1px solid ${COLORS.firmDCStroke}` }}></div>
-                                <span className="text-sm text-gray-600">Firm DC ({formatMW(dataCenter.capacityMW)})</span>
+                                <span className="text-sm text-gray-600">Firm DC ({formatMW(metrics.dcFirmBaseline)})</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.flexBonus }}></div>
-                                <span className="text-sm text-gray-600">Flex Bonus (+{formatMW(metrics.flexBonusMW)})</span>
+                                <span className="text-sm text-gray-600">Flex Bonus (up to +{formatMW(metrics.maxFlexBonus)})</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ background: `repeating-linear-gradient(45deg, transparent, transparent 2px, ${COLORS.shiftedHatch} 2px, ${COLORS.shiftedHatch} 4px)` }}></div>
@@ -518,9 +560,10 @@ export default function EnergyViewPage() {
                         {/* Annotation */}
                         <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
                             <p className="text-sm text-amber-800">
-                                <strong>25% Load Curtailment:</strong> During afternoon peak hours (12pm-8pm),
-                                flexible data centers reduce grid draw by {formatMW(metrics.curtailmentMW)} by
-                                deferring non-time-sensitive workloads to off-peak hours.
+                                <strong>Load Shifting:</strong> During {metrics.hoursWithShifting} afternoon peak hours,
+                                flexible data centers shift up to {formatMW(metrics.peakShiftedMW)} of workload to off-peak hours
+                                when the combined load (base grid + DC) would exceed grid capacity. This enables the DC to
+                                capture {formatMW(metrics.maxFlexBonus)} more energy during off-peak hours.
                             </p>
                         </div>
                     </div>
@@ -533,7 +576,7 @@ export default function EnergyViewPage() {
                             <AreaChart data={durationCurveData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
                                 <defs>
                                     <pattern id="hatchPatternDuration" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
-                                        <line x1="0" y1="0" x2="0" y2="8" stroke={COLORS.gridCapacity} strokeWidth="2" />
+                                        <line x1="0" y1="0" x2="0" y2="8" stroke={COLORS.shiftedHatch} strokeWidth="2" />
                                     </pattern>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -562,7 +605,7 @@ export default function EnergyViewPage() {
                                 />
                                 <Tooltip content={<DurationCurveTooltip />} />
 
-                                {/* Base Grid */}
+                                {/* Base Grid (gray) */}
                                 <Area
                                     type="monotone"
                                     dataKey="baseGrid"
@@ -573,7 +616,7 @@ export default function EnergyViewPage() {
                                     strokeWidth={1}
                                 />
 
-                                {/* Firm DC */}
+                                {/* Firm DC (light green) */}
                                 <Area
                                     type="monotone"
                                     dataKey="firmDC"
@@ -584,7 +627,7 @@ export default function EnergyViewPage() {
                                     strokeWidth={1}
                                 />
 
-                                {/* Flex Bonus - The "Profit Wedge" */}
+                                {/* Flex Bonus - The "Profit Wedge" (dark green) */}
                                 <Area
                                     type="monotone"
                                     dataKey="flexBonus"
@@ -595,20 +638,21 @@ export default function EnergyViewPage() {
                                     strokeWidth={1}
                                 />
 
-                                {/* Shifted workload - above grid capacity */}
+                                {/* Shifted workload - above grid capacity (hatched purple) */}
                                 {showShiftedWorkload && (
                                     <Area
                                         type="monotone"
                                         dataKey="shiftedWorkload"
-                                        name="Curtailed"
+                                        name="Shifted"
                                         stackId="main"
                                         fill="url(#hatchPatternDuration)"
-                                        stroke={COLORS.gridCapacity}
-                                        strokeWidth={1}
+                                        stroke={COLORS.shiftedHatch}
+                                        strokeWidth={2}
+                                        strokeDasharray="6 3"
                                     />
                                 )}
 
-                                {/* Grid Capacity Line */}
+                                {/* Grid Capacity Line (red dashed) */}
                                 <ReferenceLine
                                     y={metrics.gridCapacity}
                                     stroke={COLORS.gridCapacity}
@@ -622,7 +666,7 @@ export default function EnergyViewPage() {
                         <div className="flex flex-wrap justify-center gap-6 mt-4 pt-4 border-t border-gray-100">
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.baseGrid, border: `1px solid ${COLORS.baseGridStroke}` }}></div>
-                                <span className="text-sm text-gray-600">Base Grid</span>
+                                <span className="text-sm text-gray-600">Base Grid Load</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.firmDC, border: `1px solid ${COLORS.firmDCStroke}` }}></div>
@@ -631,6 +675,10 @@ export default function EnergyViewPage() {
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.flexBonus }}></div>
                                 <span className="text-sm text-gray-600">Flex Bonus ("Profit Wedge")</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded" style={{ background: `repeating-linear-gradient(45deg, transparent, transparent 2px, ${COLORS.shiftedHatch} 2px, ${COLORS.shiftedHatch} 4px)` }}></div>
+                                <span className="text-sm text-gray-600">Shifted Workload</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-8 h-0.5" style={{ borderTop: `2px dashed ${COLORS.gridCapacity}` }}></div>
@@ -642,11 +690,12 @@ export default function EnergyViewPage() {
                         <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
                             <p className="text-sm font-semibold text-green-900 mb-1">The "Profit Wedge"</p>
                             <p className="text-sm text-green-800">
-                                The dark green area represents <strong>+{formatMW(metrics.flexBonusMW)} of additional capacity</strong> that
-                                can be served on the same grid infrastructure. Because flexible data centers only draw 75% of capacity
-                                during peak hours, the grid can support 33% more total data center load. This unlocks approximately{' '}
-                                <strong>{(metrics.additionalSales / 1000000).toFixed(1)} million MWh</strong> of additional annual energy sales
-                                (running 94% of the year).
+                                The dark green area represents additional energy captured when grid headroom allows the DC
+                                to run above its firm baseline ({(dataCenter.firmLoadFactor * 100).toFixed(0)}% LF) up to its
+                                flexible capacity ({(dataCenter.flexLoadFactor * 100).toFixed(0)}% LF). This unlocks
+                                approximately <strong>{(metrics.annualFlexBonusMWh / 1000000).toFixed(2)} million MWh</strong> of
+                                additional annual energy sales. The purple hatched area shows load that must be shifted to
+                                off-peak hours when grid capacity is constrained.
                             </p>
                         </div>
                     </div>
@@ -658,15 +707,14 @@ export default function EnergyViewPage() {
                 <h3 className="font-semibold text-blue-900 mb-3">About This Visualization</h3>
                 <p className="text-sm text-blue-800 mb-3">
                     These charts are <strong>illustrative representations</strong> designed to communicate the framework
-                    for understanding how flexible data center operations benefit grid capacity. The load shapes are
-                    based on typical patterns for large utility service territories:
+                    for understanding how flexible data center operations benefit grid capacity. Key assumptions:
                 </p>
                 <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                    <li>Base grid follows typical summer peak day shape (higher afternoon, lower overnight)</li>
-                    <li>Data center load is relatively flat due to high load factor ({(dataCenter.firmLoadFactor * 100).toFixed(0)}% firm, {(dataCenter.flexLoadFactor * 100).toFixed(0)}% flexible)</li>
-                    <li>Peak hours assumed to be 12pm-8pm when grid stress is highest</li>
-                    <li>25% curtailment during peaks based on EPRI DCFlex field demonstrations</li>
-                    <li>Annual curve generated from 8,760 hours with seasonal and daily variation</li>
+                    <li>Grid capacity = system peak ({formatMW(utility.systemPeakMW)}) + firm DC baseline ({formatMW(metrics.dcFirmBaseline)})</li>
+                    <li>DC wants to run at {(dataCenter.flexLoadFactor * 100).toFixed(0)}% load factor whenever grid headroom allows</li>
+                    <li>When base grid + DC would exceed capacity, DC shifts load to off-peak hours</li>
+                    <li>Base grid follows typical summer peak day shape (ERCOT/PJM patterns)</li>
+                    <li>Annual curve includes seasonal, daily, weekend, and weather variation</li>
                 </ul>
             </div>
 
