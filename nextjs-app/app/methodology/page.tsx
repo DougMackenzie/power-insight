@@ -91,7 +91,7 @@ export default function MethodologyPage() {
                     <p className="font-semibold text-gray-900 mb-2">About the Flexibility Assumptions</p>
                     <p className="text-gray-600">
                         The 25% peak reduction capability is based on{' '}
-                        <a href="https://msites.epri.com/dcflex" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href="https://dcflex.epri.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                             EPRI's DCFlex initiative
                         </a>
                         , a 2024 field demonstration at a major data center that achieved 25% sustained power reduction
@@ -243,10 +243,10 @@ export default function MethodologyPage() {
                                         <td className="py-2">Average residential monthly bill</td>
                                         <td className="text-right font-medium">${DEFAULT_UTILITY.averageMonthlyBill}</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.eia.gov/electricity/sales_revenue_price/pdf/table5_a.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                EIA Table 5.a - Average Monthly Bill by State (2023)
+                                            <a href="https://www.eia.gov/electricity/sales_revenue_price/pdf/table_5A.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                EIA Table 5A - Average Monthly Bill by State
                                             </a>
-                                            <span className="block text-gray-400">National average: $144.29; Oklahoma: $130.15</span>
+                                            <span className="block text-gray-400">National average: ~$138/month (2023)</span>
                                         </td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
@@ -273,8 +273,8 @@ export default function MethodologyPage() {
                                         <td className="py-2">General inflation rate</td>
                                         <td className="text-right font-medium">{(TIME_PARAMS.generalInflation * 100).toFixed(1)}%/yr</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.bls.gov/cpi/tables/supplemental-files/historical-cpi-u-202312.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                BLS CPI Historical Data
+                                            <a href="https://www.bls.gov/cpi/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                Bureau of Labor Statistics CPI Data
                                             </a>
                                             <span className="block text-gray-400">Federal Reserve 2% target + utility capital cost premium</span>
                                         </td>
@@ -302,8 +302,8 @@ export default function MethodologyPage() {
                                         <td className="py-2">Transmission cost per MW</td>
                                         <td className="text-right font-medium">{formatCurrency(INFRASTRUCTURE_COSTS.transmissionCostPerMW)}/MW</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://cdn.misoenergy.org/MTEP23%20Executive%20Summary628429.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                MISO MTEP23 Transmission Expansion Plan, pg 15-18
+                                            <a href="https://cdn.misoenergy.org/MTEP23%20Executive%20Summary630586.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                MISO MTEP23 Transmission Expansion Plan
                                             </a>
                                             <span className="block text-gray-400">Range: $200k-$500k/MW depending on voltage; $350k median</span>
                                         </td>
@@ -312,18 +312,18 @@ export default function MethodologyPage() {
                                         <td className="py-2">Distribution cost per MW</td>
                                         <td className="text-right font-medium">{formatCurrency(INFRASTRUCTURE_COSTS.distributionCostPerMW)}/MW</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.nrel.gov/docs/fy21osti/77324.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                NREL: The Cost of Distribution System Upgrades (2021)
+                                            <a href="https://docs.nrel.gov/docs/fy18osti/70710.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                NREL: The Cost of Distribution System Upgrades (2018)
                                             </a>
-                                            <span className="block text-gray-400">Table 2: Substation + feeder upgrades for large load interconnection</span>
+                                            <span className="block text-gray-400">Substation + feeder upgrades for large load interconnection</span>
                                         </td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">Annual infrastructure upgrade rate</td>
                                         <td className="text-right font-medium">{(INFRASTRUCTURE_COSTS.annualBaselineUpgradePercent * 100).toFixed(1)}%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.brattle.com/wp-content/uploads/2021/05/16726_maintaining_reliability_in_the_modern_power_system.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                Brattle Group: Maintaining Reliability (2019), pg 12
+                                            <a href="https://www.brattle.com/wp-content/uploads/2021/10/2021-10-12-Brattle-GridStrategies-Transmission-Planning-Report_v2.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                Brattle/Grid Strategies: Transmission Planning for the 21st Century (2021)
                                             </a>
                                             <span className="block text-gray-400">Aging infrastructure replacement: 1-2% of rate base annually</span>
                                         </td>
@@ -332,8 +332,8 @@ export default function MethodologyPage() {
                                         <td className="py-2">Capacity cost per MW-year</td>
                                         <td className="text-right font-medium">{formatCurrency(INFRASTRUCTURE_COSTS.capacityCostPerMWYear)}/MW-yr</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://atb.nrel.gov/electricity/2024/natural_gas_plants" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                NREL ATB 2024: Natural Gas Plants
+                                            <a href="https://atb.nrel.gov/electricity/2024/fossil_energy_technologies" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                NREL ATB 2024: Fossil Energy Technologies
                                             </a>
                                             <span className="block text-gray-400">Peaker capacity cost of $98,000-$175,000/MW-yr; annualized CAPEX + fixed O&M</span>
                                         </td>
@@ -361,8 +361,8 @@ export default function MethodologyPage() {
                                         <td className="py-2">Base residential allocation</td>
                                         <td className="text-right font-medium">{(DEFAULT_UTILITY.baseResidentialAllocation * 100).toFixed(0)}%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://pubs.naruc.org/pub/53A3D31D-2354-D714-51AE-6FD788BF7CC1" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                NARUC Electric Utility Cost Allocation Manual (2021), Ch. 4
+                                            <a href="https://www.raponline.org/wp-content/uploads/2023/09/rap-lazar-chernick-marcus-lebel-electric-cost-allocation-new-era-2020-january.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                RAP: Electric Cost Allocation for a New Era (2020)
                                             </a>
                                             <span className="block text-gray-400">Typical residential class allocation: 35-45% of revenue requirement</span>
                                         </td>
@@ -371,8 +371,8 @@ export default function MethodologyPage() {
                                         <td className="py-2">Allocation weighting method</td>
                                         <td className="text-right font-medium">40/40/20</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://pubs.naruc.org/pub/53A3D31D-2354-D714-51AE-6FD788BF7CC1" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                NARUC Cost Allocation Manual, Ch. 5
+                                            <a href="https://www.raponline.org/knowledge-center/electric-cost-allocation-new-era/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                RAP Cost Allocation Manual
                                             </a>
                                             <span className="block text-gray-400">40% volumetric (kWh), 40% demand (peak MW), 20% customer count</span>
                                         </td>
@@ -381,8 +381,8 @@ export default function MethodologyPage() {
                                         <td className="py-2">Demand charge rate</td>
                                         <td className="text-right font-medium">$9,050/MW-mo</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.psoklahoma.com/content/dam/aepr/pso/regulatory/tariffs/tariffs-oklahoma/LPL.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                PSO Large Power & Light Tariff (LPL), Schedule
+                                            <a href="https://www.psoklahoma.com/company/about/rates/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                PSO Rate Schedules - Large Power & Light (LPL) Tariff
                                             </a>
                                             <span className="block text-gray-400">Demand charge for large industrial/commercial customers</span>
                                         </td>
@@ -410,18 +410,18 @@ export default function MethodologyPage() {
                                         <td className="py-2">Firm load factor</td>
                                         <td className="text-right font-medium">{(DEFAULT_DATA_CENTER.firmLoadFactor * 100).toFixed(0)}%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://eta.lbl.gov/publications/united-states-data-center-energy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                            <a href="https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report_1.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                                 LBNL: U.S. Data Center Energy Usage Report (2024)
                                             </a>
-                                            <span className="block text-gray-400">Section 3.2: Typical hyperscale facilities operate 75-85% avg utilization</span>
+                                            <span className="block text-gray-400">Typical hyperscale facilities operate 75-85% avg utilization</span>
                                         </td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">Flexible load factor</td>
                                         <td className="text-right font-medium">{(DEFAULT_DATA_CENTER.flexLoadFactor * 100).toFixed(0)}%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://arxiv.org/html/2507.00909v1" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                arXiv: DCFlex Phoenix Field Demonstration (2024)
+                                            <a href="https://arxiv.org/abs/2507.00909" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                arXiv: Turning AI Data Centers into Grid-Interactive Assets (2025)
                                             </a>
                                             <span className="block text-gray-400">With load shifting, average utilization increases to ~95%</span>
                                         </td>
@@ -431,7 +431,7 @@ export default function MethodologyPage() {
                                         <td className="text-right font-medium">{((1 - DEFAULT_DATA_CENTER.flexPeakCoincidence) * 100).toFixed(0)}%</td>
                                         <td className="pl-4 text-xs">
                                             <a href="https://spectrum.ieee.org/dcflex-data-center-flexibility" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                IEEE Spectrum: DCFlex Results (Oct 2024)
+                                                IEEE Spectrum: Big Tech Tests Data Center Flexibility (2025)
                                             </a>
                                             <span className="block text-gray-400">Field-validated: 25% sustained reduction during 3-hour peak events</span>
                                         </td>
@@ -445,25 +445,25 @@ export default function MethodologyPage() {
                             <h4 className="font-semibold text-gray-900 mb-2">Additional Industry References</h4>
                             <ul className="space-y-3 text-sm">
                                 <li>
-                                    <a href="https://www.pjm.com/-/media/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.ashx" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                    <a href="https://www.pjm.com/-/media/DotCom/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
                                         PJM 2025/26 Base Residual Auction Report
                                     </a>
-                                    <span className="block text-xs text-gray-500 ml-0">Page 1: Clearing price $269.92/MW-day; Page 5: Load forecast methodology</span>
+                                    <span className="block text-xs text-gray-500 ml-0">Clearing price $269.92/MW-day RTO; higher in constrained zones</span>
                                 </li>
                                 <li>
-                                    <a href="https://www.gridstrategiesllc.com/s/National-Load-Growth-Report-July-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
-                                        Grid Strategies: National Load Growth Report (July 2024)
+                                    <a href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                        Grid Strategies: National Load Growth Report (Dec 2024)
                                     </a>
-                                    <span className="block text-xs text-gray-500 ml-0">Page 8: Data center contribution to load growth by region</span>
+                                    <span className="block text-xs text-gray-500 ml-0">Data center contribution to load growth by region</span>
                                 </li>
                                 <li>
-                                    <a href="https://atb.nrel.gov/electricity/2024/data" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                    <a href="https://atb.nrel.gov/electricity/2024/index" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
                                         NREL Annual Technology Baseline 2024
                                     </a>
                                     <span className="block text-xs text-gray-500 ml-0">Generation technology capital and operating costs</span>
                                 </li>
                                 <li>
-                                    <a href="https://msites.epri.com/dcflex" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                    <a href="https://dcflex.epri.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
                                         EPRI DCFlex Initiative
                                     </a>
                                     <span className="block text-xs text-gray-500 ml-0">45+ industry collaborators validating data center flexibility</span>
@@ -546,17 +546,17 @@ export default function MethodologyPage() {
                             <ul className="list-disc list-inside text-sm text-gray-500 space-y-1">
                                 <li>
                                     <a href="https://spectrum.ieee.org/dcflex-data-center-flexibility" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                        IEEE Spectrum: Big Tech Tests Data Center Flexibility (2024)
+                                        IEEE Spectrum: Big Tech Tests Data Center Flexibility (2025)
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="https://arxiv.org/html/2507.00909v1" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    <a href="https://arxiv.org/abs/2507.00909" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                         arXiv: Turning AI Data Centers into Grid-Interactive Assets - Phoenix Field Demonstration
                                     </a>
                                 </li>
                                 <li>
                                     <a href="https://www.latitudemedia.com/news/catalyst-the-mechanics-of-data-center-flexibility/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                        Latitude Media: The Mechanics of Data Center Flexibility (2024)
+                                        Latitude Media: The Mechanics of Data Center Flexibility
                                     </a>
                                     {' '}- includes 90% preemptible workload finding
                                 </li>
@@ -566,7 +566,7 @@ export default function MethodologyPage() {
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="https://msites.epri.com/dcflex" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    <a href="https://dcflex.epri.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                         EPRI DCFlex Initiative
                                     </a>
                                     {' '}- 45+ industry collaborators including major cloud and AI companies
@@ -611,8 +611,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Base Residential Allocation</td>
                                         <td className="text-right">40%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://pubs.naruc.org/pub/53A3D31D-2354-D714-51AE-6FD788BF7CC1" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                NARUC Cost Allocation Manual, Ch. 4, p. 45-52
+                                            <a href="https://www.raponline.org/wp-content/uploads/2023/09/rap-lazar-chernick-marcus-lebel-electric-cost-allocation-new-era-2020-january.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                RAP: Electric Cost Allocation for a New Era (2020)
                                             </a>
                                         </td>
                                     </tr>
@@ -637,8 +637,8 @@ export default function MethodologyPage() {
                             <p className="mt-3 text-sm text-gray-500">
                                 <strong>Allocation Method:</strong> Infrastructure costs allocated through traditional rate base using
                                 cost-of-service methodology per{' '}
-                                <a href="https://www.ferc.gov/sites/default/files/2020-04/APPA-cost-based-rates.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                    FERC Order 888 principles
+                                <a href="https://www.ferc.gov/industries-data/electric/industry-activities/open-access-transmission-tariff-oatt-reform" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    FERC open access principles
                                 </a>. State PUC sets rates based on embedded costs. Residential share based on
                                 weighted blend: 40% volumetric (kWh), 40% demand (peak contribution), 20% customer count.
                             </p>
@@ -666,8 +666,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Base Residential Allocation</td>
                                         <td className="text-right">35%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.pjm.com/~/media/committees-groups/committees/mc/2023/20231108/item-05---pjm-class-cost-allocation-study.ashx" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                PJM Class Cost Allocation Study (2023)
+                                            <a href="https://www.pjm.com/-/media/DotCom/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                PJM Base Residual Auction Report (2024)
                                             </a>
                                         </td>
                                     </tr>
@@ -682,8 +682,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">2025/26 Capacity Price</td>
                                         <td className="text-right font-bold text-amber-700">$269.92/MW-day</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.pjm.com/-/media/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.ashx" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                PJM BRA Report, pg 1, Table 1
+                                            <a href="https://www.pjm.com/-/media/DotCom/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                PJM 2025/26 BRA Report
                                             </a>
                                         </td>
                                     </tr>
@@ -691,7 +691,7 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Price vs 2024/25</td>
                                         <td className="text-right text-red-600">~10× increase</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.pjm.com/-/media/markets-ops/rpm/rpm-auction-info/2024-2025/2024-2025-base-residual-auction-report.ashx" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                            <a href="https://www.pjm.com/-/media/DotCom/markets-ops/rpm/rpm-auction-info/2024-2025/2024-2025-base-residual-auction-report.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                                 Prior auction: $28.92/MW-day
                                             </a>
                                         </td>
@@ -700,8 +700,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Data center load attribution</td>
                                         <td className="text-right">63%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.gridstrategiesllc.com/s/National-Load-Growth-Report-July-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                Grid Strategies Report, pg 8
+                                            <a href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                Grid Strategies Load Growth Report
                                             </a>
                                         </td>
                                     </tr>
@@ -712,8 +712,8 @@ export default function MethodologyPage() {
                                 $269.92/MW-day for 2025/26. Our model increases residential allocation by up to 15% when
                                 capacity prices exceed $100/MW-day to reflect cost pressure spreading across customer classes, per
                                 analysis in{' '}
-                                <a href="https://www.utilitydive.com/news/pjm-capacity-auction-price-data-centers/721147/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                    Utility Dive coverage
+                                <a href="https://www.pjm.com/-/media/DotCom/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    PJM auction results
                                 </a>.
                             </p>
                         </div>
@@ -740,8 +740,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Base Residential Allocation</td>
                                         <td className="text-right">30%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.puc.texas.gov/agency/rulesnlaws/subrules/electric/25.192/25.192.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                Texas PUC Rule 25.192 - Transmission Cost Allocation
+                                            <a href="https://www.puc.texas.gov/industry/electric/business/retailmkt.aspx" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                Texas PUC Retail Market Information
                                             </a>
                                         </td>
                                     </tr>
@@ -756,8 +756,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Capacity Market</td>
                                         <td className="text-right">None</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.potomaceconomics.com/wp-content/uploads/2024/05/2023-State-of-the-Market-Report.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                Potomac Economics ERCOT SOTM 2023, pg 5
+                                            <a href="https://www.potomaceconomics.com/wp-content/uploads/2024/05/2023-State-of-the-Market-Report_Final.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                Potomac Economics: ERCOT State of the Market 2023
                                             </a>
                                         </td>
                                     </tr>
@@ -772,8 +772,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">DC share of load growth</td>
                                         <td className="text-right">46%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.ercot.com/files/docs/2024/05/09/ERCOT_Forecast_Long-Term_Report_May2024.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                ERCOT Long-Term Forecast (May 2024), pg 12
+                                            <a href="https://www.ercot.com/gridinfo/load/forecast" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                ERCOT Long-Term Load Forecast
                                             </a>
                                         </td>
                                     </tr>
@@ -812,8 +812,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Base Residential Allocation</td>
                                         <td className="text-right">40%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.occeweb.com/pu/PSO/2024-Tariffs/PSO-Tariff.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                PSO Rate Schedule (OCC-approved tariffs)
+                                            <a href="https://www.psoklahoma.com/company/about/rates/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                PSO Rate Schedules
                                             </a>
                                         </td>
                                     </tr>
@@ -828,8 +828,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Capacity Market</td>
                                         <td className="text-right">None</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://www.spp.org/documents/64037/spp%20101%20-%20markets.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                SPP Markets 101, pg 8
+                                            <a href="https://www.spp.org/markets-operations/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                SPP Markets & Operations
                                             </a>
                                         </td>
                                     </tr>
@@ -837,8 +837,8 @@ export default function MethodologyPage() {
                             </table>
                             <p className="mt-3 text-sm text-gray-500">
                                 <strong>Allocation Method:</strong> SPP operates an energy market but no mandatory capacity market per{' '}
-                                <a href="https://www.spp.org/engineering/resource-adequacy/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                    SPP Resource Adequacy requirements
+                                <a href="https://www.spp.org/markets-operations/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    SPP Market Operations
                                 </a>.
                                 Resource adequacy achieved through bilateral contracts. Cost allocation similar to traditional regulated markets.
                             </p>
@@ -866,8 +866,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">Base Residential Allocation</td>
                                         <td className="text-right">38%</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://cdn.misoenergy.org/PY2024-25%20Planning%20Resource%20Auction%20Results631107.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                MISO PRA Results (2024), cost allocation section
+                                            <a href="https://www.misoenergy.org/planning/transmission-planning/mtep/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                MISO Transmission Expansion Planning
                                             </a>
                                         </td>
                                     </tr>
@@ -875,8 +875,8 @@ export default function MethodologyPage() {
                                         <td className="py-2 font-medium">2024/25 Capacity Price</td>
                                         <td className="text-right">$30/MW-day</td>
                                         <td className="pl-4 text-xs">
-                                            <a href="https://cdn.misoenergy.org/PY2024-25%20Planning%20Resource%20Auction%20Results631107.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                MISO PRA Results (April 2024), pg 2
+                                            <a href="https://www.misoenergy.org/markets-and-operations/resource-adequacy/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                MISO Resource Adequacy
                                             </a>
                                         </td>
                                     </tr>
@@ -885,7 +885,7 @@ export default function MethodologyPage() {
                             <p className="mt-3 text-sm text-gray-500">
                                 MISO's Planning Resource Auction clears at significantly lower prices than PJM due to different
                                 market design and resource mix. Many vertically integrated utilities still operate within MISO per{' '}
-                                <a href="https://www.misoenergy.org/about/media-center/miso-101/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                <a href="https://www.misoenergy.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                     MISO market overview
                                 </a>.
                             </p>
@@ -906,8 +906,8 @@ export default function MethodologyPage() {
                             <p className="mt-3 text-sm text-gray-600">
                                 Final allocation clamped to 20-55% range to maintain reasonable bounds regardless of market conditions.
                                 See{' '}
-                                <a href="https://pubs.naruc.org/pub/53A3D31D-2354-D714-51AE-6FD788BF7CC1" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                    NARUC Cost Allocation Manual, Chapter 6
+                                <a href="https://www.raponline.org/knowledge-center/electric-cost-allocation-new-era/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    RAP: Electric Cost Allocation for a New Era
                                 </a>{' '}
                                 for discussion of allocation bounds in utility ratemaking.
                             </p>
