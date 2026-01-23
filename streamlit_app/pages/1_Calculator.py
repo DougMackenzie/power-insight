@@ -280,16 +280,8 @@ def main():
         # Quick presets
         st.divider()
         st.caption("**Quick Presets**")
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("PSO", use_container_width=True):
-                st.session_state.utility['residential_customers'] = 560000
-                st.session_state.utility['avg_monthly_bill'] = 130
-                st.session_state.utility['system_peak_mw'] = 4000
-                st.session_state.datacenter['capacity_mw'] = 1000
-                st.session_state.datacenter['onsite_generation_mw'] = 200
-                st.rerun()
-        with col2:
             if st.button("Small Utility", use_container_width=True):
                 st.session_state.utility['residential_customers'] = 100000
                 st.session_state.utility['avg_monthly_bill'] = 125
@@ -297,9 +289,7 @@ def main():
                 st.session_state.datacenter['capacity_mw'] = 500
                 st.session_state.datacenter['onsite_generation_mw'] = 100
                 st.rerun()
-
-        col1, col2 = st.columns(2)
-        with col1:
+        with col2:
             if st.button("Large ISO", use_container_width=True):
                 st.session_state.utility['residential_customers'] = 2000000
                 st.session_state.utility['avg_monthly_bill'] = 150
@@ -307,7 +297,7 @@ def main():
                 st.session_state.datacenter['capacity_mw'] = 5000
                 st.session_state.datacenter['onsite_generation_mw'] = 1000
                 st.rerun()
-        with col2:
+        with col3:
             if st.button("High Impact", use_container_width=True):
                 st.session_state.utility['residential_customers'] = 300000
                 st.session_state.utility['avg_monthly_bill'] = 135

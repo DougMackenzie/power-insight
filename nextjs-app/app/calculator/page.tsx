@@ -369,20 +369,6 @@ export default function CalculatorPage() {
                             <button
                                 onClick={() => {
                                     updateUtility({
-                                        residentialCustomers: 560000,
-                                        averageMonthlyBill: 130,
-                                        systemPeakMW: 4000,
-                                    });
-                                    updateDataCenter({ capacityMW: 1000, onsiteGenerationMW: 200 });
-                                }}
-                                className="w-full text-left px-3 py-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50"
-                            >
-                                <span className="font-medium">PSO</span>
-                                <span className="text-gray-500"> - 560k customers, 4 GW peak, 1 GW data center</span>
-                            </button>
-                            <button
-                                onClick={() => {
-                                    updateUtility({
                                         residentialCustomers: 100000,
                                         averageMonthlyBill: 125,
                                         systemPeakMW: 1500,

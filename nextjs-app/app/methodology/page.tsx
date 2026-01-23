@@ -164,7 +164,13 @@ export default function MethodologyPage() {
                             <p className="text-sm">
                                 <strong>Why 95% load factor for flexible?</strong> By shifting deferrable workloads (AI training, batch jobs)
                                 to off-peak hours, data centers can run at higher average utilization while reducing peak contribution.
-                                This is more efficient than running at constant 80% regardless of grid conditions.
+                            </p>
+                            <p className="text-sm mt-2">
+                                <strong>Note on firm load behavior:</strong> Firm data centers don't run at a constant 80%—they fluctuate
+                                between roughly 70-100% of interconnected capacity based on IT workload demands. The key difference is that
+                                they <em>cannot coordinate</em> their load reductions with grid stress events. When the grid needs relief during
+                                peak hours, a firm data center may happen to be running at 90% or 100%, while a flexible data center can
+                                deliberately curtail to 75% of capacity.
                             </p>
                         </div>
 
@@ -183,12 +189,64 @@ export default function MethodologyPage() {
                             </p>
                         </div>
 
-                        <p className="mt-6"><strong>Revenue Offset:</strong></p>
-                        <ul className="list-disc list-inside space-y-1 ml-4">
-                            <li>Demand charges: ${DC_RATE_STRUCTURE.demandChargePerMWMonth.toLocaleString()}/MW-month (based on coincident peak contribution)</li>
-                            <li>Energy margin: ${DC_RATE_STRUCTURE.energyMarginPerMWh}/MWh (utility's wholesale spread on energy sales)</li>
-                            <li>Higher load factor = more energy sold = more revenue to offset infrastructure costs</li>
-                        </ul>
+                        <p className="mt-6"><strong>Revenue Offset (DC Revenue Contribution):</strong></p>
+                        <p className="text-sm mb-3">
+                            Data centers generate significant revenue for utilities, which offsets infrastructure costs before
+                            any net impact flows to residential customers. In some scenarios, revenue can exceed infrastructure
+                            costs, resulting in a net benefit to ratepayers.
+                        </p>
+
+                        <div className="bg-gray-50 p-4 rounded-lg space-y-4 text-sm">
+                            <div>
+                                <span className="font-semibold text-gray-900">1. Energy Revenue (Volume × Margin)</span>
+                                <p className="mt-1">
+                                    Utilities earn margin on each MWh sold: ${DC_RATE_STRUCTURE.energyMarginPerMWh}/MWh wholesale-to-retail spread.
+                                    This margin contributes to the utility's revenue requirement, which is then allocated across all customers.
+                                </p>
+                                <div className="mt-2 pl-4 border-l-2 border-blue-300">
+                                    <p><strong>Firm (80% LF):</strong> 1,000 MW × 80% × 8,760 hrs = 7,008,000 MWh/year</p>
+                                    <p><strong>Flexible (95% LF):</strong> 1,000 MW × 95% × 8,760 hrs = 8,322,000 MWh/year</p>
+                                    <p className="text-green-700 font-medium mt-1">
+                                        Flexible generates 19% more energy revenue (~$6.4M more annually at same capacity)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span className="font-semibold text-gray-900">2. Demand Charge Revenue (Peak Billing Consistency)</span>
+                                <p className="mt-1">
+                                    Large customers pay demand charges based on their highest usage during billing periods.
+                                    Rate: ${DC_RATE_STRUCTURE.demandChargePerMWMonth.toLocaleString()}/MW-month.
+                                </p>
+                                <div className="mt-2 pl-4 border-l-2 border-amber-300">
+                                    <p><strong>Firm data center behavior:</strong> Hits 100% of interconnected capacity only 1-2 times per year
+                                    (typically during extreme summer or winter peaks). Other months may peak at 85-95% due to workload variation.</p>
+                                    <p className="mt-2"><strong>Flexible data center behavior:</strong> Can install 33% more IT capacity (because it can
+                                    curtail during grid peaks). This higher installed capacity means they hit their interconnect limit more
+                                    consistently—potentially every month during shoulder seasons—generating higher average demand charges.</p>
+                                    <p className="text-green-700 font-medium mt-1">
+                                        More consistent peak billing = more predictable demand charge revenue for the utility
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                            <p className="text-sm font-semibold text-purple-900 mb-2">When Revenue Exceeds Infrastructure Costs</p>
+                            <p className="text-sm text-purple-800">
+                                Flexible data centers can generate net benefits to ratepayers when:
+                            </p>
+                            <ul className="list-disc list-inside text-sm text-purple-800 mt-2 space-y-1">
+                                <li>Higher load factor generates significantly more energy revenue</li>
+                                <li>25% peak curtailment reduces infrastructure requirements</li>
+                                <li>Onsite generation further reduces grid capacity needs</li>
+                                <li>Combined revenue contribution exceeds reduced infrastructure costs</li>
+                            </ul>
+                            <p className="text-sm text-purple-800 mt-2">
+                                This is why the "Optimized Data Center" scenario can show <strong>lower bills than baseline</strong>
+                                in certain configurations—the data center becomes a net contributor to the system.
+                            </p>
+                        </div>
 
                         <p className="mt-6"><strong>Residential Cost Allocation:</strong></p>
                         <p className="text-sm mb-3">

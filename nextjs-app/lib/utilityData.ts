@@ -129,8 +129,8 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...SPP_MARKET },
     hasDataCenterActivity: true,
-    dataCenterNotes: 'Proposed 2GW hyperscale facility; PSO facing 31% power deficit by 2031 with 779MW of new large load requests',
-    defaultDataCenterMW: 2000,
+    dataCenterNotes: 'Multiple large data center proposals; PSO facing 31% power deficit by 2031 with 779MW of new large load requests',
+    defaultDataCenterMW: 1000,
     sources: ['PSO 2024 IRP Report', 'Oklahoma Corporation Commission filings', 'AEP annual reports']
   },
   {

@@ -85,8 +85,8 @@ UTILITY_PROFILES = [
         'avg_monthly_usage_kwh': 1100,
         'market': {**SPP_MARKET},
         'has_dc_activity': True,
-        'dc_notes': 'Proposed 2GW hyperscale facility; PSO facing 31% power deficit by 2031',
-        'default_dc_mw': 2000,
+        'dc_notes': 'Multiple large data center proposals; PSO facing 31% power deficit by 2031 with 779MW of new large load requests',
+        'default_dc_mw': 1000,
     },
     {
         'id': 'duke-carolinas',

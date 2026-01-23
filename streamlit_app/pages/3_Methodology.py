@@ -144,7 +144,12 @@ def main():
         st.info("""
         **Why 95% load factor for flexible?** By shifting deferrable workloads (AI training, batch jobs)
         to off-peak hours, data centers can run at higher average utilization while reducing peak contribution.
-        This is more efficient than running at constant 80% regardless of grid conditions.
+
+        **Note on firm load behavior:** Firm data centers don't run at a constant 80%—they fluctuate
+        between roughly 70-100% of interconnected capacity based on IT workload demands. The key difference is that
+        they *cannot coordinate* their load reductions with grid stress events. When the grid needs relief during
+        peak hours, a firm data center may happen to be running at 90% or 100%, while a flexible data center can
+        deliberately curtail to 75% of capacity.
         """)
 
         st.success("""
@@ -158,12 +163,49 @@ def main():
         when operating flexibly, because each MW only adds 0.75 MW to the system peak.
         """)
 
-        st.markdown("**Revenue Offset:**")
-        st.markdown(f"""
-        - Demand charges: ${DC_RATE_STRUCTURE['demand_charge_per_mw_month']:,}/MW-month (based on coincident peak contribution)
-        - Energy margin: ${DC_RATE_STRUCTURE['energy_margin_per_mwh']}/MWh (utility's wholesale spread on energy sales)
-        - Higher load factor = more energy sold = more revenue to offset infrastructure costs
+        st.markdown("**Revenue Offset (DC Revenue Contribution):**")
+        st.write("""
+        Data centers generate significant revenue for utilities, which offsets infrastructure costs before
+        any net impact flows to residential customers. In some scenarios, revenue can exceed infrastructure
+        costs, resulting in a net benefit to ratepayers.
         """)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"""
+            **1. Energy Revenue (Volume × Margin)**
+
+            Utilities earn margin on each MWh sold: ${DC_RATE_STRUCTURE['energy_margin_per_mwh']}/MWh wholesale-to-retail spread.
+            This margin contributes to the utility's revenue requirement, allocated across all customers.
+
+            - **Firm (80% LF):** 1,000 MW × 80% × 8,760 hrs = 7,008,000 MWh/year
+            - **Flexible (95% LF):** 1,000 MW × 95% × 8,760 hrs = 8,322,000 MWh/year
+            - **Flexible generates 19% more energy revenue** (~$6.4M more annually at same capacity)
+            """)
+
+        with col2:
+            st.markdown(f"""
+            **2. Demand Charge Revenue (Peak Billing Consistency)**
+
+            Large customers pay demand charges based on their highest usage during billing periods.
+            Rate: ${DC_RATE_STRUCTURE['demand_charge_per_mw_month']:,}/MW-month.
+
+            - **Firm DC:** Hits 100% of capacity only 1-2 times/year (extreme summer/winter peaks). Other months peak at 85-95%.
+            - **Flexible DC:** Can install 33% more IT capacity. Higher installed capacity = hits interconnect limit more consistently (every month during shoulder seasons).
+            - **More consistent peak billing = more predictable demand charge revenue**
+            """)
+
+        st.markdown("""
+        <div style="background: #f3e8ff; padding: 1rem; border-radius: 0.5rem; border: 1px solid #c4b5fd; margin-top: 1rem;">
+            <strong style="color: #6b21a8;">When Revenue Exceeds Infrastructure Costs</strong>
+            <p style="color: #6b21a8; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+            Flexible data centers can generate net benefits to ratepayers when: higher load factor generates significantly more
+            energy revenue, 25% peak curtailment reduces infrastructure requirements, onsite generation further reduces grid
+            capacity needs, and combined revenue contribution exceeds reduced infrastructure costs. This is why the
+            "Optimized Data Center" scenario can show <strong>lower bills than baseline</strong> in certain configurations.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
         st.markdown("**Residential Cost Allocation:**")
         st.markdown(f"""
