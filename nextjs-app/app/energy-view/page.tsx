@@ -232,7 +232,7 @@ const PeakDayTooltip = ({ active, payload, label }: any) => {
                     <span className="font-medium">{formatMW(data.baseGrid)}</span>
                 </div>
                 <div className="flex justify-between">
-                    <span style={{ color: COLORS.firmDCStroke }}>Firm DC:</span>
+                    <span style={{ color: COLORS.firmDCStroke }}>Firm Data Center:</span>
                     <span className="font-medium" style={{ color: COLORS.firmDCStroke }}>+{formatMW(data.firmDC)}</span>
                 </div>
                 {data.flexBonus > 0 && (
@@ -271,7 +271,7 @@ const DurationCurveTooltip = ({ active, payload }: any) => {
                     <span className="font-medium">{formatMW(data.baseGrid)}</span>
                 </div>
                 <div className="flex justify-between">
-                    <span style={{ color: COLORS.firmDCStroke }}>Firm DC:</span>
+                    <span style={{ color: COLORS.firmDCStroke }}>Firm Data Center:</span>
                     <span className="font-medium" style={{ color: COLORS.firmDCStroke }}>+{formatMW(data.firmDC)}</span>
                 </div>
                 {data.flexBonus > 0 && (
@@ -371,10 +371,10 @@ export default function EnergyViewPage() {
                 <div className="bg-white rounded-xl border border-gray-200 p-4">
                     <p className="text-sm text-gray-500">Grid Capacity</p>
                     <p className="text-2xl font-bold text-gray-900">{formatMW(metrics.gridCapacity)}</p>
-                    <p className="text-xs text-gray-400">System Peak + Firm DC</p>
+                    <p className="text-xs text-gray-400">System Peak + Firm Data Center</p>
                 </div>
                 <div className="bg-green-50 rounded-xl border border-green-200 p-4">
-                    <p className="text-sm text-green-700">Firm DC Baseline</p>
+                    <p className="text-sm text-green-700">Firm Data Center Baseline</p>
                     <p className="text-2xl font-bold text-green-600">{formatMW(metrics.dcFirmBaseline)}</p>
                     <p className="text-xs text-green-500">{dataCenter.capacityMW} MW @ {(dataCenter.firmLoadFactor * 100).toFixed(0)}% LF</p>
                 </div>
@@ -531,7 +531,7 @@ export default function EnergyViewPage() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.firmDC, border: `1px solid ${COLORS.firmDCStroke}` }}></div>
-                                <span className="text-sm text-gray-600">Firm DC ({formatMW(metrics.dcFirmBaseline)})</span>
+                                <span className="text-sm text-gray-600">Firm Data Center ({formatMW(metrics.dcFirmBaseline)})</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.flexBonus }}></div>
@@ -552,7 +552,7 @@ export default function EnergyViewPage() {
                             <p className="text-sm text-amber-800">
                                 <strong>Load Shifting:</strong> During {metrics.hoursWithShifting} afternoon peak hours,
                                 flexible data centers shift up to {formatMW(metrics.peakShiftedMW)} of workload to off-peak hours
-                                when the combined load (base grid + DC) would exceed grid capacity. This enables the DC to
+                                when the combined load (base grid + data center) would exceed grid capacity. This enables the data center to
                                 capture {formatMW(metrics.maxFlexBonus)} more energy during off-peak hours.
                             </p>
                         </div>
@@ -660,7 +660,7 @@ export default function EnergyViewPage() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.firmDC, border: `1px solid ${COLORS.firmDCStroke}` }}></div>
-                                <span className="text-sm text-gray-600">Firm DC</span>
+                                <span className="text-sm text-gray-600">Firm Data Center</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded" style={{ backgroundColor: COLORS.flexBonus }}></div>
@@ -680,7 +680,7 @@ export default function EnergyViewPage() {
                         <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
                             <p className="text-sm font-semibold text-green-900 mb-1">The "Profit Wedge"</p>
                             <p className="text-sm text-green-800">
-                                The dark green area represents additional energy captured when grid headroom allows the DC
+                                The dark green area represents additional energy captured when grid headroom allows the data center
                                 to run above its firm baseline ({(dataCenter.firmLoadFactor * 100).toFixed(0)}% LF) up to its
                                 flexible capacity ({(dataCenter.flexLoadFactor * 100).toFixed(0)}% LF). This unlocks
                                 approximately <strong>{(metrics.annualFlexBonusMWh / 1000000).toFixed(2)} million MWh</strong> of
@@ -700,9 +700,9 @@ export default function EnergyViewPage() {
                     for understanding how flexible data center operations benefit grid capacity. Key assumptions:
                 </p>
                 <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                    <li>Grid capacity = system peak ({formatMW(utility.systemPeakMW)}) + firm DC baseline ({formatMW(metrics.dcFirmBaseline)})</li>
-                    <li>DC wants to run at {(dataCenter.flexLoadFactor * 100).toFixed(0)}% load factor whenever grid headroom allows</li>
-                    <li>When base grid + DC would exceed capacity, DC shifts load to off-peak hours</li>
+                    <li>Grid capacity = system peak ({formatMW(utility.systemPeakMW)}) + firm data center baseline ({formatMW(metrics.dcFirmBaseline)})</li>
+                    <li>Data center wants to run at {(dataCenter.flexLoadFactor * 100).toFixed(0)}% load factor whenever grid headroom allows</li>
+                    <li>When base grid + data center would exceed capacity, data center shifts load to off-peak hours</li>
                     <li>Base grid follows typical summer peak day shape (ERCOT/PJM patterns)</li>
                     <li>Annual curve includes seasonal, daily, weekend, and weather variation</li>
                 </ul>

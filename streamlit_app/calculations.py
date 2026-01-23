@@ -50,12 +50,12 @@ DEFAULT_UTILITY = {
 # up to 40% while maintaining AI quality of service
 # Sources: IEEE Spectrum, arXiv:2507.00909, Latitude Media/Databricks
 DEFAULT_DATA_CENTER = {
-    'capacity_mw': 2000,
+    'capacity_mw': 1000,
     'firm_load_factor': 0.80,
     'firm_peak_coincidence': 1.0,
     'flex_load_factor': 0.95,
     'flex_peak_coincidence': 0.75,  # 25% curtailable (DCFlex validated)
-    'onsite_generation_mw': 400,
+    'onsite_generation_mw': 200,
 }
 
 INFRASTRUCTURE_COSTS = {

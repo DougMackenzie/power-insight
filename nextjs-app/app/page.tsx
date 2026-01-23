@@ -68,14 +68,7 @@ export default function HomePage() {
           </div>
 
           {/* Bill Comparison Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {/* Current Bill */}
-            <div className="p-6 bg-gray-50 rounded-xl border-2 border-gray-200 text-center transform transition-all duration-200 hover:scale-105">
-              <p className="text-sm font-medium text-gray-500 mb-2">Your Bill Today</p>
-              <p className="text-4xl font-bold text-gray-900">${utility.averageMonthlyBill}</p>
-              <p className="text-xs text-gray-500 mt-2">per month</p>
-            </div>
-
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             {/* Baseline */}
             <div className="p-6 bg-gray-100 rounded-xl border-2 border-gray-300 text-center transform transition-all duration-200 hover:scale-105">
               <p className="text-sm font-medium text-gray-500 mb-2">Without Data Center</p>
@@ -86,9 +79,9 @@ export default function HomePage() {
               <p className="text-xs text-gray-400 mt-2">Normal rate increases</p>
             </div>
 
-            {/* Firm Load */}
+            {/* Typical Data Center */}
             <div className="p-6 bg-red-50 rounded-xl border-2 border-red-200 text-center transform transition-all duration-200 hover:scale-105">
-              <p className="text-sm font-medium text-red-700 mb-2">With Firm Load DC</p>
+              <p className="text-sm font-medium text-red-700 mb-2">With Typical Data Center</p>
               <p className="text-4xl font-bold text-red-600">
                 ${summary.finalYearBills.unoptimized.toFixed(0)}
               </p>
@@ -102,10 +95,10 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Optimized */}
+            {/* Optimized Data Center */}
             <div className="p-6 bg-green-50 rounded-xl border-2 border-green-300 text-center ring-4 ring-green-200 ring-offset-2 transform transition-all duration-200 hover:scale-105">
               <div className="flex items-center justify-center gap-1 mb-2">
-                <p className="text-sm font-medium text-green-700">With Optimized DC</p>
+                <p className="text-sm font-medium text-green-700">With Optimized Data Center</p>
                 <span className="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full font-medium">
                   BEST
                 </span>
@@ -182,7 +175,7 @@ export default function HomePage() {
                   <line x1="4" y1="14" x2="20" y2="14" />
                 </svg>
               </div>
-              <span className="font-semibold text-gray-900 text-sm">DC Needs Power</span>
+              <span className="font-semibold text-gray-900 text-sm">Data Center Needs Power</span>
             </div>
             {/* Arrow */}
             <svg className="w-8 h-8 text-gray-300 rotate-90 md:rotate-0 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -282,51 +275,51 @@ export default function HomePage() {
         {/* Key Insight + Action */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* What Matters */}
-          <div className="card bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
-            <h3 className="font-display text-xl font-bold mb-4">What Matters Most</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+          <div className="rounded-xl bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-8">
+            <h3 className="font-display text-xl font-bold mb-5">What Matters Most</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm font-bold">1</span>
                 </div>
-                <span className="text-sm">Peak demand drives infrastructure costs</span>
+                <span className="text-sm leading-relaxed">Peak demand drives infrastructure costs</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm font-bold">2</span>
                 </div>
-                <span className="text-sm">Flexibility can cut impact dramatically</span>
+                <span className="text-sm leading-relaxed">Flexibility can cut impact dramatically</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm font-bold">3</span>
                 </div>
-                <span className="text-sm">Your voice at the PUC shapes outcomes</span>
+                <span className="text-sm leading-relaxed">Your voice at the PUC shapes outcomes</span>
               </div>
             </div>
           </div>
 
           {/* Take Action */}
-          <div className="card bg-gradient-to-br from-green-600 to-emerald-700 text-white">
-            <h3 className="font-display text-xl font-bold mb-4">Take Action</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <div className="rounded-xl bg-gradient-to-br from-green-600 to-emerald-700 text-white p-8">
+            <h3 className="font-display text-xl font-bold mb-5">Take Action</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <svg className="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path d="M9 12l2 2 4-4" />
                 </svg>
-                <span className="text-sm">Attend utility commission hearings</span>
+                <span className="text-sm leading-relaxed">Attend utility commission hearings</span>
               </div>
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <div className="flex items-center gap-4">
+                <svg className="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path d="M9 12l2 2 4-4" />
                 </svg>
-                <span className="text-sm">Ask about flexibility requirements</span>
+                <span className="text-sm leading-relaxed">Ask about flexibility requirements</span>
               </div>
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <div className="flex items-center gap-4">
+                <svg className="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path d="M9 12l2 2 4-4" />
                 </svg>
-                <span className="text-sm">Demand transparent cost allocation</span>
+                <span className="text-sm leading-relaxed">Demand transparent cost allocation</span>
               </div>
             </div>
           </div>

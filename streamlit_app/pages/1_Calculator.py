@@ -244,7 +244,7 @@ def main():
                 step=max(10, int(max_gen / 100))
             )
             gen_pct = (st.session_state.datacenter['onsite_generation_mw'] / st.session_state.datacenter['capacity_mw']) * 100
-            st.caption(f"{gen_pct:.0f}% of DC capacity")
+            st.caption(f"{gen_pct:.0f}% of data center capacity")
 
         else:  # Projection
             st.subheader("Projection Settings")
@@ -282,12 +282,12 @@ def main():
         st.caption("**Quick Presets**")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("PSO Default", use_container_width=True):
+            if st.button("PSO", use_container_width=True):
                 st.session_state.utility['residential_customers'] = 560000
                 st.session_state.utility['avg_monthly_bill'] = 130
                 st.session_state.utility['system_peak_mw'] = 4000
-                st.session_state.datacenter['capacity_mw'] = 2000
-                st.session_state.datacenter['onsite_generation_mw'] = 400
+                st.session_state.datacenter['capacity_mw'] = 1000
+                st.session_state.datacenter['onsite_generation_mw'] = 200
                 st.rerun()
         with col2:
             if st.button("Small Utility", use_container_width=True):
@@ -341,9 +341,9 @@ def main():
     }
     names = {
         'baseline': 'No Data Center',
-        'unoptimized': 'Firm Load DC',
-        'flexible': 'Flexible DC',
-        'dispatchable': 'Optimized DC',
+        'unoptimized': 'Typical Data Center',
+        'flexible': 'Flexible Data Center',
+        'dispatchable': 'Optimized Data Center',
     }
 
     for scenario_key in ['baseline', 'unoptimized', 'flexible', 'dispatchable']:
@@ -357,13 +357,13 @@ def main():
             hovertemplate='%{y:$.2f}/mo<extra>' + names[scenario_key] + '</extra>'
         ))
 
-    # Add DC comes online marker
+    # Add data center comes online marker
     dc_online_year = TIME_PARAMS['base_year'] + 2
     fig.add_vline(
         x=dc_online_year,
         line_dash="dash",
         line_color="gray",
-        annotation_text="DC Comes Online",
+        annotation_text="Data Center Comes Online",
         annotation_position="top"
     )
 
@@ -391,9 +391,9 @@ def main():
     cols = st.columns(4)
     scenarios = [
         ('baseline', 'No Data Center', '#6B7280', '#f3f4f6'),
-        ('unoptimized', 'Firm Load DC', '#DC2626', '#fef2f2'),
-        ('flexible', 'Flexible DC', '#F59E0B', '#fffbeb'),
-        ('dispatchable', 'Optimized DC', '#10B981', '#f0fdf4'),
+        ('unoptimized', 'Typical Data Center', '#DC2626', '#fef2f2'),
+        ('flexible', 'Flexible Data Center', '#F59E0B', '#fffbeb'),
+        ('dispatchable', 'Optimized Data Center', '#10B981', '#f0fdf4'),
     ]
 
     for i, (key, label, color, bg) in enumerate(scenarios):
@@ -432,7 +432,7 @@ def main():
         sign = "+" if disp_diff >= 0 else "-"
         st.markdown(f"""
         <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; margin-bottom: 1rem;">
-            <p style="color: #6b7280; font-size: 0.9rem; margin: 0 0 0.5rem 0;">Optimized DC vs Baseline</p>
+            <p style="color: #6b7280; font-size: 0.9rem; margin: 0 0 0.5rem 0;">Optimized Data Center vs Baseline</p>
             <p style="font-size: 1.5rem; font-weight: bold; color: {diff_color}; margin: 0;">{sign}${abs(disp_diff):.2f}/mo</p>
             <p style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem;">vs no data center (best case)</p>
         </div>
@@ -443,7 +443,7 @@ def main():
         <div style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e5e7eb;">
             <p style="color: #6b7280; font-size: 0.9rem; margin: 0 0 0.5rem 0;">Value of Optimization</p>
             <p style="font-size: 1.5rem; font-weight: bold; color: #16a34a; margin: 0;">${savings:.2f}/mo</p>
-            <p style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem;">optimized vs firm load DC</p>
+            <p style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem;">optimized vs typical data center</p>
         </div>
         """, unsafe_allow_html=True)
 

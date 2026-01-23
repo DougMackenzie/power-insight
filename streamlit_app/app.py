@@ -48,13 +48,13 @@ st.markdown("""
     .info-box {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
         color: white;
-        padding: 1.5rem;
+        padding: 2rem;
         border-radius: 0.75rem;
     }
     .action-box {
         background: linear-gradient(135deg, #059669 0%, #047857 100%);
         color: white;
-        padding: 1.5rem;
+        padding: 2rem;
         border-radius: 0.75rem;
     }
     .cta-section {
@@ -115,18 +115,9 @@ def main():
     firm_diff = unoptimized_final - baseline_final
     opt_diff = dispatchable_final - baseline_final
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 0.5rem 0;">Your Bill Today</p>
-            <p style="font-size: 2rem; font-weight: bold; color: #111827; margin: 0;">${DEFAULT_UTILITY['avg_monthly_bill']}</p>
-            <p style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.5rem;">per month</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
         st.markdown(f"""
         <div class="metric-card" style="background: #f3f4f6;">
             <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 0.5rem 0;">Without Data Center</p>
@@ -136,24 +127,24 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    with col3:
+    with col2:
         diff_color = "#dc2626" if firm_diff >= 0 else "#16a34a"
         diff_sign = "+" if firm_diff >= 0 else ""
         st.markdown(f"""
         <div class="metric-card red">
-            <p style="color: #b91c1c; font-size: 0.85rem; margin: 0 0 0.5rem 0;">With Firm Load DC</p>
+            <p style="color: #b91c1c; font-size: 0.85rem; margin: 0 0 0.5rem 0;">With Typical Data Center</p>
             <p style="font-size: 2rem; font-weight: bold; color: #dc2626; margin: 0;">${unoptimized_final:.0f}</p>
             <p style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.5rem;">in {projection_years} years</p>
             <p style="color: {diff_color}; font-weight: 600; font-size: 0.85rem;">{diff_sign}{firm_diff:.2f}/mo vs baseline</p>
         </div>
         """, unsafe_allow_html=True)
 
-    with col4:
+    with col3:
         diff_color = "#dc2626" if opt_diff >= 0 else "#16a34a"
         diff_sign = "+" if opt_diff >= 0 else ""
         st.markdown(f"""
         <div class="metric-card green">
-            <p style="color: #15803d; font-size: 0.85rem; margin: 0 0 0.5rem 0;">With Optimized DC <span style="background: #bbf7d0; padding: 2px 6px; border-radius: 9999px; font-size: 0.7rem;">BEST</span></p>
+            <p style="color: #15803d; font-size: 0.85rem; margin: 0 0 0.5rem 0;">With Optimized Data Center <span style="background: #bbf7d0; padding: 2px 6px; border-radius: 9999px; font-size: 0.7rem;">BEST</span></p>
             <p style="font-size: 2rem; font-weight: bold; color: #16a34a; margin: 0;">${dispatchable_final:.0f}</p>
             <p style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.5rem;">in {projection_years} years</p>
             <p style="color: {diff_color}; font-weight: 600; font-size: 0.85rem;">{diff_sign}{opt_diff:.2f}/mo vs baseline</p>
@@ -186,7 +177,7 @@ def main():
     st.subheader("How Costs Flow to Your Bill")
     cols = st.columns(4)
     steps = [
-        ("🖥️", "DC Needs Power", "#2563eb"),
+        ("🖥️", "Data Center Needs Power", "#2563eb"),
         ("⚡", "Utility Builds", "#f59e0b"),
         ("📊", "Costs Shared", "#dc2626"),
         ("📄", "Your Bill", "#16a34a"),

@@ -306,7 +306,7 @@ export default function CalculatorPage() {
                                             dataCenter.capacityMW) *
                                         100
                                     ).toFixed(0)}
-                                    % of DC capacity
+                                    % of data center capacity
                                 </p>
                             </div>
 
@@ -373,12 +373,12 @@ export default function CalculatorPage() {
                                         averageMonthlyBill: 130,
                                         systemPeakMW: 4000,
                                     });
-                                    updateDataCenter({ capacityMW: 2000, onsiteGenerationMW: 400 });
+                                    updateDataCenter({ capacityMW: 1000, onsiteGenerationMW: 200 });
                                 }}
                                 className="w-full text-left px-3 py-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50"
                             >
-                                <span className="font-medium">PSO-Sized (Default)</span>
-                                <span className="text-gray-500"> - 560k customers, 4 GW peak, 2 GW DC</span>
+                                <span className="font-medium">PSO</span>
+                                <span className="text-gray-500"> - 560k customers, 4 GW peak, 1 GW data center</span>
                             </button>
                             <button
                                 onClick={() => {
@@ -392,7 +392,7 @@ export default function CalculatorPage() {
                                 className="w-full text-left px-3 py-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50"
                             >
                                 <span className="font-medium">Small Utility</span>
-                                <span className="text-gray-500"> - 100k customers, 1.5 GW peak, 500 MW DC</span>
+                                <span className="text-gray-500"> - 100k customers, 1.5 GW peak, 500 MW data center</span>
                             </button>
                             <button
                                 onClick={() => {
@@ -406,7 +406,7 @@ export default function CalculatorPage() {
                                 className="w-full text-left px-3 py-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50"
                             >
                                 <span className="font-medium">Large ISO Region</span>
-                                <span className="text-gray-500"> - 2M customers, 20 GW peak, 5 GW DC</span>
+                                <span className="text-gray-500"> - 2M customers, 20 GW peak, 5 GW data center</span>
                             </button>
                             <button
                                 onClick={() => {
@@ -420,7 +420,7 @@ export default function CalculatorPage() {
                                 className="w-full text-left px-3 py-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50"
                             >
                                 <span className="font-medium">High Impact</span>
-                                <span className="text-gray-500"> - Large DC relative to utility (100% of peak)</span>
+                                <span className="text-gray-500"> - Large data center relative to utility (100% of peak)</span>
                             </button>
                         </div>
                     </div>
@@ -446,7 +446,7 @@ export default function CalculatorPage() {
                         <h3 className="font-semibold text-green-900 mb-4">Key Findings for Your Community</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="bg-white p-4 rounded-lg">
-                                <p className="text-sm text-gray-600 mb-1">Optimized DC vs Baseline</p>
+                                <p className="text-sm text-gray-600 mb-1">Optimized Data Center vs Baseline</p>
                                 <p
                                     className={`text-2xl font-bold ${summary.finalYearDifference.dispatchable >= 0 ? 'text-red-600' : 'text-green-600'
                                         }`}
@@ -462,7 +462,7 @@ export default function CalculatorPage() {
                                 <p className="text-2xl font-bold text-green-600">
                                     ${summary.savingsVsUnoptimized.dispatchable.toFixed(2)}/mo
                                 </p>
-                                <p className="text-xs text-gray-500">optimized vs firm load DC</p>
+                                <p className="text-xs text-gray-500">optimized vs typical data center</p>
                             </div>
                             <div className="bg-white p-4 rounded-lg">
                                 <p className="text-sm text-gray-600 mb-1">Annual Community Benefit</p>

@@ -121,13 +121,13 @@ export const INFRASTRUCTURE_COSTS = {
 };
 
 export const DEFAULT_DATA_CENTER: DataCenter = {
-    capacityMW: 2000,
+    capacityMW: 1000,
     firmLoadFactor: 0.80,
     firmPeakCoincidence: 1.0,
     flexLoadFactor: 0.95,
     flexPeakCoincidence: 0.75,
     flexibleLoadPercent: 0.35,
-    onsiteGenerationMW: 400,
+    onsiteGenerationMW: 200,
     generationAvailability: 0.95,
     generationCostPerMWh: 85,
     demandChargeRate: 9050,
@@ -138,7 +138,7 @@ export const DC_CAPACITY_RANGE = {
     min: 500,
     max: 10000,
     step: 100,
-    default: 2000,
+    default: 1000,
 };
 
 export const UTILITY_PEAK_RANGE = {
@@ -156,14 +156,14 @@ export const SCENARIOS: Record<string, Scenario> = {
     baseline: {
         id: 'baseline',
         name: 'Baseline',
-        shortName: 'No New Load',
+        shortName: 'No Data Center',
         description: 'Current cost trajectory with normal infrastructure aging',
         color: '#6B7280',
         colorLight: '#E5E7EB',
     },
     unoptimized: {
         id: 'unoptimized',
-        name: 'Firm Load',
+        name: 'Typical Data Center',
         shortName: '80% LF, 100% Peak',
         description: 'Data center as firm load: lower utilization, full peak contribution',
         color: '#DC2626',
@@ -171,7 +171,7 @@ export const SCENARIOS: Record<string, Scenario> = {
     },
     flexible: {
         id: 'flexible',
-        name: 'Flexible Load',
+        name: 'Flexible Data Center',
         shortName: '95% LF, 75% Peak',
         description: 'With demand response: higher utilization, 25% curtailable (DCFlex validated)',
         color: '#F59E0B',
@@ -179,7 +179,7 @@ export const SCENARIOS: Record<string, Scenario> = {
     },
     dispatchable: {
         id: 'dispatchable',
-        name: 'Flex + Dispatchable',
+        name: 'Optimized Data Center',
         shortName: 'DR + Generation',
         description: 'Demand response plus onsite generation during system peaks',
         color: '#10B981',

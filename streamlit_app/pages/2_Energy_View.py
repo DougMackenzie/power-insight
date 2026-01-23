@@ -232,9 +232,9 @@ def main():
     # Key Metrics
     cols = st.columns(4)
     with cols[0]:
-        st.metric("Grid Capacity", format_mw(grid_capacity), help="System Peak + Firm DC")
+        st.metric("Grid Capacity", format_mw(grid_capacity), help="System Peak + Firm Data Center")
     with cols[1]:
-        st.metric("Firm DC Baseline", format_mw(dc_firm_baseline),
+        st.metric("Firm Data Center Baseline", format_mw(dc_firm_baseline),
                  f"{datacenter['capacity_mw']} MW @ {datacenter.get('firm_load_factor', 0.80)*100:.0f}% LF")
     with cols[2]:
         st.metric("Max Flex Bonus", f"+{format_mw(max_flex_bonus)}", help="Additional when headroom exists")
@@ -270,11 +270,11 @@ def main():
             stackgroup='main'
         ))
 
-        # Firm DC
+        # Firm Data Center
         fig.add_trace(go.Scatter(
             x=hours, y=firm_dc,
             mode='lines',
-            name=f'Firm DC ({format_mw(dc_firm_baseline)})',
+            name=f'Firm Data Center ({format_mw(dc_firm_baseline)})',
             fill='tonexty',
             fillcolor=COLORS['firmDC'],
             line=dict(color=COLORS['firmDCStroke'], width=1),
@@ -328,8 +328,8 @@ def main():
         # Annotation
         st.info(f"""
         **Load Shifting:** During {hours_with_shifting} afternoon peak hours, flexible data centers shift up to
-        {format_mw(peak_shifted_mw)} of workload to off-peak hours when the combined load (base grid + DC)
-        would exceed grid capacity. This enables the DC to capture {format_mw(max_flex_bonus)} more energy
+        {format_mw(peak_shifted_mw)} of workload to off-peak hours when the combined load (base grid + data center)
+        would exceed grid capacity. This enables the data center to capture {format_mw(max_flex_bonus)} more energy
         during off-peak hours.
         """)
 
@@ -357,11 +357,11 @@ def main():
             stackgroup='main'
         ))
 
-        # Firm DC
+        # Firm Data Center
         fig2.add_trace(go.Scatter(
             x=hour_nums, y=firm_dc_ldc,
             mode='lines',
-            name='Firm DC',
+            name='Firm Data Center',
             fill='tonexty',
             fillcolor=COLORS['firmDC'],
             line=dict(color=COLORS['firmDCStroke'], width=1),
@@ -416,7 +416,7 @@ def main():
         # The "Profit Wedge" Annotation
         st.success(f"""
         **The "Profit Wedge":** The dark green area represents additional energy captured when grid
-        headroom allows the DC to run above its firm baseline ({datacenter.get('firm_load_factor', 0.80)*100:.0f}% LF)
+        headroom allows the data center to run above its firm baseline ({datacenter.get('firm_load_factor', 0.80)*100:.0f}% LF)
         up to its flexible capacity ({datacenter.get('flex_load_factor', 0.95)*100:.0f}% LF). This unlocks
         approximately **{annual_flex_bonus_mwh / 1_000_000:.2f} million MWh** of additional annual energy sales.
         The purple hatched area shows load that must be shifted to off-peak hours when grid capacity is constrained.
@@ -433,9 +433,9 @@ def main():
             for understanding how flexible data center operations benefit grid capacity. Key assumptions:
         </p>
         <ul style="color: #1d4ed8; margin: 0; padding-left: 1.5rem;">
-            <li>Grid capacity = system peak ({}) + firm DC baseline ({})</li>
-            <li>DC wants to run at {}% load factor whenever grid headroom allows</li>
-            <li>When base grid + DC would exceed capacity, DC shifts load to off-peak hours</li>
+            <li>Grid capacity = system peak ({}) + firm data center baseline ({})</li>
+            <li>Data center wants to run at {}% load factor whenever grid headroom allows</li>
+            <li>When base grid + data center would exceed capacity, data center shifts load to off-peak hours</li>
             <li>Base grid follows typical summer peak day shape (ERCOT/PJM patterns)</li>
             <li>Annual curve includes seasonal, daily, weekend, and weather variation</li>
         </ul>

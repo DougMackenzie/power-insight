@@ -134,13 +134,7 @@ export default function SummaryCards({ compact = false }: { compact?: boolean })
                     Your Monthly Bill: Now vs {projectionYears} Years
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-600 mb-1">Today</p>
-                        <p className="text-4xl font-bold text-gray-900">${utility.averageMonthlyBill.toFixed(0)}</p>
-                        <p className="text-sm text-gray-500">per month</p>
-                    </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="text-center p-4 bg-gray-100 rounded-lg border border-gray-300">
                         <p className="text-sm text-gray-600 mb-1">Baseline ({projectionYears} years)</p>
                         <p className="text-4xl font-bold text-gray-700">${baselineFinal.toFixed(0)}</p>
@@ -152,7 +146,7 @@ export default function SummaryCards({ compact = false }: { compact?: boolean })
                         <p className="text-4xl font-bold text-green-600">
                             ${summary.finalYearBills.dispatchable.toFixed(0)}
                         </p>
-                        <p className="text-sm text-gray-500">with optimized DC</p>
+                        <p className="text-sm text-gray-500">with optimized data center</p>
                         <p
                             className={`text-sm font-medium mt-1 ${dispatchableDiff >= 0 ? 'text-red-600' : 'text-green-600'
                                 }`}
