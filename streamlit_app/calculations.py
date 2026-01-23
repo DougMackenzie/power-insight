@@ -66,8 +66,15 @@ INFRASTRUCTURE_COSTS = {
 }
 
 DC_RATE_STRUCTURE = {
-    'demand_charge_per_mw_month': 9050,
+    # Split demand charges into coincident peak (CP) and non-coincident peak (NCP) components
+    # CP charges are based on contribution during system peak hours
+    # NCP charges are based on customer's own monthly peak (any time)
+    'coincident_peak_charge_per_mw_month': 5430,  # ~60% of total demand charge
+    'non_coincident_peak_charge_per_mw_month': 3620,  # ~40% of total demand charge
+    'demand_charge_per_mw_month': 9050,  # Total for backwards compatibility
     'energy_margin_per_mwh': 4.88,
+    # ERCOT 4CP transmission allocation rate
+    'ercot_4cp_transmission_rate': 5.50,  # $/kW-month based on 4CP contribution
 }
 
 TIME_PARAMS = {
@@ -152,16 +159,42 @@ def calculate_residential_allocation(
 def calculate_dc_revenue_offset(
     dc_capacity_mw: float,
     load_factor: float,
-    peak_coincidence: float
+    peak_coincidence: float,
+    effective_capacity_mw: float = None,
+    market_type: str = 'regulated'
 ) -> Dict:
-    """Calculate revenue contribution from data center."""
-    coincident_peak_mw = dc_capacity_mw * peak_coincidence
-    annual_demand_revenue = coincident_peak_mw * DC_RATE_STRUCTURE['demand_charge_per_mw_month'] * 12
+    """
+    Calculate revenue contribution from data center.
 
-    annual_mwh = dc_capacity_mw * load_factor * 8760
+    Key insight: Demand charges have two components:
+    1. Coincident Peak (CP): Based on usage during system peak hours
+       - Flexible DCs pay LESS because they curtail during system peaks
+    2. Non-Coincident Peak (NCP): Based on customer's own monthly peak
+       - Both firm and flexible DCs pay similar NCP charges
+    """
+    # Effective capacity for NCP charges (may be higher for flexible DCs)
+    if effective_capacity_mw is None:
+        effective_capacity_mw = dc_capacity_mw
+
+    # Coincident peak demand charges - based on contribution during system peak
+    coincident_peak_mw = dc_capacity_mw * peak_coincidence
+    annual_cp_demand_revenue = (coincident_peak_mw *
+                                DC_RATE_STRUCTURE['coincident_peak_charge_per_mw_month'] * 12)
+
+    # Non-coincident peak demand charges - based on customer's own monthly peak
+    ncp_peak_mw = effective_capacity_mw
+    annual_ncp_demand_revenue = (ncp_peak_mw *
+                                 DC_RATE_STRUCTURE['non_coincident_peak_charge_per_mw_month'] * 12)
+
+    annual_demand_revenue = annual_cp_demand_revenue + annual_ncp_demand_revenue
+
+    # Energy margin - based on actual energy consumption
+    annual_mwh = effective_capacity_mw * load_factor * 8760
     annual_energy_margin = annual_mwh * DC_RATE_STRUCTURE['energy_margin_per_mwh']
 
     return {
+        'cp_demand_revenue': annual_cp_demand_revenue,
+        'ncp_demand_revenue': annual_ncp_demand_revenue,
         'demand_revenue': annual_demand_revenue,
         'energy_margin': annual_energy_margin,
         'per_year': annual_demand_revenue + annual_energy_margin,
@@ -178,68 +211,101 @@ def calculate_net_residential_impact(
     onsite_gen_mw: float = 0,
     utility: Dict = None
 ) -> Dict:
-    """Calculate net impact on residential bills from data center load."""
+    """
+    Calculate net impact on residential bills from data center load.
 
-    # Infrastructure costs
+    Key improvements:
+    1. Split demand charges into CP (coincident peak) and NCP (non-coincident peak)
+    2. ERCOT 4CP transmission allocation - huge benefit for flexible loads
+    3. More accurate market-specific adjustments
+    """
+    is_flexible = peak_coincidence < 1.0
     effective_peak_mw = dc_capacity_mw * peak_coincidence - onsite_gen_mw
-    transmission_cost = max(0, effective_peak_mw) * INFRASTRUCTURE_COSTS['transmission_cost_per_mw']
-    distribution_cost = max(0, effective_peak_mw) * INFRASTRUCTURE_COSTS['distribution_cost_per_mw']
-
-    # Annualized infrastructure cost (20-year asset life)
-    total_infra_cost = transmission_cost + distribution_cost
-    annualized_infra_cost = total_infra_cost / 20
-
-    # Market-specific capacity cost calculation
-    base_capacity_cost = INFRASTRUCTURE_COSTS['capacity_cost_per_mw_year']
-    capacity_cost_pass_through = utility.get('capacity_cost_pass_through', 0.40) if utility else 0.40
     market_type = utility.get('market_type', 'regulated') if utility else 'regulated'
 
-    # In capacity markets (PJM), use actual 2024 capacity price if available
+    # ============================================
+    # TRANSMISSION COSTS - Market-specific allocation
+    # ============================================
+    if market_type == 'ercot':
+        # ERCOT uses 4CP (four coincident peak) methodology
+        # Transmission costs are allocated based on usage during 4 specific peak hours per year
+        four_cp_contribution_mw = dc_capacity_mw * peak_coincidence - onsite_gen_mw
+        ercot_4cp_rate = DC_RATE_STRUCTURE.get('ercot_4cp_transmission_rate', 5.50)
+        annual_transmission_cost = max(0, four_cp_contribution_mw) * 1000 * ercot_4cp_rate * 12
+
+        # Also include some base transmission cost (interconnection facilities)
+        base_transmission_cost = (max(0, effective_peak_mw) *
+                                 INFRASTRUCTURE_COSTS['transmission_cost_per_mw'] * 0.3)
+        annualized_transmission_cost = annual_transmission_cost + (base_transmission_cost / 20)
+    else:
+        # Traditional embedded cost allocation
+        transmission_cost = max(0, effective_peak_mw) * INFRASTRUCTURE_COSTS['transmission_cost_per_mw']
+        annualized_transmission_cost = transmission_cost / 20
+
+    distribution_cost = max(0, effective_peak_mw) * INFRASTRUCTURE_COSTS['distribution_cost_per_mw']
+    annualized_distribution_cost = distribution_cost / 20
+    annualized_infra_cost = annualized_transmission_cost + annualized_distribution_cost
+
+    # ============================================
+    # CAPACITY COSTS - Market-specific
+    # ============================================
+    base_capacity_cost = INFRASTRUCTURE_COSTS['capacity_cost_per_mw_year']
+    capacity_cost_pass_through = utility.get('capacity_cost_pass_through', 0.40) if utility else 0.40
+
     if utility and utility.get('has_capacity_market') and utility.get('capacity_price_2024'):
-        # Convert $/MW-day to $/MW-year
         capacity_price_annual = utility['capacity_price_2024'] * 365
-        # Blend the capacity cost with market price
         base_capacity_cost = (INFRASTRUCTURE_COSTS['capacity_cost_per_mw_year'] * 0.5 +
                              capacity_price_annual * capacity_cost_pass_through * 0.5)
 
-    # In energy-only markets (ERCOT), capacity costs are lower
     if market_type == 'ercot':
-        base_capacity_cost = INFRASTRUCTURE_COSTS['capacity_cost_per_mw_year'] * 0.60
+        # No capacity market in ERCOT
+        base_capacity_cost = INFRASTRUCTURE_COSTS['capacity_cost_per_mw_year'] * 0.50
 
-    # Capacity costs
-    demand_charge_annual = DC_RATE_STRUCTURE['demand_charge_per_mw_month'] * 12
-    net_capacity_cost_per_mw = max(0, base_capacity_cost - demand_charge_annual)
+    # ============================================
+    # DEMAND CHARGE REVENUE - Split CP/NCP
+    # ============================================
+    dc_revenue = calculate_dc_revenue_offset(
+        dc_capacity_mw, load_factor, peak_coincidence,
+        effective_capacity_mw=dc_capacity_mw,
+        market_type=market_type
+    )
+
+    # Net capacity cost after CP demand charge offset
+    cp_demand_charge_annual = DC_RATE_STRUCTURE['coincident_peak_charge_per_mw_month'] * 12
+    net_capacity_cost_per_mw = max(0, base_capacity_cost - cp_demand_charge_annual)
     capacity_cost_or_credit = max(0, effective_peak_mw) * net_capacity_cost_per_mw
 
-    # DR and generation credits
-    if include_capacity_credit:
+    # ============================================
+    # CAPACITY CREDITS for flexible operation
+    # ============================================
+    capacity_credit = 0
+    if include_capacity_credit and is_flexible:
         curtailable_mw = dc_capacity_mw * (1 - peak_coincidence)
-        # Capacity credits are more valuable in capacity markets
         credit_multiplier = 0.90 if (utility and utility.get('has_capacity_market')) else 0.80
         dr_credit = curtailable_mw * base_capacity_cost * credit_multiplier
         gen_credit = onsite_gen_mw * base_capacity_cost * 0.95
-        capacity_cost_or_credit = capacity_cost_or_credit - (dr_credit + gen_credit)
-
-    # Revenue offset
-    dc_revenue = calculate_dc_revenue_offset(dc_capacity_mw, load_factor, peak_coincidence)
+        capacity_credit = dr_credit + gen_credit
+        capacity_cost_or_credit = capacity_cost_or_credit - capacity_credit
 
     gross_annual_infra_cost = annualized_infra_cost + capacity_cost_or_credit
 
-    # Energy-only markets have more direct price signals
+    # ============================================
+    # REVENUE OFFSET CALCULATION
+    # ============================================
     energy_margin_flow_through = 0.90 if market_type == 'ercot' else 0.85
-    fixed_cost_spreading_benefit = dc_revenue['demand_revenue'] * 0.15
-    revenue_offset = (dc_revenue['energy_margin'] * energy_margin_flow_through) + fixed_cost_spreading_benefit
+    ncp_demand_benefit = dc_revenue['ncp_demand_revenue'] * 0.20
+    revenue_offset = (dc_revenue['energy_margin'] * energy_margin_flow_through) + ncp_demand_benefit
 
-    # Net impact
     net_annual_impact = gross_annual_infra_cost - revenue_offset
 
-    # Apply market-adjusted residential allocation
+    # ============================================
+    # RESIDENTIAL ALLOCATION - Market-adjusted
+    # ============================================
     adjusted_allocation = residential_allocation
     if market_type == 'ercot':
-        # ERCOT: Large loads face market prices more directly
-        adjusted_allocation = residential_allocation * 0.85
+        # ERCOT 4CP methodology means DC pays more directly for transmission
+        adjusted_allocation = residential_allocation * 0.70
     elif utility and utility.get('has_capacity_market') and utility.get('capacity_price_2024', 0) > 100:
-        # High capacity market prices increase allocation
         price_multiplier = min(1.15, 1 + (utility['capacity_price_2024'] - 100) / 1000)
         adjusted_allocation = residential_allocation * price_multiplier
 
@@ -253,6 +319,8 @@ def calculate_net_residential_impact(
         'net_impact': net_annual_impact,
         'market_type': market_type,
         'adjusted_allocation': adjusted_allocation,
+        'capacity_credit': capacity_credit,
+        'is_flexible': is_flexible,
     }
 
 

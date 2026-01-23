@@ -185,15 +185,19 @@ def main():
 
         with col2:
             st.markdown(f"""
-            **2. Demand Charge Revenue (Peak Billing Consistency)**
+            **2. Demand Charge Revenue (Coincident vs Non-Coincident Peak)**
 
-            Large customers pay demand charges based on their highest usage during billing periods.
-            Rate: ${DC_RATE_STRUCTURE['demand_charge_per_mw_month']:,}/MW-month.
+            Large customer demand charges have **two components**:
 
-            - **Firm DC:** Hits 100% of capacity only 1-2 times/year (extreme summer/winter peaks). Other months peak at 85-95%.
-            - **Flexible DC:** Can install 33% more IT capacity. Higher installed capacity = hits interconnect limit more consistently (every month during shoulder seasons).
-            - **More consistent peak billing = more predictable demand charge revenue**
+            - **Coincident Peak (CP):** ~${DC_RATE_STRUCTURE['coincident_peak_charge_per_mw_month']:,}/MW-mo - Based on usage during *system* peak hours. Flexible DCs pay **less**.
+            - **Non-Coincident Peak (NCP):** ~${DC_RATE_STRUCTURE['non_coincident_peak_charge_per_mw_month']:,}/MW-mo - Based on customer's own monthly peak. Both pay similar.
             """)
+
+        st.warning("""
+        **Important nuance:** When comparing "same interconnection" scenarios, flexible DCs generate
+        **less** CP demand revenue (they curtail during peaks) but similar NCP revenue. The net benefit
+        to ratepayers comes primarily from reduced infrastructure costs, not increased demand charges.
+        """)
 
         st.markdown("""
         <div style="background: #f3e8ff; padding: 1rem; border-radius: 0.5rem; border: 1px solid #c4b5fd; margin-top: 1rem;">
@@ -440,16 +444,31 @@ def main():
         st.markdown("### ERCOT Energy-Only Market")
         st.caption("Texas Grid (ERCOT)")
         ercot_data = {
-            "Parameter": ["Base Residential Allocation", "Capacity Cost Pass-Through", "Capacity Market", "Allocation Adjustment"],
-            "Value": ["30%", "25%", "None", "x 0.85"],
+            "Parameter": ["Base Residential Allocation", "Capacity Cost Pass-Through", "Capacity Market", "4CP Transmission Rate", "Allocation Adjustment"],
+            "Value": ["30%", "25%", "None", "~$5.50/kW-mo", "x 0.70"],
             "Source": [
                 "**Model Assumption** - Large loads face prices directly",
                 "**Model Assumption** - Only transmission CREZ costs",
                 "[Potomac Economics: ERCOT State of Market](https://www.potomaceconomics.com/wp-content/uploads/2024/05/2023-State-of-the-Market-Report_Final.pdf)",
-                "Model assumption"
+                "[ERCOT 4CP Program](https://www.ercot.com/services/rq/re/4cp)",
+                "4CP methodology: DC pays directly for transmission"
             ]
         }
         st.table(ercot_data)
+
+        st.success("""
+        **ERCOT 4CP Transmission Allocation**
+
+        ERCOT allocates transmission costs based on **Four Coincident Peak (4CP)** methodology.
+        Transmission charges are based on a customer's load during the 4 highest system peak hours each year.
+        This creates a **huge incentive for flexible loads**:
+
+        - **Firm DC:** Pays full 4CP charges (likely operating at high capacity during peaks)
+        - **Flexible DC:** Can curtail during the 4 peak hours, reducing transmission allocation by 25%+
+
+        Our model applies a 0.70× multiplier to residential allocation for ERCOT because the 4CP methodology
+        ensures data centers pay more directly for their transmission needs.
+        """)
 
         # SPP
         st.markdown("### SPP (Southwest Power Pool)")
@@ -472,7 +491,7 @@ Adjusted Allocation = Base Allocation x Market Multiplier
 Where Market Multiplier:
 - Regulated/SPP: 1.0 (no adjustment)
 - PJM with high capacity prices (>$100/MW-day): 1.0 to 1.15
-- ERCOT: 0.85 (large loads face prices directly)
+- ERCOT: 0.70 (4CP methodology means DC pays directly for transmission)
         """)
 
     st.divider()

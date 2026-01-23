@@ -106,8 +106,18 @@ export const DEFAULT_UTILITY: Utility = {
 };
 
 export const DC_RATE_STRUCTURE = {
-    demandChargePerMWMonth: 9050,
+    // Split demand charges into coincident peak (CP) and non-coincident peak (NCP) components
+    // CP charges are based on contribution during system peak hours
+    // NCP charges are based on customer's own monthly peak (any time)
+    coincidentPeakChargePerMWMonth: 5430, // ~60% of total demand charge
+    nonCoincidentPeakChargePerMWMonth: 3620, // ~40% of total demand charge
+    demandChargePerMWMonth: 9050, // Total for backwards compatibility
     energyMarginPerMWh: 4.88,
+
+    // ERCOT 4CP transmission allocation
+    // Transmission costs are allocated based on usage during 4 coincident peak hours per year
+    // Curtailing during these hours dramatically reduces transmission cost allocation
+    ercot4CPTransmissionRate: 5.50, // $/kW-month based on 4CP contribution
 };
 
 export const INFRASTRUCTURE_COSTS = {
@@ -243,25 +253,71 @@ export const calculateAggregateFlexibility = (workloadTypes = WORKLOAD_TYPES): n
 // REVENUE CALCULATIONS
 // ============================================
 
+/**
+ * Calculate DC revenue offset with split demand charges
+ *
+ * Key insight: Demand charges have two components:
+ * 1. Coincident Peak (CP): Based on usage during system peak hours
+ *    - Flexible DCs pay LESS because they curtail during system peaks
+ * 2. Non-Coincident Peak (NCP): Based on customer's own monthly peak
+ *    - If flexible DCs install MORE capacity, they pay MORE on NCP charges
+ *
+ * For accurate comparison of "same MW" vs "33% more MW" scenarios,
+ * use the effectiveCapacityMW parameter to model increased capacity.
+ */
 export const calculateDCRevenueOffset = (
     dcCapacityMW: number,
     loadFactor: number,
     peakCoincidence: number,
-    years: number = 1
+    years: number = 1,
+    options?: {
+        // For flexible DCs that install more capacity (e.g., 1.33x for 75% coincidence)
+        effectiveCapacityMW?: number;
+        // Market type affects how demand charges are structured
+        marketType?: MarketType;
+    }
 ) => {
-    const { demandChargePerMWMonth, energyMarginPerMWh } = DC_RATE_STRUCTURE;
+    const {
+        coincidentPeakChargePerMWMonth,
+        nonCoincidentPeakChargePerMWMonth,
+        energyMarginPerMWh,
+    } = DC_RATE_STRUCTURE;
 
+    // Effective capacity for NCP charges (may be higher than grid-facing capacity for flexible DCs)
+    const effectiveCapacity = options?.effectiveCapacityMW ?? dcCapacityMW;
+
+    // Coincident peak demand charges - based on contribution during system peak
     const coincidentPeakMW = dcCapacityMW * peakCoincidence;
-    const annualDemandRevenue = coincidentPeakMW * demandChargePerMWMonth * 12;
+    const annualCPDemandRevenue = coincidentPeakMW * coincidentPeakChargePerMWMonth * 12;
 
-    const annualMWh = dcCapacityMW * loadFactor * 8760;
+    // Non-coincident peak demand charges - based on customer's own monthly peak
+    // This is the installed/effective capacity, not reduced by coincidence
+    // Flexible DCs with more installed capacity hit their NCP more consistently
+    const ncpPeakMW = effectiveCapacity; // Customer's own peak is their full capacity
+    const annualNCPDemandRevenue = ncpPeakMW * nonCoincidentPeakChargePerMWMonth * 12;
+
+    const annualDemandRevenue = annualCPDemandRevenue + annualNCPDemandRevenue;
+
+    // Energy margin - based on actual energy consumption
+    // Flexible DCs with higher load factor and/or more capacity generate more energy revenue
+    const annualMWh = effectiveCapacity * loadFactor * 8760;
     const annualEnergyMargin = annualMWh * energyMarginPerMWh;
 
     return {
+        cpDemandRevenue: annualCPDemandRevenue * years,
+        ncpDemandRevenue: annualNCPDemandRevenue * years,
         demandRevenue: annualDemandRevenue * years,
         energyMargin: annualEnergyMargin * years,
         total: (annualDemandRevenue + annualEnergyMargin) * years,
         perYear: annualDemandRevenue + annualEnergyMargin,
+        // Detailed breakdown for transparency
+        breakdown: {
+            coincidentPeakMW,
+            ncpPeakMW,
+            annualMWh,
+            cpChargeRate: coincidentPeakChargePerMWMonth,
+            ncpChargeRate: nonCoincidentPeakChargePerMWMonth,
+        },
     };
 };
 

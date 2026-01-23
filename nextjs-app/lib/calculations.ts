@@ -142,6 +142,14 @@ const calculateResidentialAllocation = (
 // NET IMPACT CALCULATIONS
 // ============================================
 
+/**
+ * Calculate net residential impact with improved demand charge modeling
+ *
+ * Key improvements:
+ * 1. Split demand charges into CP (coincident peak) and NCP (non-coincident peak)
+ * 2. ERCOT 4CP transmission allocation - huge benefit for flexible loads
+ * 3. Flexible DCs can install more capacity for same grid impact
+ */
 const calculateNetResidentialImpact = (
     dcCapacityMW: number,
     loadFactor: number,
@@ -152,37 +160,89 @@ const calculateNetResidentialImpact = (
     onsiteGenMW: number = 0,
     utility?: Utility
 ) => {
+    // For flexible DCs (peakCoincidence < 1.0), they can install more capacity
+    // because each MW only adds (peakCoincidence) MW to system peak
+    // flexCapacityMultiplier = 1 / peakCoincidence (e.g., 1/0.75 = 1.33 for 25% curtailment)
+    // However, we model the "same interconnection" scenario by default
+    // The increased capacity primarily affects NCP demand charges and energy revenue
+    const isFlexible = peakCoincidence < 1.0;
+
+    // Effective peak contribution to the grid (what drives infrastructure needs)
     const effectivePeakMW = dcCapacityMW * peakCoincidence - onsiteGenMW;
-    const transmissionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.transmissionCostPerMW;
+
+    // ============================================
+    // TRANSMISSION COSTS - Market-specific allocation
+    // ============================================
+    let transmissionCost: number;
+
+    if (utility?.marketType === 'ercot') {
+        // ERCOT uses 4CP (four coincident peak) methodology
+        // Transmission costs are allocated based on usage during 4 specific peak hours per year
+        // If a DC curtails during those hours, their transmission allocation drops dramatically
+
+        // The 4CP rate is applied to the DC's load during those 4 hours
+        // For firm load: 100% of capacity during 4CP hours
+        // For flexible load: peakCoincidence % of capacity during 4CP hours
+        const fourCPContributionMW = dcCapacityMW * peakCoincidence - onsiteGenMW;
+        const ercot4CPRate = DC_RATE_STRUCTURE.ercot4CPTransmissionRate || 5.50; // $/kW-month
+        const annualTransmissionCost = Math.max(0, fourCPContributionMW) * 1000 * ercot4CPRate * 12;
+
+        // Also include some base transmission cost that doesn't depend on 4CP
+        // (interconnection facilities, local upgrades)
+        const baseTransmissionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.transmissionCostPerMW * 0.3;
+        transmissionCost = annualTransmissionCost + (baseTransmissionCost / 20);
+    } else {
+        // Traditional embedded cost allocation for regulated/PJM/other markets
+        transmissionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.transmissionCostPerMW;
+    }
+
     const distributionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.distributionCostPerMW;
-    const totalInfraCost = transmissionCost + distributionCost;
-    const annualizedInfraCost = totalInfraCost / 20;
 
-    const demandChargeAnnual = DC_RATE_STRUCTURE.demandChargePerMWMonth * 12;
+    // Annualize infrastructure costs (20-year recovery period)
+    const annualizedTransmissionCost = utility?.marketType === 'ercot'
+        ? transmissionCost // Already annualized for ERCOT 4CP
+        : transmissionCost / 20;
+    const annualizedDistributionCost = distributionCost / 20;
+    const annualizedInfraCost = annualizedTransmissionCost + annualizedDistributionCost;
 
-    // Market-specific capacity cost calculation
+    // ============================================
+    // CAPACITY COSTS - Market-specific
+    // ============================================
     let baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
-    let capacityCostPassThrough = utility?.capacityCostPassThrough ?? 0.40;
+    const capacityCostPassThrough = utility?.capacityCostPassThrough ?? 0.40;
 
-    // In capacity markets (PJM), use actual 2024 capacity price if available
     if (utility?.hasCapacityMarket && utility?.capacityPrice2024) {
-        // Convert $/MW-day to $/MW-year
         const capacityPriceAnnual = utility.capacityPrice2024 * 365;
-        // Blend the capacity cost with market price based on pass-through rate
         baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.5 +
                           capacityPriceAnnual * capacityCostPassThrough * 0.5;
     }
 
-    // In energy-only markets (ERCOT), capacity costs are lower (no capacity market)
     if (utility?.marketType === 'ercot') {
-        baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.60;
+        // No capacity market in ERCOT, but still need some generation adequacy costs
+        baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.50;
     }
 
-    const netCapacityCostPerMW = Math.max(0, baseCapacityCost - demandChargeAnnual);
+    // ============================================
+    // DEMAND CHARGE REVENUE - Split CP/NCP
+    // ============================================
+    // Use the new split demand charge calculation
+    const dcRevenue = calculateDCRevenueOffset(dcCapacityMW, loadFactor, peakCoincidence, 1, {
+        effectiveCapacityMW: dcCapacityMW, // Same capacity for both scenarios
+        marketType: utility?.marketType,
+    });
+
+    // Net capacity cost after demand charge offset
+    // CP demand charges offset CP-related capacity costs
+    // NCP demand charges provide additional revenue
+    const cpDemandChargeAnnual = DC_RATE_STRUCTURE.coincidentPeakChargePerMWMonth * 12;
+    const netCapacityCostPerMW = Math.max(0, baseCapacityCost - cpDemandChargeAnnual);
     let capacityCostOrCredit = Math.max(0, effectivePeakMW) * netCapacityCostPerMW;
 
+    // ============================================
+    // CAPACITY CREDITS for flexible operation
+    // ============================================
     let capacityCredit = 0;
-    if (includeCapacityCredit) {
+    if (includeCapacityCredit && isFlexible) {
         const curtailableMW = dcCapacityMW * (1 - peakCoincidence);
         // Capacity credits are more valuable in capacity markets
         const creditMultiplier = utility?.hasCapacityMarket ? 0.90 : 0.80;
@@ -192,23 +252,34 @@ const calculateNetResidentialImpact = (
         capacityCostOrCredit = capacityCostOrCredit - capacityCredit;
     }
 
-    const dcRevenue = calculateDCRevenueOffset(dcCapacityMW, loadFactor, peakCoincidence);
     const grossAnnualInfraCost = annualizedInfraCost + capacityCostOrCredit;
 
-    // Energy-only markets have more direct price signals, so energy margin benefit is higher
+    // ============================================
+    // REVENUE OFFSET CALCULATION
+    // ============================================
+    // Energy margin flows through to benefit ratepayers
     const energyMarginFlowThrough = utility?.marketType === 'ercot' ? 0.90 : 0.85;
-    const fixedCostSpreadingBenefit = dcRevenue.demandRevenue * 0.15;
-    const revenueOffset = (dcRevenue.energyMargin * energyMarginFlowThrough) + fixedCostSpreadingBenefit;
+
+    // NCP demand charges provide fixed cost spreading benefit
+    // (The DC is paying toward system costs regardless of when they use power)
+    const ncpDemandBenefit = dcRevenue.ncpDemandRevenue * 0.20;
+
+    // Total revenue offset
+    const revenueOffset = (dcRevenue.energyMargin * energyMarginFlowThrough) + ncpDemandBenefit;
 
     const netAnnualImpact = grossAnnualInfraCost - revenueOffset;
 
-    // Apply market-adjusted residential allocation
+    // ============================================
+    // RESIDENTIAL ALLOCATION - Market-adjusted
+    // ============================================
     let adjustedAllocation = residentialAllocation;
+
     if (utility?.marketType === 'ercot') {
-        // ERCOT: Large loads face market prices more directly, lower allocation to residential
-        adjustedAllocation = residentialAllocation * 0.85;
+        // ERCOT: Large loads face 4CP transmission costs directly
+        // This significantly reduces cost spillover to residential
+        // The 4CP methodology means DC pays for their own transmission needs
+        adjustedAllocation = residentialAllocation * 0.70; // Larger reduction than before
     } else if (utility?.hasCapacityMarket && utility?.capacityPrice2024 && utility.capacityPrice2024 > 100) {
-        // High capacity market prices increase allocation as costs spread
         const priceMultiplier = Math.min(1.15, 1 + (utility.capacityPrice2024 - 100) / 1000);
         adjustedAllocation = residentialAllocation * priceMultiplier;
     }
@@ -224,14 +295,19 @@ const calculateNetResidentialImpact = (
         netImpact: netAnnualImpact,
         metrics: {
             effectivePeakMW: Math.max(0, effectivePeakMW),
-            transmissionCost,
-            distributionCost,
+            transmissionCost: annualizedTransmissionCost,
+            distributionCost: annualizedDistributionCost,
             dcRevenuePerYear: dcRevenue.perYear,
+            cpDemandRevenue: dcRevenue.cpDemandRevenue,
+            ncpDemandRevenue: dcRevenue.ncpDemandRevenue,
+            energyMarginRevenue: dcRevenue.energyMargin,
             capacityCostOrCredit,
+            capacityCredit,
             revenueOffset,
             energyMarginFlowThrough,
             marketType: utility?.marketType ?? 'regulated',
             adjustedAllocation,
+            isFlexible,
         },
     };
 };

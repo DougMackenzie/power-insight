@@ -53,8 +53,11 @@ export default function MethodologyPage() {
     };
 
     const DC_RATE_STRUCTURE = {
+        coincidentPeakChargePerMWMonth: 5430,
+        nonCoincidentPeakChargePerMWMonth: 3620,
         demandChargePerMWMonth: 9050,
         energyMarginPerMWh: 4.88,
+        ercot4CPTransmissionRate: 5.50,
     };
 
     return (
@@ -213,19 +216,31 @@ export default function MethodologyPage() {
                             </div>
 
                             <div>
-                                <span className="font-semibold text-gray-900">2. Demand Charge Revenue (Peak Billing Consistency)</span>
+                                <span className="font-semibold text-gray-900">2. Demand Charge Revenue (Coincident vs Non-Coincident Peak)</span>
                                 <p className="mt-1">
-                                    Large customers pay demand charges based on their highest usage during billing periods.
-                                    Rate: ${DC_RATE_STRUCTURE.demandChargePerMWMonth.toLocaleString()}/MW-month.
+                                    Large customer demand charges typically have <strong>two components</strong>:
                                 </p>
-                                <div className="mt-2 pl-4 border-l-2 border-amber-300">
-                                    <p><strong>Firm data center behavior:</strong> Hits 100% of interconnected capacity only 1-2 times per year
-                                    (typically during extreme summer or winter peaks). Other months may peak at 85-95% due to workload variation.</p>
-                                    <p className="mt-2"><strong>Flexible data center behavior:</strong> Can install 33% more IT capacity (because it can
-                                    curtail during grid peaks). This higher installed capacity means they hit their interconnect limit more
-                                    consistently—potentially every month during shoulder seasons—generating higher average demand charges.</p>
-                                    <p className="text-green-700 font-medium mt-1">
-                                        More consistent peak billing = more predictable demand charge revenue for the utility
+                                <div className="mt-2 pl-4 border-l-2 border-amber-300 space-y-3">
+                                    <div>
+                                        <p><strong>Coincident Peak (CP) Charges</strong> (~${DC_RATE_STRUCTURE.coincidentPeakChargePerMWMonth.toLocaleString()}/MW-month)</p>
+                                        <p className="text-gray-600 text-xs mt-1">
+                                            Based on usage during <em>system</em> peak hours. Flexible DCs pay <strong>less</strong> because
+                                            they curtail during these critical periods.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p><strong>Non-Coincident Peak (NCP) Charges</strong> (~${DC_RATE_STRUCTURE.nonCoincidentPeakChargePerMWMonth.toLocaleString()}/MW-month)</p>
+                                        <p className="text-gray-600 text-xs mt-1">
+                                            Based on the customer's own monthly peak (any time). Both firm and flexible DCs pay
+                                            similar NCP charges based on their installed capacity.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-3 p-3 bg-amber-50 rounded border border-amber-200">
+                                    <p className="text-sm text-amber-900">
+                                        <strong>Important nuance:</strong> When comparing "same interconnection" scenarios, flexible DCs
+                                        generate <strong>less</strong> CP demand revenue (they curtail during peaks) but similar NCP revenue.
+                                        The net benefit to ratepayers comes primarily from reduced infrastructure costs, not increased demand charges.
                                     </p>
                                 </div>
                             </div>
@@ -834,9 +849,18 @@ export default function MethodologyPage() {
                                     </tr>
                                     <tr className="border-b border-green-100">
                                         <td className="py-2 font-medium">Allocation Adjustment</td>
-                                        <td className="text-right">× 0.85</td>
+                                        <td className="text-right">× 0.70</td>
                                         <td className="pl-4 text-xs text-gray-500">
-                                            Model assumption: large loads face prices more directly
+                                            4CP methodology: large loads pay for transmission based on peak usage
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-green-100">
+                                        <td className="py-2 font-medium">4CP Transmission Rate</td>
+                                        <td className="text-right font-bold text-green-700">~$5.50/kW-mo</td>
+                                        <td className="pl-4 text-xs">
+                                            <a href="https://www.ercot.com/services/rq/re/4cp" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                ERCOT 4CP Program
+                                            </a>
                                         </td>
                                     </tr>
                                     <tr className="border-b border-green-100">
@@ -850,15 +874,22 @@ export default function MethodologyPage() {
                                     </tr>
                                 </tbody>
                             </table>
-                            <p className="mt-3 text-sm text-gray-600">
-                                <strong>Allocation Method:</strong> ERCOT operates an energy-only market with no capacity payments.
-                                Large loads face wholesale price signals more directly through{' '}
-                                <a href="https://www.puc.texas.gov/industry/electric/business/retailmkt.aspx" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                    retail competition
-                                </a>. Our model applies
-                                an 0.85× multiplier to residential allocation since infrastructure costs are more directly borne by
-                                the loads causing them.
-                            </p>
+                            <div className="mt-3 p-3 bg-green-100 rounded-lg border border-green-300">
+                                <p className="text-sm font-semibold text-green-900 mb-1">ERCOT 4CP Transmission Allocation</p>
+                                <p className="text-xs text-green-800">
+                                    ERCOT allocates transmission costs based on <strong>Four Coincident Peak (4CP)</strong> methodology.
+                                    Transmission charges are based on a customer's load during the 4 highest system peak hours each year
+                                    (typically one per season). This creates a <strong>huge incentive for flexible loads</strong>:
+                                </p>
+                                <ul className="list-disc list-inside text-xs text-green-800 mt-2 space-y-1">
+                                    <li><strong>Firm DC:</strong> Pays full 4CP charges (likely operating at high capacity during peaks)</li>
+                                    <li><strong>Flexible DC:</strong> Can curtail during the 4 peak hours, reducing transmission allocation by 25%+</li>
+                                </ul>
+                                <p className="text-xs text-green-800 mt-2">
+                                    Our model applies a 0.70× multiplier to residential allocation for ERCOT because the 4CP methodology
+                                    ensures data centers pay more directly for their transmission needs.
+                                </p>
+                            </div>
                         </div>
 
                         {/* SPP */}
