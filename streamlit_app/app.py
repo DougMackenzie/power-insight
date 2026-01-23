@@ -635,8 +635,9 @@ with tab6:
 
     with st.expander("Data Sources & Specific Values Used", expanded=True):
         st.info("""
-        **Transparency Note:** Below we document exactly which data points were pulled from each source
-        and how they are used in the model. This allows you to verify our assumptions or substitute your own values.
+        **Transparency Note:** Below we document data sources where available.
+        Values marked with ⚠️ **Model Assumption** are based on industry understanding or selected from
+        published ranges, but not directly cited from a specific source. You can substitute your own values using the sidebar.
         """)
 
         # EIA Data
@@ -664,34 +665,37 @@ with tab6:
         }
         st.table(eia_data)
 
-        # FERC Data
-        st.subheader("Federal Energy Regulatory Commission (FERC)")
-        st.markdown("[Form 1 Utility Financial Filings, Transmission Cost Studies](https://www.ferc.gov/industries-data/electric)")
-        ferc_data = {
+        # Infrastructure & Allocation Data
+        st.subheader("Infrastructure & Allocation Data")
+        st.markdown("[MISO MTEP](https://cdn.misoenergy.org/MTEP23%20Executive%20Summary630586.pdf) | [NREL Distribution Costs](https://docs.nrel.gov/docs/fy18osti/70710.pdf) | [RAP Cost Allocation](https://www.raponline.org/knowledge-center/electric-cost-allocation-new-era/)")
+        infra_data = {
             "Data Point": [
                 "Transmission cost per MW",
                 "Distribution cost per MW",
                 "Base residential allocation",
+                "Allocation weighting (vol/demand/cust)",
                 "Annual infrastructure upgrade rate"
             ],
             "Value Used": [
                 f"${INFRASTRUCTURE_COSTS['transmission_cost_per_mw']:,}/MW",
                 f"${INFRASTRUCTURE_COSTS['distribution_cost_per_mw']:,}/MW",
                 f"{DEFAULT_UTILITY['base_residential_allocation']*100:.0f}%",
+                "40% / 40% / 20%",
                 f"{INFRASTRUCTURE_COSTS['annual_baseline_upgrade_pct']*100:.1f}%"
             ],
-            "How We Use It": [
-                "Infrastructure cost for new load",
-                "Local grid upgrade costs",
-                "Starting cost allocation share",
-                "Baseline cost escalation"
+            "Source / Note": [
+                "MISO MTEP23 range $200-500k; ⚠️ $350k selected as median",
+                "NREL study ranges; ⚠️ $150k inferred",
+                "⚠️ Model Assumption (typical for regulated utilities)",
+                "⚠️ Model Assumption (simplified blend)",
+                "Brattle 1-2% range; ⚠️ 1.5% selected as midpoint"
             ]
         }
-        st.table(ferc_data)
+        st.table(infra_data)
 
         # PJM/MISO Data
-        st.subheader("PJM Interconnection & MISO")
-        st.markdown("[Regional Transmission Organizations - Capacity Market Data](https://www.pjm.com/markets-and-operations/rpm)")
+        st.subheader("Capacity Markets & Rate Structure")
+        st.markdown("[PJM Auction Results](https://www.pjm.com/-/media/DotCom/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.pdf) | [NREL ATB](https://atb.nrel.gov/electricity/2024/fossil_energy_technologies)")
         pjm_data = {
             "Data Point": [
                 "Capacity cost per MW-year",
@@ -705,11 +709,11 @@ with tab6:
                 f"${DC_RATE_STRUCTURE['energy_margin_per_mwh']}/MWh",
                 "80%"
             ],
-            "How We Use It": [
-                "System capacity procurement cost",
-                "DC revenue contribution",
-                "DC energy revenue offset",
-                "Value of curtailable load"
+            "Source / Note": [
+                "NREL ATB range $98-175k; ⚠️ $150k selected",
+                "⚠️ Representative value from PSO LPL tariff",
+                "⚠️ Model Assumption (industry typical $3-8/MWh)",
+                "⚠️ Model Assumption"
             ]
         }
         st.table(pjm_data)
@@ -738,7 +742,7 @@ with tab6:
 
         # LBNL Data + EPRI DCFlex Research
         st.subheader("LBNL & EPRI DCFlex Research")
-        st.markdown("[LBNL Data Center Energy](https://eta.lbl.gov/publications/united-states-data-center-energy) | [EPRI DCFlex](https://msites.epri.com/dcflex)")
+        st.markdown("[LBNL Data Center Energy](https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report_1.pdf) | [EPRI DCFlex](https://dcflex.epri.com/)")
         lbnl_data = {
             "Data Point": [
                 "Firm load factor",
@@ -764,10 +768,11 @@ with tab6:
         # Industry Research
         st.subheader("Industry Research & Academic Literature")
         st.markdown("""
-        Sources: [EPRI DCFlex Initiative](https://msites.epri.com/dcflex),
-        [IEEE Spectrum (2024)](https://spectrum.ieee.org/dcflex-data-center-flexibility),
+        Sources: [EPRI DCFlex Initiative](https://dcflex.epri.com/),
+        [IEEE Spectrum (2025)](https://spectrum.ieee.org/dcflex-data-center-flexibility),
         [Latitude Media / Databricks Research](https://www.latitudemedia.com/news/catalyst-the-mechanics-of-data-center-flexibility/)
         """)
+        st.warning("⚠️ **Model Assumptions:** The workload percentages and flexibility values below are illustrative estimates. Actual values vary significantly by operator and workload mix.")
         industry_data = {
             "Workload Type": [
                 "AI Training",
@@ -782,10 +787,10 @@ with tab6:
                 "5%"
             ],
             "Source": [
-                "EPRI DCFlex / arXiv Phoenix demonstration",
-                "EPRI DCFlex / Databricks ~90% preemptible",
-                "DCFlex Flex 0 tier (strict SLA)",
-                "Industry baseline assumption"
+                "⚠️ Inferred from DCFlex / arXiv Phoenix",
+                "⚠️ Inferred from Databricks ~90% preemptible",
+                "⚠️ DCFlex Flex 0 tier (strict SLA)",
+                "⚠️ Industry estimate"
             ]
         }
         st.table(industry_data)
@@ -904,10 +909,10 @@ with tab6:
         st.markdown("""
         **Data Sources:**
         - [IEEE Spectrum: Big Tech Tests Data Center Flexibility (2024)](https://spectrum.ieee.org/dcflex-data-center-flexibility)
-        - [arXiv: Turning AI Data Centers into Grid-Interactive Assets - Phoenix Field Demonstration](https://arxiv.org/html/2507.00909v1)
+        - [arXiv: Turning AI Data Centers into Grid-Interactive Assets - Phoenix Field Demonstration](https://arxiv.org/abs/2507.00909)
         - [Latitude Media: The Mechanics of Data Center Flexibility](https://www.latitudemedia.com/news/catalyst-the-mechanics-of-data-center-flexibility/) - includes Databricks 90% preemptible workload finding
         - [Google Cloud: Using Demand Response to Reduce Data Center Power Consumption](https://cloud.google.com/blog/products/infrastructure/using-demand-response-to-reduce-data-center-power-consumption)
-        - [EPRI DCFlex Initiative](https://msites.epri.com/dcflex) - 45+ industry collaborators including Google, Meta, Microsoft, NVIDIA
+        - [EPRI DCFlex Initiative](https://dcflex.epri.com/) - 45+ industry collaborators including Google, Meta, Microsoft, NVIDIA
         """)
 
     with st.expander("Limitations & Caveats"):
@@ -935,12 +940,15 @@ with tab6:
 
     with st.expander("Data Source Links"):
         st.markdown("""
-        - [EIA Electricity Data](https://www.eia.gov/electricity/data.php)
-        - [NREL Annual Technology Baseline](https://atb.nrel.gov/)
-        - [FERC Electric Industry Data](https://www.ferc.gov/industries-data/electric)
-        - [PJM Capacity Markets](https://www.pjm.com/markets-and-operations/rpm)
-        - [MISO Resource Adequacy](https://www.misoenergy.org/markets-and-operations/resource-adequacy/)
-        - [LBNL Data Center Research](https://eta.lbl.gov/publications/united-states-data-center-energy)
+        - [EIA Table 5A - Average Monthly Bill](https://www.eia.gov/electricity/sales_revenue_price/pdf/table_5A.pdf)
+        - [NREL Annual Technology Baseline 2024](https://atb.nrel.gov/electricity/2024/index)
+        - [RAP: Electric Cost Allocation for a New Era (2020)](https://www.raponline.org/wp-content/uploads/2023/09/rap-lazar-chernick-marcus-lebel-electric-cost-allocation-new-era-2020-january.pdf)
+        - [PJM 2025/26 Base Residual Auction Report](https://www.pjm.com/-/media/DotCom/markets-ops/rpm/rpm-auction-info/2025-2026/2025-2026-base-residual-auction-report.pdf)
+        - [MISO MTEP23 Executive Summary](https://cdn.misoenergy.org/MTEP23%20Executive%20Summary630586.pdf)
+        - [LBNL Data Center Energy Usage Report (2024)](https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report_1.pdf)
+        - [Grid Strategies: National Load Growth Report (2024)](https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf)
+        - [EPRI DCFlex Initiative](https://dcflex.epri.com/)
+        - [arXiv: Turning AI Data Centers into Grid-Interactive Assets](https://arxiv.org/abs/2507.00909)
         """)
 
 # Footer
