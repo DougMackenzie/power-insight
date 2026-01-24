@@ -455,12 +455,28 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* The 1,000 GW callout */}
+          <div className="bg-white rounded-xl p-4 mb-6 border border-red-200">
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+              <div className="text-center md:text-left">
+                <p className="text-4xl md:text-5xl font-bold text-red-600">1,000 GW</p>
+                <p className="text-sm text-gray-600">of large load requests submitted to U.S. utilities</p>
+              </div>
+              <div className="flex-1 text-sm text-gray-700">
+                <p>
+                  That's <strong>20× the realistic new capacity</strong> that will actually be built by 2030.
+                  If utilities plan infrastructure for all these requests, ratepayers could be left paying for
+                  assets that sit unused. Only a fraction of requested load will ever connect to the grid.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h4 className="font-semibold text-red-800 mb-3">The Stranded Asset Problem</h4>
               <p className="text-sm text-gray-700 mb-3">
-                When utilities build transmission lines, substations, and power plants for projected data center demand
-                that never materializes, those costs don't disappear—<strong>they get passed to existing ratepayers</strong>.
+                When utilities build for projected demand that never materializes, those costs don't disappear—<strong>they get passed to existing ratepayers</strong>.
               </p>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-start gap-2">
@@ -469,7 +485,7 @@ export default function HomePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-500 mt-1">•</span>
-                  <span>"Phantom data centers" in queues that never connect could represent <strong>$70B+ in stranded investment</strong></span>
+                  <span>"Phantom data centers" in queues could represent <strong>$70B+ in stranded investment</strong></span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-500 mt-1">•</span>
@@ -479,31 +495,32 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold text-green-800 mb-3">Why Flexibility Matters Even More</h4>
+              <h4 className="font-semibold text-green-800 mb-3">How Good Design Protects Ratepayers</h4>
               <p className="text-sm text-gray-700 mb-3">
-                Flexible data centers don't just reduce peak demand—they <strong>reduce the risk of overbuilding</strong>:
+                Flexible operations and hybrid power models <strong>reduce the risk of overbuilding</strong>:
               </p>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 mt-1">✓</span>
-                  <span><strong>Higher load factors</strong> mean more revenue per MW of infrastructure built</span>
+                  <span><strong>Flexible load</strong> can scale with actual grid capacity, not speculative forecasts</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 mt-1">✓</span>
-                  <span><strong>Demand response</strong> lets the grid scale with actual usage, not forecasts</span>
+                  <span><strong>Onsite generation</strong> reduces demands on grid infrastructure</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 mt-1">✓</span>
-                  <span><strong>Better asset utilization</strong> = downward pressure on rates for everyone</span>
+                  <span><strong>Higher utilization</strong> means more revenue per dollar of infrastructure built</span>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="mt-4 pt-4 border-t border-red-200 text-xs text-gray-500">
-            Sources: <a href="https://www.selc.org/press-release/new-report-exposes-inflated-load-growth-projections-from-data-centers-in-the-southeast/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">Southern Environmental Law Center</a>,
-            <a href="https://www.aixenergy.io/managing-data-center-uncertainty-part-ii-phantom-data-centers-how-strategic-opacity-drives-overbuild/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">AIX Energy "Phantom Data Centers"</a>,
-            <a href="https://www.publicadvocates.cpuc.ca.gov/press-room/commentary/251027-how-will-data-center-growth-impact-california-ratepayers" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">California Public Advocates Office</a>
+            Sources: <a href="https://newsletter.semianalysis.com/p/how-ai-labs-are-solving-the-power" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">SemiAnalysis</a>,
+            <a href="https://www.selc.org/press-release/new-report-exposes-inflated-load-growth-projections-from-data-centers-in-the-southeast/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">Southern Environmental Law Center</a>,
+            <a href="https://www.aixenergy.io/managing-data-center-uncertainty-part-ii-phantom-data-centers-how-strategic-opacity-drives-overbuild/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">AIX Energy</a>,
+            <a href="https://www.publicadvocates.cpuc.ca.gov/press-room/commentary/251027-how-will-data-center-growth-impact-california-ratepayers" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">California Public Advocates</a>
           </div>
         </div>
 

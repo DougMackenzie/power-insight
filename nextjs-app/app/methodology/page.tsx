@@ -1410,9 +1410,32 @@ export default function MethodologyPage() {
                             </div>
                         </div>
 
+                        {/* The Scale of Queue Requests */}
+                        <div className="border-2 border-amber-300 rounded-lg p-4 bg-amber-50">
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                <div className="text-center md:text-left flex-shrink-0">
+                                    <p className="text-4xl font-bold text-amber-600">1,000 GW</p>
+                                    <p className="text-sm text-gray-600">load requests submitted</p>
+                                </div>
+                                <div className="text-sm text-gray-700">
+                                    <p className="mb-2">
+                                        U.S. utilities have received approximately <strong>1,000 GW (1 terawatt)</strong> of large load interconnection
+                                        requests—roughly <strong>20× the realistic new capacity</strong> that will actually be built by 2030.
+                                    </p>
+                                    <p>
+                                        This massive gap between requests and reality creates significant planning uncertainty. Many of these projects
+                                        will never connect, but utilities may build infrastructure anticipating their arrival.
+                                    </p>
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-3 pt-2 border-t border-amber-200">
+                                Source: <a href="https://newsletter.semianalysis.com/p/how-ai-labs-are-solving-the-power" target="_blank" rel="noopener noreferrer" className="text-amber-700 hover:underline">SemiAnalysis - How AI Labs Are Solving the Power Crisis</a>
+                            </p>
+                        </div>
+
                         {/* Evidence */}
                         <div className="border border-gray-200 rounded-lg p-4">
-                            <h4 className="font-semibold text-gray-900 mb-3">Evidence of Overbuilding Risk</h4>
+                            <h4 className="font-semibold text-gray-900 mb-3">Additional Evidence of Overbuilding Risk</h4>
                             <ul className="space-y-3 text-sm">
                                 <li className="flex items-start gap-2">
                                     <span className="text-gray-400">•</span>
@@ -1425,7 +1448,7 @@ export default function MethodologyPage() {
                                 <li className="flex items-start gap-2">
                                     <span className="text-gray-400">•</span>
                                     <span>
-                                        <strong>Interconnection Queue Analysis:</strong> Only 13% of capacity that submitted interconnection requests
+                                        <strong>Historical Completion Rates:</strong> Only 13% of capacity that submitted interconnection requests
                                         from 2000-2019 reached commercial operations by end of 2024; 77% was withdrawn.
                                         <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">[LBNL]</a>
                                     </span>
@@ -1438,15 +1461,23 @@ export default function MethodologyPage() {
                                         <a href="https://www.selc.org/press-release/new-report-exposes-inflated-load-growth-projections-from-data-centers-in-the-southeast/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">[SELC]</a>
                                     </span>
                                 </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span>
+                                        <strong>Texas Bottleneck:</strong> The state receives "tens of gigawatts" of data center requests monthly,
+                                        yet approved barely 1 GW in the preceding 12 months.
+                                        <a href="https://newsletter.semianalysis.com/p/how-ai-labs-are-solving-the-power" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">[SemiAnalysis]</a>
+                                    </span>
+                                </li>
                             </ul>
                         </div>
 
                         {/* Why Flexibility Mitigates Risk */}
                         <div className="border border-green-200 rounded-lg p-4 bg-green-50">
-                            <h4 className="font-semibold text-green-900 mb-3">Why Flexible Load Reduces This Risk</h4>
+                            <h4 className="font-semibold text-green-900 mb-3">Why Flexible & Hybrid Models Reduce This Risk</h4>
                             <p className="text-sm text-gray-700 mb-3">
-                                Flexible data centers don't just reduce peak demand charges—they fundamentally reduce the
-                                risk of overbuilding because they create a more predictable, higher-utilization load profile:
+                                Flexible data centers and hybrid power models don't just reduce peak demand charges—they fundamentally
+                                reduce the risk of overbuilding by creating more predictable, higher-utilization load profiles:
                             </p>
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div>
@@ -1475,7 +1506,7 @@ export default function MethodologyPage() {
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-green-600">✓</span>
-                                            <span><strong>Curtailment capability</strong> reduces peak infrastructure requirements</span>
+                                            <span><strong>Onsite generation</strong> reduces demands on shared grid infrastructure</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-green-600">✓</span>
