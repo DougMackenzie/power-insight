@@ -1,0 +1,15 @@
+{
+  "development": {
+    "totalInputTokens": 395000,
+    "totalOutputTokens": 108000,
+    "totalTokens": 503000,
+    "sessions": 14,
+    "lastUpdated": "2026-01-24"
+  },
+  "carbonMetrics": {
+    "gCO2PerThousandTokens": 1,
+    "totalKgCO2": 0.503,
+    "hamburgerEquivalentKg": 3.5
+  },
+  "notes": "Token counts are updated periodically during development. Use 'npm run update-carbon' or manually update after development sessions."
+}

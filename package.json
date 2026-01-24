@@ -8,7 +8,8 @@
     "dev:host": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "update-carbon": "node scripts/update-carbon.cjs"
   },
   "dependencies": {
     "react": "^18.2.0",

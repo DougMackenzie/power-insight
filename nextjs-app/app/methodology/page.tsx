@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     INFRASTRUCTURE_COSTS,
     TIME_PARAMS,
@@ -46,12 +46,42 @@ const Section = ({ id, title, children, expandedSection, toggleSection }: Sectio
     );
 };
 
+interface CarbonData {
+    development: {
+        totalInputTokens: number;
+        totalOutputTokens: number;
+        totalTokens: number;
+        sessions: number;
+        lastUpdated: string;
+    };
+    carbonMetrics: {
+        gCO2PerThousandTokens: number;
+        totalKgCO2: number;
+        hamburgerEquivalentKg: number;
+    };
+}
+
 export default function MethodologyPage() {
     const [expandedSection, setExpandedSection] = useState<string | null>('overview');
+    const [carbonData, setCarbonData] = useState<CarbonData | null>(null);
+
+    useEffect(() => {
+        fetch('/api/carbon')
+            .then(res => res.json())
+            .then(data => setCarbonData(data))
+            .catch(err => console.error('Failed to fetch carbon data:', err));
+    }, []);
 
     const toggleSection = (section: string) => {
         setExpandedSection(expandedSection === section ? null : section);
     };
+
+    // Derived carbon values
+    const totalTokens = carbonData?.development?.totalTokens ?? 400000;
+    const gCO2PerK = carbonData?.carbonMetrics?.gCO2PerThousandTokens ?? 1.0;
+    const totalKgCO2 = carbonData?.carbonMetrics?.totalKgCO2 ?? 0.4;
+    const hamburgerKg = carbonData?.carbonMetrics?.hamburgerEquivalentKg ?? 3.5;
+    const hamburgerEquiv = totalKgCO2 / hamburgerKg;
 
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
@@ -1644,28 +1674,33 @@ export default function MethodologyPage() {
                             <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                 <span className="text-xl">🍔</span>
                                 Carbon Calculation
+                                {carbonData?.development?.lastUpdated && (
+                                    <span className="text-xs text-gray-400 font-normal ml-auto">
+                                        Updated: {carbonData.development.lastUpdated}
+                                    </span>
+                                )}
                             </h4>
                             <table className="w-full text-sm">
                                 <tbody>
                                     <tr className="border-b border-gray-100">
-                                        <td className="py-2 text-gray-600">Estimated tokens used in development</td>
-                                        <td className="py-2 text-right font-medium">~400,000 tokens</td>
+                                        <td className="py-2 text-gray-600">Tokens used in development</td>
+                                        <td className="py-2 text-right font-medium">{totalTokens.toLocaleString()} tokens</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2 text-gray-600">CO₂ per 1,000 tokens (Claude Opus)</td>
-                                        <td className="py-2 text-right font-medium">~1.0 g CO₂</td>
+                                        <td className="py-2 text-right font-medium">~{gCO2PerK} g CO₂</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2 text-gray-600">Total estimated emissions</td>
-                                        <td className="py-2 text-right font-bold text-gray-900">~400 g CO₂ (0.4 kg)</td>
+                                        <td className="py-2 text-right font-bold text-gray-900">~{(totalKgCO2 * 1000).toFixed(0)} g CO₂ ({totalKgCO2.toFixed(1)} kg)</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2 text-gray-600">Carbon footprint of one beef hamburger</td>
-                                        <td className="py-2 text-right font-medium">~3.5 kg CO₂</td>
+                                        <td className="py-2 text-right font-medium">~{hamburgerKg} kg CO₂</td>
                                     </tr>
                                     <tr>
                                         <td className="py-2 text-gray-600">Hamburger equivalent</td>
-                                        <td className="py-2 text-right font-bold text-green-600">~0.1 hamburgers 🍔</td>
+                                        <td className="py-2 text-right font-bold text-green-600">~{hamburgerEquiv.toFixed(1)} hamburgers 🍔</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1710,7 +1745,7 @@ export default function MethodologyPage() {
                         <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                             <p className="text-sm text-green-800">
                                 <strong>Context:</strong> The carbon cost of developing this tool is roughly equivalent to
-                                driving a car 1-2 miles, or about 1/10 of a single hamburger. We believe the potential
+                                driving a car {Math.round(totalKgCO2 * 2.5)}-{Math.round(totalKgCO2 * 5)} miles, or about {hamburgerEquiv.toFixed(1)} of a single hamburger. We believe the potential
                                 value of helping communities understand energy cost allocation significantly outweighs
                                 this modest environmental cost.
                             </p>

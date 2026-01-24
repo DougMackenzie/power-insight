@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCalculator } from '@/hooks/useCalculator';
 import { formatCurrency, formatMW } from '@/lib/constants';
+import CarbonFooter from '@/components/CarbonFooter';
 
 export default function HomePage() {
   const { summary, utility, dataCenter, projectionYears } = useCalculator();
@@ -442,8 +443,8 @@ export default function HomePage() {
         </div>
 
         {/* The Real Risk Section */}
-        <div className="card mb-8 border-2 border-red-200 bg-gradient-to-br from-red-50 to-orange-50">
-          <div className="flex items-start gap-4 mb-4">
+        <div className="card mb-8 border-2 border-red-200 bg-gradient-to-br from-red-50 to-orange-50 px-8 py-6">
+          <div className="flex items-start gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
               <svg className="w-7 h-7 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -451,76 +452,70 @@ export default function HomePage() {
             </div>
             <div>
               <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">The Real Risk: Overbuilding</h2>
-              <p className="text-gray-600 text-sm">It's not the data centers arriving—it's building for loads that never come</p>
+              <p className="text-gray-600">The biggest risk isn't data centers showing up—it's your utility building infrastructure for demand that never arrives.</p>
             </div>
           </div>
 
           {/* The 1,000 GW callout */}
-          <div className="bg-white rounded-xl p-4 mb-6 border border-red-200">
-            <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="text-center md:text-left">
+          <div className="bg-white rounded-xl p-6 mb-6 border border-red-200">
+            <div className="flex flex-col md:flex-row md:items-center gap-6">
+              <div className="text-center md:text-left flex-shrink-0">
                 <p className="text-4xl md:text-5xl font-bold text-red-600">1,000 GW</p>
-                <p className="text-sm text-gray-600">of large load requests submitted to U.S. utilities</p>
+                <p className="text-sm text-gray-500 mt-1">requested from U.S. utilities</p>
               </div>
-              <div className="flex-1 text-sm text-gray-700">
-                <p>
-                  That's <strong>20× the realistic new capacity</strong> that will actually be built by 2030.
-                  If utilities plan infrastructure for all these requests, ratepayers could be left paying for
-                  assets that sit unused. Only a fraction of requested load will ever connect to the grid.
+              <div className="flex-1 text-gray-700">
+                <p className="mb-2">
+                  Companies have requested <strong>20 times more power</strong> than will realistically be built by 2030.
+                </p>
+                <p className="text-sm text-gray-600">
+                  If utilities build for all these requests, <strong>you could end up paying</strong> for power plants and transmission lines that sit unused.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <h4 className="font-semibold text-red-800 mb-3">The Stranded Asset Problem</h4>
-              <p className="text-sm text-gray-700 mb-3">
-                When utilities build for projected demand that never materializes, those costs don't disappear—<strong>they get passed to existing ratepayers</strong>.
+              <h4 className="font-semibold text-red-800 mb-3">Why This Matters to You</h4>
+              <p className="text-gray-700 mb-4">
+                When utilities build for demand that never comes, those costs don't disappear—<strong>they get added to your bill</strong>.
               </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-1">•</span>
-                  <span>Studies show utility forecasts may have <strong>only 0.2% probability</strong> of occurring</span>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-3">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>Many data center projects in planning queues will never be built</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-1">•</span>
-                  <span>"Phantom data centers" in queues could represent <strong>$70B+ in stranded investment</strong></span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 mt-1">•</span>
-                  <span>Each GW of unnecessary capacity costs <strong>$1-2 billion</strong> to build</span>
+                <li className="flex items-start gap-3">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span>Each gigawatt of unused capacity costs <strong>$1-2 billion</strong></span>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-green-800 mb-3">How Good Design Protects Ratepayers</h4>
-              <p className="text-sm text-gray-700 mb-3">
-                Flexible operations and hybrid power models <strong>reduce the risk of overbuilding</strong>:
+              <h4 className="font-semibold text-green-800 mb-3">How Smart Design Protects You</h4>
+              <p className="text-gray-700 mb-4">
+                Data centers with <strong>flexible operations</strong> reduce the risk of overbuilding:
               </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">✓</span>
-                  <span><strong>Flexible load</strong> can scale with actual grid capacity, not speculative forecasts</span>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>They can adjust power use based on what's actually available</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">✓</span>
-                  <span><strong>Onsite generation</strong> reduces demands on grid infrastructure</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-500 mt-1">✓</span>
-                  <span><strong>Higher utilization</strong> means more revenue per dollar of infrastructure built</span>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <span>On-site generation means less strain on the grid</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-red-200 text-xs text-gray-500">
-            Sources: <a href="https://newsletter.semianalysis.com/p/how-ai-labs-are-solving-the-power" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">SemiAnalysis</a>,
-            <a href="https://www.selc.org/press-release/new-report-exposes-inflated-load-growth-projections-from-data-centers-in-the-southeast/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">Southern Environmental Law Center</a>,
-            <a href="https://www.aixenergy.io/managing-data-center-uncertainty-part-ii-phantom-data-centers-how-strategic-opacity-drives-overbuild/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">AIX Energy</a>,
-            <a href="https://www.publicadvocates.cpuc.ca.gov/press-room/commentary/251027-how-will-data-center-growth-impact-california-ratepayers" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">California Public Advocates</a>
+          <div className="mt-6 pt-4 border-t border-red-200 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-xs text-gray-500">
+              <Link href="/methodology#risk-framework" className="text-red-700 hover:underline font-medium">
+                See detailed analysis and sources →
+              </Link>
+            </p>
           </div>
         </div>
 
@@ -642,20 +637,8 @@ export default function HomePage() {
             <span className="font-semibold">View on GitHub</span>
           </a>
 
-          {/* AI Carbon Footprint Statement */}
-          <div className="mt-8 pt-6 border-t border-gray-300">
-            <div className="inline-flex items-center gap-3 text-sm text-gray-500">
-              <span className="text-2xl" role="img" aria-label="hamburger">🍔</span>
-              <span>
-                This tool was developed with agentic AI assistance, producing an estimated{' '}
-                <strong className="text-gray-700">~0.4 kg CO₂</strong>—equivalent to about{' '}
-                <strong className="text-gray-700">1/10 of a hamburger</strong>.{' '}
-                <Link href="/methodology#ai-carbon" className="text-blue-600 hover:underline">
-                  See methodology
-                </Link>
-              </span>
-            </div>
-          </div>
+          {/* AI Carbon Footprint Statement - Dynamic */}
+          <CarbonFooter />
         </div>
       </section>
     </div>
