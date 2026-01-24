@@ -1246,6 +1246,283 @@ export default function MethodologyPage() {
                 </Section>
 
                 <Section
+                    id="bill-composition"
+                    title="Electricity Bill Composition & Large Load Impacts"
+                    expandedSection={expandedSection}
+                    toggleSection={toggleSection}
+                >
+                    <div className="space-y-6 text-gray-600">
+                        <p>
+                            Understanding how electricity bills are composed helps clarify which components are
+                            affected when large new loads like data centers connect to the grid.
+                        </p>
+
+                        {/* Bill Components */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-3">Typical Residential Bill Components</h4>
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-2 font-medium">Component</th>
+                                        <th className="text-right py-2 font-medium">~Share</th>
+                                        <th className="text-left py-2 pl-4 font-medium">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 font-medium">Fuel/Operating Costs</td>
+                                        <td className="text-right">25%</td>
+                                        <td className="pl-4 text-xs text-gray-600">
+                                            Variable costs to run power plants (natural gas, coal). Passed through to customers
+                                            at cost—utilities don't mark up fuel.
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 font-medium">Generation Capacity</td>
+                                        <td className="text-right">25%</td>
+                                        <td className="pl-4 text-xs text-gray-600">
+                                            Capital costs of power plants (construction, financing). Includes capacity market
+                                            payments in organized markets. Solar/wind are almost entirely capacity costs.
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 font-medium">Transmission</td>
+                                        <td className="text-right">12%</td>
+                                        <td className="pl-4 text-xs text-gray-600">
+                                            High-voltage lines, substations that move power from generators to distribution.
+                                            Regulated by FERC; allocated based on peak usage or load share.
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 font-medium">Distribution</td>
+                                        <td className="text-right">25%</td>
+                                        <td className="pl-4 text-xs text-gray-600">
+                                            Local poles, wires, transformers that deliver power to homes. Regulated by state PUC;
+                                            typically allocated by customer class.
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 font-medium">Other (Taxes, Fees)</td>
+                                        <td className="text-right">13%</td>
+                                        <td className="pl-4 text-xs text-gray-600">
+                                            State/local taxes, energy efficiency programs, renewable portfolio standards,
+                                            regulatory assessments. Mostly percentage-based.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className="mt-3 text-xs text-gray-500">
+                                Source: <a href="https://www.eia.gov/tools/faqs/faq.php?id=947&t=3" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    EIA data on electricity cost components
+                                </a>. Percentages are representative averages; actual composition varies significantly by utility, state, and market structure.
+                            </p>
+                        </div>
+
+                        {/* Impact Analysis */}
+                        <div className="border border-amber-200 rounded-lg p-4 bg-amber-50">
+                            <h4 className="font-semibold text-amber-900 mb-3">Which Components Are Affected by Large New Loads?</h4>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm font-medium text-amber-800 mb-2">Directly Impacted:</p>
+                                    <ul className="space-y-2 text-sm">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-amber-600 font-bold">•</span>
+                                            <span><strong>Generation Capacity:</strong> New power plants, batteries, or capacity contracts needed to meet increased peak demand</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-amber-600 font-bold">•</span>
+                                            <span><strong>Transmission:</strong> New high-voltage lines and substations to deliver power to large loads</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-amber-600 font-bold">•</span>
+                                            <span><strong>Distribution:</strong> Local grid upgrades (substations, feeders) for the specific location</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-green-800 mb-2">Less Directly Affected:</p>
+                                    <ul className="space-y-2 text-sm">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600 font-bold">•</span>
+                                            <span><strong>Fuel/Operating:</strong> Passed through at cost; more load = more fuel revenue but neutral margin per customer</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600 font-bold">•</span>
+                                            <span><strong>Taxes & Fees:</strong> Percentage-based; scale proportionally with bills</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Renewable Energy Note */}
+                        <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                            <h4 className="font-semibold text-blue-900 mb-2">Note on Solar, Wind, and Battery Storage</h4>
+                            <p className="text-sm text-blue-800">
+                                Renewable energy sources (solar, wind) and battery storage have <strong>minimal fuel costs</strong>—they're
+                                almost entirely <strong>generation capacity costs</strong>. This means when utilities build new solar farms or
+                                battery storage to serve data center load, those costs flow into the "Generation Capacity" portion of bills,
+                                not the "Fuel/Operating" portion. The cost allocation depends on whether the data center's load actually materializes
+                                and whether the generation is well-utilized.
+                            </p>
+                        </div>
+                    </div>
+                </Section>
+
+                <Section
+                    id="risk-framework"
+                    title="Risk Framework: Overbuilding & Stranded Assets"
+                    expandedSection={expandedSection}
+                    toggleSection={toggleSection}
+                >
+                    <div className="space-y-6 text-gray-600">
+                        <p>
+                            A key insight of this model: <strong>the primary risk to residential ratepayers isn't that data centers arrive—it's
+                            that utilities build infrastructure for load that never materializes</strong>.
+                        </p>
+
+                        {/* The Core Thesis */}
+                        <div className="border-2 border-red-200 rounded-lg p-5 bg-red-50">
+                            <h4 className="font-semibold text-red-900 mb-3 flex items-center gap-2">
+                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                The Stranded Asset Problem
+                            </h4>
+                            <p className="text-sm text-gray-700 mb-3">
+                                When utilities build transmission, distribution, and generation capacity for projected data center demand
+                                that never fully materializes, those capital costs still need to be recovered. Under traditional cost-of-service
+                                regulation, <strong>these costs get spread across all ratepayers</strong>—including residential customers.
+                            </p>
+                            <div className="grid md:grid-cols-3 gap-4 mt-4">
+                                <div className="bg-white rounded-lg p-3 text-center">
+                                    <p className="text-2xl font-bold text-red-600">$1-2B</p>
+                                    <p className="text-xs text-gray-600">Cost per GW of unnecessary capacity</p>
+                                </div>
+                                <div className="bg-white rounded-lg p-3 text-center">
+                                    <p className="text-2xl font-bold text-red-600">0.2%</p>
+                                    <p className="text-xs text-gray-600">Probability of high utility forecasts occurring (SELC study)</p>
+                                </div>
+                                <div className="bg-white rounded-lg p-3 text-center">
+                                    <p className="text-2xl font-bold text-red-600">$70B+</p>
+                                    <p className="text-xs text-gray-600">Potential stranded investment from "phantom" data centers</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Evidence */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-3">Evidence of Overbuilding Risk</h4>
+                            <ul className="space-y-3 text-sm">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span>
+                                        <strong>Georgia 2025:</strong> The Public Service Commission approved 6+ GW of new gas generation for AI-related load.
+                                        Within six months, developers had delayed or withdrawn nearly half of the associated data center projects.
+                                        <a href="https://www.aixenergy.io/managing-data-center-uncertainty-part-ii-phantom-data-centers-how-strategic-opacity-drives-overbuild/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">[Source]</a>
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span>
+                                        <strong>Interconnection Queue Analysis:</strong> Only 13% of capacity that submitted interconnection requests
+                                        from 2000-2019 reached commercial operations by end of 2024; 77% was withdrawn.
+                                        <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">[LBNL]</a>
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span>
+                                        <strong>Southeast Utility Forecasts:</strong> Analysis found utilities are planning for data center demand
+                                        that has roughly 0.2% probability of actually occurring.
+                                        <a href="https://www.selc.org/press-release/new-report-exposes-inflated-load-growth-projections-from-data-centers-in-the-southeast/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">[SELC]</a>
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Why Flexibility Mitigates Risk */}
+                        <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+                            <h4 className="font-semibold text-green-900 mb-3">Why Flexible Load Reduces This Risk</h4>
+                            <p className="text-sm text-gray-700 mb-3">
+                                Flexible data centers don't just reduce peak demand charges—they fundamentally reduce the
+                                risk of overbuilding because they create a more predictable, higher-utilization load profile:
+                            </p>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm font-medium text-green-800 mb-2">Downward Pressure on Rates</p>
+                                    <ul className="space-y-1 text-sm text-gray-700">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600">✓</span>
+                                            <span><strong>Higher load factors</strong> (95% vs 80%) mean more kWh sold per MW of capacity built</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600">✓</span>
+                                            <span><strong>More revenue per asset</strong> reduces the per-customer cost allocation</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600">✓</span>
+                                            <span><strong>Better capacity utilization</strong> means fewer total MW needed</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-green-800 mb-2">Reduced Stranded Asset Risk</p>
+                                    <ul className="space-y-1 text-sm text-gray-700">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600">✓</span>
+                                            <span><strong>Demand response</strong> lets grid scale with actual usage, not forecasts</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600">✓</span>
+                                            <span><strong>Curtailment capability</strong> reduces peak infrastructure requirements</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-green-600">✓</span>
+                                            <span><strong>Tariff structures</strong> can include minimum take provisions protecting ratepayers</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Regulatory Responses */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-3">Emerging Regulatory Protections</h4>
+                            <p className="text-sm text-gray-600 mb-3">
+                                Some states are implementing protections against stranded asset risk from large load customers:
+                            </p>
+                            <ul className="space-y-2 text-sm">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span><strong>Oregon POWER Act:</strong> Creates separate rate class for facilities over 20 MW with costs directly assigned and minimum payment requirements</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span><strong>AEP Ohio:</strong> New interconnection terms include minimum billing and collateral provisions for data centers</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span><strong>California:</strong> Public Advocates Office advocating for regular reassessment of transmission projects when data center requests are withdrawn</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Model Implication */}
+                        <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                            <h4 className="font-semibold text-indigo-900 mb-2">Implication for This Model</h4>
+                            <p className="text-sm text-indigo-800">
+                                Our model assumes the projected data center load <em>does</em> materialize. In practice, the risk to
+                                residential ratepayers may be <strong>higher than shown</strong> if load doesn't arrive as planned,
+                                or <strong>lower than shown</strong> if flexible operation requirements and proper cost allocation
+                                mechanisms are in place. The "optimized" scenario assumes both full load materialization AND flexible
+                                operation—representing the best-case outcome for ratepayers.
+                            </p>
+                        </div>
+                    </div>
+                </Section>
+
+                <Section
                     id="limitations"
                     title="Limitations & Caveats"
                     expandedSection={expandedSection}

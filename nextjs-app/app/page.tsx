@@ -62,37 +62,42 @@ export default function HomePage() {
                 The Data Center Boom Is Real
               </h2>
               <p className="text-slate-300 leading-relaxed mb-4">
-                Data centers are projected to grow from approximately <strong className="text-white">50 GW</strong> today
-                to <strong className="text-white">60-130+ GW by 2030</strong> in the United States alone.
-                For context, <strong className="text-white">1 GW is roughly the output of a nuclear power plant</strong>.
+                Data centers currently represent approximately <strong className="text-white">50 GW</strong> of
+                U.S. electricity demand. Projections suggest <strong className="text-white">40-80 GW of new capacity</strong> by
+                2030—though supply constraints (interconnection queues, equipment backlogs, permitting) will likely
+                limit actual growth. For context, <strong className="text-white">1 GW is roughly the output of a nuclear power plant</strong>.
               </p>
               <p className="text-slate-300 leading-relaxed">
-                This means data centers could grow from <strong className="text-white">~4% to 7-12%</strong> of
-                total U.S. electricity consumption within the next decade—a 2-3x increase that every utility
-                in the country is planning for.
+                This means data centers could grow from <strong className="text-white">~4% to 6-9%</strong> of
+                total U.S. electricity consumption within the next decade. Every major utility is planning for this growth.
               </p>
             </div>
             <div className="flex-shrink-0 w-full lg:w-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
-                  <p className="text-3xl md:text-4xl font-bold text-blue-400">~4%</p>
-                  <p className="text-xs text-slate-400 mt-1">of US electricity<br/>today (2024)</p>
+                  <p className="text-3xl md:text-4xl font-bold text-blue-400">~50 GW</p>
+                  <p className="text-xs text-slate-400 mt-1">current DC<br/>capacity (2024)</p>
                 </div>
                 <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
-                  <p className="text-3xl md:text-4xl font-bold text-amber-400">7-12%</p>
-                  <p className="text-xs text-slate-400 mt-1">projected share<br/>by 2030</p>
+                  <p className="text-3xl md:text-4xl font-bold text-amber-400">40-80 GW</p>
+                  <p className="text-xs text-slate-400 mt-1">new capacity<br/>by 2030</p>
                 </div>
-                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm col-span-2">
-                  <p className="text-3xl md:text-4xl font-bold text-green-400">60-130+ GW</p>
-                  <p className="text-xs text-slate-400 mt-1">projected data center capacity by 2030</p>
+                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+                  <p className="text-3xl md:text-4xl font-bold text-green-400">~4%</p>
+                  <p className="text-xs text-slate-400 mt-1">share of US<br/>electricity today</p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+                  <p className="text-3xl md:text-4xl font-bold text-purple-400">6-9%</p>
+                  <p className="text-xs text-slate-400 mt-1">projected share<br/>by 2030</p>
                 </div>
               </div>
             </div>
           </div>
           <p className="text-xs text-slate-500 mt-6 border-t border-slate-700 pt-4">
-            Sources: <a href="https://eta.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white underline">Lawrence Berkeley National Laboratory (LBNL) 2024 Report</a>,
-            <a href="https://www.energy.gov/articles/doe-releases-new-report-evaluating-increase-electricity-demand-data-centers" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white underline ml-1">U.S. Department of Energy</a>,
-            <a href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white underline ml-1">Grid Strategies National Load Growth Report</a>
+            Sources: <a href="https://eta.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white underline">LBNL 2024 Report</a>,
+            <a href="https://www.energy.gov/articles/doe-releases-new-report-evaluating-increase-electricity-demand-data-centers" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white underline ml-1">U.S. DOE</a>,
+            <a href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white underline ml-1">Grid Strategies</a>.
+            Range reflects supply constraints per <a href="https://www.goldmansachs.com/insights/articles/ai-to-drive-165-increase-in-data-center-power-demand-by-2030" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white underline ml-1">Goldman Sachs</a>.
           </p>
         </div>
       </section>
@@ -177,11 +182,17 @@ export default function HomePage() {
           {/* Stacked Bar Chart */}
           <div className="mb-6">
             <div className="flex rounded-xl overflow-hidden h-14 shadow-inner">
-              {/* Generation/Supply - 50% */}
-              <div className="bg-blue-500 flex items-center justify-center text-white text-xs font-semibold px-2" style={{ width: '50%' }}>
-                <span className="hidden sm:inline">Generation/Supply</span>
-                <span className="sm:hidden">Gen</span>
-                <span className="ml-1 opacity-75">50%</span>
+              {/* Fuel/Operating Costs - 25% */}
+              <div className="bg-blue-400 flex items-center justify-center text-white text-xs font-semibold" style={{ width: '25%' }}>
+                <span className="hidden sm:inline">Fuel Costs</span>
+                <span className="sm:hidden">Fuel</span>
+                <span className="ml-1 opacity-75">25%</span>
+              </div>
+              {/* Generation Capacity - 25% */}
+              <div className="bg-blue-600 flex items-center justify-center text-white text-xs font-semibold" style={{ width: '25%' }}>
+                <span className="hidden sm:inline">Gen Capacity</span>
+                <span className="sm:hidden">Cap</span>
+                <span className="ml-1 opacity-75">25%</span>
               </div>
               {/* Transmission - 12% */}
               <div className="bg-amber-500 flex items-center justify-center text-white text-xs font-semibold" style={{ width: '12%' }}>
@@ -194,13 +205,9 @@ export default function HomePage() {
                 <span className="sm:hidden">Dist</span>
                 <span className="ml-1 opacity-75">25%</span>
               </div>
-              {/* Capacity - 5% */}
-              <div className="bg-purple-500 flex items-center justify-center text-white text-xs font-semibold" style={{ width: '5%' }}>
-                <span className="hidden lg:inline opacity-75">5%</span>
-              </div>
-              {/* Other - 8% */}
-              <div className="bg-gray-400 flex items-center justify-center text-white text-xs font-semibold" style={{ width: '8%' }}>
-                <span className="opacity-75">8%</span>
+              {/* Other - 13% */}
+              <div className="bg-gray-400 flex items-center justify-center text-white text-xs font-semibold" style={{ width: '13%' }}>
+                <span className="opacity-75">13%</span>
               </div>
             </div>
           </div>
@@ -208,8 +215,12 @@ export default function HomePage() {
           {/* Legend */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-blue-500 flex-shrink-0"></div>
-              <span className="text-sm text-gray-700">Generation/Supply</span>
+              <div className="w-4 h-4 rounded bg-blue-400 flex-shrink-0"></div>
+              <span className="text-sm text-gray-700">Fuel/Operating</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-blue-600 flex-shrink-0"></div>
+              <span className="text-sm text-gray-700">Generation Capacity</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-amber-500 flex-shrink-0"></div>
@@ -220,12 +231,8 @@ export default function HomePage() {
               <span className="text-sm text-gray-700">Distribution</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-purple-500 flex-shrink-0"></div>
-              <span className="text-sm text-gray-700">Capacity</span>
-            </div>
-            <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-gray-400 flex-shrink-0"></div>
-              <span className="text-sm text-gray-700">Taxes & Fees</span>
+              <span className="text-sm text-gray-700">Other (Taxes, Fees)</span>
             </div>
           </div>
 
@@ -242,35 +249,39 @@ export default function HomePage() {
               <div>
                 <p className="text-sm font-medium text-amber-800 mb-2">Components Impacted by Large New Loads:</p>
                 <ul className="space-y-2">
-                  <li className="flex items-center gap-2 text-sm text-gray-700">
-                    <div className="w-3 h-3 rounded bg-amber-500"></div>
-                    <strong>Transmission</strong> — New lines & substations needed
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <div className="w-3 h-3 rounded bg-blue-600 flex-shrink-0 mt-1"></div>
+                    <span><strong>Generation Capacity</strong> — New power plants built for peak demand (gas peakers, solar, wind, batteries)</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm text-gray-700">
-                    <div className="w-3 h-3 rounded bg-orange-500"></div>
-                    <strong>Distribution</strong> — Local grid upgrades
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <div className="w-3 h-3 rounded bg-amber-500 flex-shrink-0 mt-1"></div>
+                    <span><strong>Transmission</strong> — New high-voltage lines & substations</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm text-gray-700">
-                    <div className="w-3 h-3 rounded bg-purple-500"></div>
-                    <strong>Capacity</strong> — More power plants/storage required
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <div className="w-3 h-3 rounded bg-orange-500 flex-shrink-0 mt-1"></div>
+                    <span><strong>Distribution</strong> — Local grid upgrades to deliver power</span>
                   </li>
                 </ul>
               </div>
               <div>
                 <p className="text-sm font-medium text-green-800 mb-2">Components Less Directly Affected:</p>
                 <ul className="space-y-2">
-                  <li className="flex items-center gap-2 text-sm text-gray-700">
-                    <div className="w-3 h-3 rounded bg-blue-500"></div>
-                    <strong>Generation/Supply</strong> — Fuel costs are passthrough
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <div className="w-3 h-3 rounded bg-blue-400 flex-shrink-0 mt-1"></div>
+                    <span><strong>Fuel/Operating Costs</strong> — Passed through; more load = more fuel revenue (neutral to ratepayers)</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm text-gray-700">
-                    <div className="w-3 h-3 rounded bg-gray-400"></div>
-                    <strong>Taxes & Fees</strong> — Percentage-based, scales proportionally
+                  <li className="flex items-start gap-2 text-sm text-gray-700">
+                    <div className="w-3 h-3 rounded bg-gray-400 flex-shrink-0 mt-1"></div>
+                    <span><strong>Taxes & Fees</strong> — Percentage-based, scales with usage</span>
                   </li>
                 </ul>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-4 pt-3 border-t border-amber-200">
+            <div className="mt-4 pt-3 border-t border-amber-200 text-sm text-gray-600">
+              <strong>Key insight:</strong> Solar, wind, and battery projects have minimal fuel costs—they're almost entirely capacity costs.
+              This means new renewable generation built for data centers adds to the "Generation Capacity" portion of your bill, not fuel costs.
+            </div>
+            <p className="text-xs text-gray-500 mt-3">
               Note: Actual bill composition varies by utility, state, and market structure. These are representative averages.
               See <a href="https://www.eia.gov/tools/faqs/faq.php?id=947&t=3" target="_blank" rel="noopener noreferrer" className="text-amber-700 hover:underline">EIA data on electricity cost components</a>.
             </p>
@@ -427,6 +438,72 @@ export default function HomePage() {
               <p className="text-xs text-gray-500 mt-1">Flex + onsite gen</p>
               <p className="text-xs font-semibold text-green-600 mt-1">Lowest cost</p>
             </div>
+          </div>
+        </div>
+
+        {/* The Real Risk Section */}
+        <div className="card mb-8 border-2 border-red-200 bg-gradient-to-br from-red-50 to-orange-50">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+              <svg className="w-7 h-7 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">The Real Risk: Overbuilding</h2>
+              <p className="text-gray-600 text-sm">It's not the data centers arriving—it's building for loads that never come</p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-red-800 mb-3">The Stranded Asset Problem</h4>
+              <p className="text-sm text-gray-700 mb-3">
+                When utilities build transmission lines, substations, and power plants for projected data center demand
+                that never materializes, those costs don't disappear—<strong>they get passed to existing ratepayers</strong>.
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>Studies show utility forecasts may have <strong>only 0.2% probability</strong> of occurring</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>"Phantom data centers" in queues that never connect could represent <strong>$70B+ in stranded investment</strong></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">•</span>
+                  <span>Each GW of unnecessary capacity costs <strong>$1-2 billion</strong> to build</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-green-800 mb-3">Why Flexibility Matters Even More</h4>
+              <p className="text-sm text-gray-700 mb-3">
+                Flexible data centers don't just reduce peak demand—they <strong>reduce the risk of overbuilding</strong>:
+              </p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span><strong>Higher load factors</strong> mean more revenue per MW of infrastructure built</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span><strong>Demand response</strong> lets the grid scale with actual usage, not forecasts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span><strong>Better asset utilization</strong> = downward pressure on rates for everyone</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-red-200 text-xs text-gray-500">
+            Sources: <a href="https://www.selc.org/press-release/new-report-exposes-inflated-load-growth-projections-from-data-centers-in-the-southeast/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">Southern Environmental Law Center</a>,
+            <a href="https://www.aixenergy.io/managing-data-center-uncertainty-part-ii-phantom-data-centers-how-strategic-opacity-drives-overbuild/" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">AIX Energy "Phantom Data Centers"</a>,
+            <a href="https://www.publicadvocates.cpuc.ca.gov/press-room/commentary/251027-how-will-data-center-growth-impact-california-ratepayers" target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline ml-1">California Public Advocates Office</a>
           </div>
         </div>
 
