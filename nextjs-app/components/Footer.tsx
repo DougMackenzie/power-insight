@@ -1,4 +1,9 @@
+'use client';
+
 import Link from 'next/link';
+import { QRCodeSVG } from 'qrcode.react';
+
+const SITE_URL = 'https://community-energy.dev';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -6,7 +11,7 @@ const Footer = () => {
     return (
         <footer className="bg-white border-t border-gray-200 mt-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
                     {/* Brand */}
                     <div className="md:col-span-2">
                         <div className="flex items-center gap-3 mb-4">
@@ -118,6 +123,22 @@ const Footer = () => {
                                 </a>
                             </li>
                         </ul>
+                    </div>
+
+                    {/* QR Code */}
+                    <div className="flex flex-col items-center md:items-start">
+                        <h3 className="font-display font-semibold text-gray-900 mb-4">Share</h3>
+                        <div className="bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
+                            <QRCodeSVG
+                                value={SITE_URL}
+                                size={80}
+                                level="M"
+                                includeMargin={false}
+                            />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 text-center md:text-left">
+                            Scan for mobile
+                        </p>
                     </div>
                 </div>
 

@@ -1,13 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { QRCodeSVG } from 'qrcode.react';
 import { useCalculator } from '@/hooks/useCalculator';
 import { formatCurrency, formatMW } from '@/lib/constants';
 import CarbonFooter from '@/components/CarbonFooter';
-
-// Site URL for QR code - update this when deploying to production
-const SITE_URL = 'https://community-energy.vercel.app';
 
 export default function HomePage() {
   const { summary, utility, dataCenter, projectionYears } = useCalculator();
@@ -646,23 +642,6 @@ export default function HomePage() {
             </svg>
             <span className="font-semibold">View on GitHub</span>
           </a>
-
-          {/* QR Code for sharing */}
-          <div className="mt-8 pt-6 border-t border-gray-300">
-            <div className="flex flex-col items-center gap-3">
-              <div className="bg-white p-3 rounded-xl shadow-sm">
-                <QRCodeSVG
-                  value={SITE_URL}
-                  size={120}
-                  level="M"
-                  includeMargin={false}
-                />
-              </div>
-              <p className="text-sm text-gray-500">
-                Scan to visit this tool on your phone
-              </p>
-            </div>
-          </div>
 
           {/* AI Carbon Footprint Statement - Dynamic */}
           <CarbonFooter />
