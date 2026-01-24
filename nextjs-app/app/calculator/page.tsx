@@ -6,6 +6,7 @@ import TrajectoryChart from '@/components/TrajectoryChart';
 import SummaryCards from '@/components/SummaryCards';
 import { useCalculator } from '@/hooks/useCalculator';
 import { formatCurrency, formatMW } from '@/lib/constants';
+import { getUtilitiesGroupedByState } from '@/lib/utilityData';
 
 // Input field component
 interface InputFieldProps {
@@ -143,10 +144,14 @@ export default function CalculatorPage() {
                             onChange={(e) => selectUtilityProfile(e.target.value)}
                             className="w-full px-3 py-2.5 bg-white border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
                         >
-                            {utilityProfiles.map((profile) => (
-                                <option key={profile.id} value={profile.id}>
-                                    {profile.shortName} {profile.state && `(${profile.state})`}
-                                </option>
+                            {getUtilitiesGroupedByState().map((group) => (
+                                <optgroup key={group.state} label={group.state || 'Other Options'}>
+                                    {group.utilities.map((profile) => (
+                                        <option key={profile.id} value={profile.id}>
+                                            {profile.shortName}
+                                        </option>
+                                    ))}
+                                </optgroup>
                             ))}
                         </select>
                         {selectedUtilityProfile && selectedUtilityProfile.id !== 'custom' && (

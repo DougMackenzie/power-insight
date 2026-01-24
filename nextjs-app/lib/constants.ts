@@ -16,7 +16,7 @@ export interface ScenarioParams {
     description: string;
 }
 
-export type MarketType = 'regulated' | 'pjm' | 'ercot' | 'miso' | 'caiso' | 'spp';
+export type MarketType = 'regulated' | 'pjm' | 'ercot' | 'miso' | 'caiso' | 'spp' | 'nyiso' | 'tva';
 
 export interface Utility {
     name: string;

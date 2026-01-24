@@ -1227,7 +1227,7 @@ export default function MethodologyPage() {
                                 </thead>
                                 <tbody>
                                     <tr className="border-b border-gray-100">
-                                        <td className="py-2">ERCOT (4CP)</td>
+                                        <td className="py-2">ERCOT Texas (4CP)</td>
                                         <td className="text-right font-bold text-green-600">1.8×</td>
                                         <td className="pl-4 text-xs text-gray-600">Curtail 4 hours/year = major transmission savings</td>
                                     </tr>
@@ -1237,9 +1237,19 @@ export default function MethodologyPage() {
                                         <td className="pl-4 text-xs text-gray-600">Large on-peak vs off-peak differential ($8.77 vs $0.51)</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
-                                        <td className="py-2">AEP Ohio (1CP/5CP)</td>
+                                        <td className="py-2">ConEd New York</td>
                                         <td className="text-right">1.5×</td>
-                                        <td className="pl-4 text-xs text-gray-600">CP avoidance reduces transmission + capacity</td>
+                                        <td className="pl-4 text-xs text-gray-600">NYISO capacity + transmission constraints in NYC</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">AEP Ohio / PJM (1CP/5CP)</td>
+                                        <td className="text-right">1.5×</td>
+                                        <td className="pl-4 text-xs text-gray-600">CP avoidance reduces transmission + PJM capacity</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">APCo / Mon Power (WV)</td>
+                                        <td className="text-right">1.4-1.5×</td>
+                                        <td className="pl-4 text-xs text-gray-600">PJM overlay with state regulation; CP avoidance</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">PSO Oklahoma</td>
@@ -1252,9 +1262,29 @@ export default function MethodologyPage() {
                                         <td className="pl-4 text-xs text-gray-600">Summer peak avoidance affects 12-month ratchet</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
-                                        <td className="py-2">Duke Carolinas</td>
+                                        <td className="py-2">BHE Wyoming/SD</td>
+                                        <td className="text-right">1.2-1.3×</td>
+                                        <td className="pl-4 text-xs text-gray-600">LPCS negotiated rates; interruptible options</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">Duke (FL, Carolinas)</td>
                                         <td className="text-right">1.2×</td>
                                         <td className="pl-4 text-xs text-gray-600">CP-based with moderate benefit from avoidance</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">National Grid / NYSEG (NY)</td>
+                                        <td className="text-right">1.3×</td>
+                                        <td className="pl-4 text-xs text-gray-600">$18/kW demand charge; 15-min peak measurement</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">Entergy (AR, MS)</td>
+                                        <td className="text-right">1.1×</td>
+                                        <td className="pl-4 text-xs text-gray-600">MISO market; competitive rates, lower spread</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">TVA (TN, AL, KY)</td>
+                                        <td className="text-right">1.0×</td>
+                                        <td className="pl-4 text-xs text-gray-600">Wholesale power; 30-min peak measurement</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">Generic Regulated</td>
@@ -1270,6 +1300,27 @@ export default function MethodologyPage() {
                                 <strong>Note:</strong> These tariff rates are from publicly available utility rate schedules as of early 2025.
                                 Rates change through regulatory proceedings and fuel cost adjustments. Always verify current rates
                                 with the specific utility for actual project planning.
+                            </p>
+                            <p className="text-xs text-amber-800 mt-2">
+                                <strong>Data Sources:</strong>{' '}
+                                PSO LPL Schedule 242/244/246 (eff. 1/30/2025);{' '}
+                                Dominion VA GS-4 (eff. 1/1/2025);{' '}
+                                AEP Ohio GS-4 + PJM capacity;{' '}
+                                Duke Energy FL GSD-1 (eff. 1/2025);{' '}
+                                Duke Carolinas LGS;{' '}
+                                Georgia Power PLL-18;{' '}
+                                ERCOT 4CP transmission methodology;{' '}
+                                BHE CLFP Wyo. P.S.C. Tariff No. 13;{' '}
+                                BHE SD PUC tariff;{' '}
+                                ConEd PSC No. 10 (eff. 12/2023);{' '}
+                                National Grid NY PSC No. 220 (eff. 9/2025);{' '}
+                                NYSEG PSC No. 120;{' '}
+                                Entergy Arkansas Rate Schedule No. 6;{' '}
+                                Entergy Mississippi LGS;{' '}
+                                TVA GSA-2/GSA-3;{' '}
+                                APCo WV Tariff No. 16;{' '}
+                                Mon Power WV tariff (2024).
+                                Where specific rates were unavailable, values are flagged as Model Assumptions based on comparable utilities.
                             </p>
                         </div>
                     </div>

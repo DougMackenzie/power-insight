@@ -13,7 +13,7 @@ import {
     type SummaryStats,
     type TrajectoryPoint,
 } from '@/lib/calculations';
-import { UTILITY_PROFILES, getUtilityById, type UtilityProfile } from '@/lib/utilityData';
+import { UTILITY_PROFILES, getUtilityById, getUtilitiesSortedByState, type UtilityProfile } from '@/lib/utilityData';
 
 interface CalculatorContextType {
     utility: Utility;
@@ -142,7 +142,7 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
         setProjectionYears,
         selectUtilityProfile,
         resetToDefaults,
-        utilityProfiles: UTILITY_PROFILES,
+        utilityProfiles: getUtilitiesSortedByState(),
     };
 
     return <CalculatorContext.Provider value={value}>{children}</CalculatorContext.Provider>;
