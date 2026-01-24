@@ -19,7 +19,7 @@ from calculations import DEFAULT_UTILITY, DEFAULT_DATA_CENTER
 
 # Page configuration
 st.set_page_config(
-    page_title="Energy View - Community Energy",
+    page_title="Energy View - Community Energy Calculator",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed"

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     'demand response',
     'grid flexibility',
   ],
-  authors: [{ name: 'Community Energy Project' }],
+  authors: [{ name: 'Community Energy Calculator Contributors' }],
   openGraph: {
     title: 'Community Energy Calculator - Data Center Impact Analysis',
     description: 'Understand how data center development impacts your electric bill',

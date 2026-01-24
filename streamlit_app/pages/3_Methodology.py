@@ -17,7 +17,7 @@ from calculations import (
 
 # Page configuration
 st.set_page_config(
-    page_title="Methodology - Community Energy",
+    page_title="Methodology - Community Energy Calculator",
     page_icon="📚",
     layout="wide",
     initial_sidebar_state="collapsed"
