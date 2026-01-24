@@ -641,6 +641,21 @@ export default function HomePage() {
             </svg>
             <span className="font-semibold">View on GitHub</span>
           </a>
+
+          {/* AI Carbon Footprint Statement */}
+          <div className="mt-8 pt-6 border-t border-gray-300">
+            <div className="inline-flex items-center gap-3 text-sm text-gray-500">
+              <span className="text-2xl" role="img" aria-label="hamburger">🍔</span>
+              <span>
+                This tool was developed with agentic AI assistance, producing an estimated{' '}
+                <strong className="text-gray-700">~0.4 kg CO₂</strong>—equivalent to about{' '}
+                <strong className="text-gray-700">1/10 of a hamburger</strong>.{' '}
+                <Link href="/methodology#ai-carbon" className="text-blue-600 hover:underline">
+                  See methodology
+                </Link>
+              </span>
+            </div>
+          </div>
         </div>
       </section>
     </div>

@@ -1626,6 +1626,97 @@ export default function MethodologyPage() {
                         </div>
                     </div>
                 </Section>
+
+                <Section
+                    id="ai-carbon"
+                    title="AI Development Carbon Footprint"
+                    expandedSection={expandedSection}
+                    toggleSection={toggleSection}
+                >
+                    <div className="space-y-4 text-gray-600">
+                        <p>
+                            This tool was developed with the assistance of agentic AI (Claude). In the interest of
+                            transparency, we estimate and disclose the carbon footprint of that development process.
+                        </p>
+
+                        {/* Calculation */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <span className="text-xl">🍔</span>
+                                Carbon Calculation
+                            </h4>
+                            <table className="w-full text-sm">
+                                <tbody>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 text-gray-600">Estimated tokens used in development</td>
+                                        <td className="py-2 text-right font-medium">~400,000 tokens</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 text-gray-600">CO₂ per 1,000 tokens (Claude Opus)</td>
+                                        <td className="py-2 text-right font-medium">~1.0 g CO₂</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 text-gray-600">Total estimated emissions</td>
+                                        <td className="py-2 text-right font-bold text-gray-900">~400 g CO₂ (0.4 kg)</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2 text-gray-600">Carbon footprint of one beef hamburger</td>
+                                        <td className="py-2 text-right font-medium">~3.5 kg CO₂</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-2 text-gray-600">Hamburger equivalent</td>
+                                        <td className="py-2 text-right font-bold text-green-600">~0.1 hamburgers 🍔</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Methodology */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-2">Methodology & Sources</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span>
+                                        <strong>Token emissions:</strong> Based on{' '}
+                                        <a href="https://www.launchbot.app/ai-offset-calculator" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                            Launchbot AI Emissions Calculator
+                                        </a>
+                                        , which aggregates research estimates. Claude Opus: ~1.2 gCO₂/1k tokens.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span>
+                                        <strong>Hamburger footprint:</strong> Based on{' '}
+                                        <a href="https://www.co2everything.com/co2e-of/beef" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                            CO2 Everything
+                                        </a>
+                                        {' '}and Poore & Nemecek (2018). Beef burger: ~3-4 kg CO₂e.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    <span>
+                                        <strong>Caveat:</strong> AI providers don't publish official per-token emissions data.
+                                        These estimates are derived from research and should be treated as indicative, not exact.
+                                        Google/Anthropic claim carbon neutrality via offsets and renewable energy purchases.
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Context */}
+                        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                            <p className="text-sm text-green-800">
+                                <strong>Context:</strong> The carbon cost of developing this tool is roughly equivalent to
+                                driving a car 1-2 miles, or about 1/10 of a single hamburger. We believe the potential
+                                value of helping communities understand energy cost allocation significantly outweighs
+                                this modest environmental cost.
+                            </p>
+                        </div>
+                    </div>
+                </Section>
             </div>
 
             {/* Contact */}
