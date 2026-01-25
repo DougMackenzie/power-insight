@@ -45,49 +45,24 @@ interface MapViewProps {
     };
 }
 
-// Data center locations with growth data
-const dataCenterLocations = [
-    // Northern Virginia cluster - largest market
-    { lng: -77.46, lat: 39.03, name: 'Ashburn DC1', capacity: 250, region: 'nova', year: 2015 },
-    { lng: -77.52, lat: 39.05, name: 'Ashburn DC2', capacity: 300, region: 'nova', year: 2018 },
-    { lng: -77.44, lat: 39.01, name: 'Sterling DC', capacity: 200, region: 'nova', year: 2020 },
-    { lng: -77.48, lat: 39.07, name: 'Loudoun DC', capacity: 280, region: 'nova', year: 2022 },
-    { lng: -77.40, lat: 39.02, name: 'Digital Realty', capacity: 220, region: 'nova', year: 2019 },
-    { lng: -77.54, lat: 39.00, name: 'QTS Ashburn', capacity: 180, region: 'nova', year: 2021 },
-    // Ohio cluster - emerging
-    { lng: -82.99, lat: 40.10, name: 'Columbus DC1', capacity: 150, region: 'ohio', year: 2023 },
-    { lng: -83.05, lat: 40.05, name: 'Columbus DC2', capacity: 120, region: 'ohio', year: 2024 },
-    { lng: -82.85, lat: 40.15, name: 'New Albany DC', capacity: 100, region: 'ohio', year: 2025 },
-    // Oklahoma
-    { lng: -95.99, lat: 36.15, name: 'Tulsa DC', capacity: 80, region: 'oklahoma', year: 2023 },
-    { lng: -97.52, lat: 35.47, name: 'OKC DC', capacity: 60, region: 'oklahoma', year: 2024 },
-    // Texas cluster
-    { lng: -96.79, lat: 32.77, name: 'Dallas DC1', capacity: 180, region: 'texas', year: 2020 },
-    { lng: -96.85, lat: 32.82, name: 'Dallas DC2', capacity: 160, region: 'texas', year: 2022 },
-    { lng: -97.33, lat: 32.75, name: 'Fort Worth DC', capacity: 140, region: 'texas', year: 2021 },
-    { lng: -95.36, lat: 29.76, name: 'Houston DC', capacity: 120, region: 'texas', year: 2023 },
-    { lng: -97.74, lat: 30.27, name: 'Austin DC', capacity: 100, region: 'texas', year: 2024 },
-];
+// Status colors for data centers
+const statusColors = {
+    operational: '#06B6D4',    // Cyan - existing
+    construction: '#F59E0B',   // Amber - under construction
+    planned: '#22D3EE',        // Light cyan - planned
+    announced: '#818CF8',      // Purple - announced/future
+};
 
-// Power plant locations
-const powerPlantLocations = [
-    // Nuclear
-    { lng: -76.50, lat: 37.20, name: 'North Anna Nuclear', type: 'nuclear', capacity: 1892 },
-    { lng: -78.10, lat: 38.15, name: 'Lake Anna Nuclear', type: 'nuclear', capacity: 1800 },
-    { lng: -96.46, lat: 32.38, name: 'Comanche Peak', type: 'nuclear', capacity: 2400 },
-    // Gas
-    { lng: -77.80, lat: 38.95, name: 'Panda Stonewall', type: 'gas', capacity: 778 },
-    { lng: -82.50, lat: 40.20, name: 'Darby Electric', type: 'gas', capacity: 510 },
-    { lng: -97.00, lat: 32.30, name: 'Wolf Hollow', type: 'gas', capacity: 720 },
-    { lng: -95.50, lat: 36.00, name: 'Redbud Gas', type: 'gas', capacity: 1230 },
-    // Wind
-    { lng: -101.00, lat: 35.50, name: 'Panhandle Wind', type: 'wind', capacity: 458 },
-    { lng: -100.50, lat: 32.00, name: 'Roscoe Wind', type: 'wind', capacity: 782 },
-    { lng: -97.50, lat: 36.50, name: 'Cowboy Wind', type: 'wind', capacity: 350 },
-    // Solar
-    { lng: -98.00, lat: 30.00, name: 'Roadrunner Solar', type: 'solar', capacity: 497 },
-    { lng: -99.50, lat: 31.50, name: 'Permian Solar', type: 'solar', capacity: 420 },
-];
+// Power plant type colors
+const plantTypeColors: Record<string, string> = {
+    nuclear: '#8B5CF6',
+    gas: '#F59E0B',
+    coal: '#6B7280',
+    solar: '#FBBF24',
+    wind: '#34D399',
+    hydro: '#3B82F6',
+    geothermal: '#EF4444',
+};
 
 /**
  * MapView - Enhanced Mapbox GL visualization with real GeoJSON data
@@ -122,6 +97,22 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
             }
             const transData = await transResponse.json();
             console.log('Transmission lines loaded:', transData.features?.length, 'features');
+
+            // Load data centers GeoJSON (comprehensive with status)
+            const dcResponse = await fetch('/geojson/data_centers.geojson');
+            let dcData = null;
+            if (dcResponse.ok) {
+                dcData = await dcResponse.json();
+                console.log('Data centers loaded:', dcData.features?.length, 'features');
+            }
+
+            // Load new power plants GeoJSON
+            const ppResponse = await fetch('/geojson/power_plants_new.geojson');
+            let ppData = null;
+            if (ppResponse.ok) {
+                ppData = await ppResponse.json();
+                console.log('New power plants loaded:', ppData.features?.length, 'features');
+            }
 
             // Add ISO regions
             if (!map.getSource('iso-regions')) {
@@ -196,21 +187,14 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                 });
             }
 
-            // Add data center markers
-            if (!map.getSource('data-centers')) {
+            // Add data center markers from GeoJSON with status-based styling
+            if (!map.getSource('data-centers') && dcData) {
                 map.addSource('data-centers', {
                     type: 'geojson',
-                    data: {
-                        type: 'FeatureCollection',
-                        features: dataCenterLocations.map(dc => ({
-                            type: 'Feature' as const,
-                            properties: { name: dc.name, capacity: dc.capacity, region: dc.region, year: dc.year },
-                            geometry: { type: 'Point' as const, coordinates: [dc.lng, dc.lat] }
-                        }))
-                    }
+                    data: dcData
                 });
 
-                // Glow effect
+                // Glow effect - color by status
                 map.addLayer({
                     id: 'data-centers-glow',
                     type: 'circle',
@@ -218,61 +202,110 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                     paint: {
                         'circle-radius': [
                             'interpolate', ['linear'], ['zoom'],
-                            3, ['interpolate', ['linear'], ['get', 'capacity'], 50, 8, 300, 18],
-                            10, ['interpolate', ['linear'], ['get', 'capacity'], 50, 20, 300, 45]
+                            3, ['interpolate', ['linear'], ['get', 'capacity'], 500, 6, 1500, 14],
+                            8, ['interpolate', ['linear'], ['get', 'capacity'], 500, 12, 1500, 28],
+                            12, ['interpolate', ['linear'], ['get', 'capacity'], 500, 18, 1500, 40]
                         ],
-                        'circle-color': '#06B6D4',
-                        'circle-opacity': 0.3,
+                        'circle-color': [
+                            'match', ['get', 'status'],
+                            'operational', statusColors.operational,
+                            'construction', statusColors.construction,
+                            'planned', statusColors.planned,
+                            'announced', statusColors.announced,
+                            statusColors.operational
+                        ],
+                        'circle-opacity': [
+                            'match', ['get', 'status'],
+                            'operational', 0.35,
+                            'construction', 0.4,
+                            'planned', 0.3,
+                            'announced', 0.25,
+                            0.3
+                        ],
                         'circle-blur': 1
                     }
                 });
 
-                // Core marker
+                // Core marker - solid for operational, ring for planned/announced
                 map.addLayer({
                     id: 'data-centers-core',
                     type: 'circle',
                     source: 'data-centers',
+                    filter: ['in', ['get', 'status'], ['literal', ['operational', 'construction']]],
                     paint: {
                         'circle-radius': [
                             'interpolate', ['linear'], ['zoom'],
-                            3, ['interpolate', ['linear'], ['get', 'capacity'], 50, 3, 300, 8],
-                            10, ['interpolate', ['linear'], ['get', 'capacity'], 50, 8, 300, 20]
+                            3, ['interpolate', ['linear'], ['get', 'capacity'], 500, 3, 1500, 7],
+                            8, ['interpolate', ['linear'], ['get', 'capacity'], 500, 5, 1500, 12],
+                            12, ['interpolate', ['linear'], ['get', 'capacity'], 500, 8, 1500, 18]
                         ],
-                        'circle-color': '#06B6D4',
+                        'circle-color': [
+                            'match', ['get', 'status'],
+                            'operational', statusColors.operational,
+                            'construction', statusColors.construction,
+                            statusColors.operational
+                        ],
                         'circle-stroke-width': 2,
                         'circle-stroke-color': '#FFFFFF'
                     }
                 });
+
+                // Planned/announced markers - hollow ring style
+                map.addLayer({
+                    id: 'data-centers-planned',
+                    type: 'circle',
+                    source: 'data-centers',
+                    filter: ['in', ['get', 'status'], ['literal', ['planned', 'announced']]],
+                    paint: {
+                        'circle-radius': [
+                            'interpolate', ['linear'], ['zoom'],
+                            3, ['interpolate', ['linear'], ['get', 'capacity'], 500, 3, 1500, 7],
+                            8, ['interpolate', ['linear'], ['get', 'capacity'], 500, 5, 1500, 12],
+                            12, ['interpolate', ['linear'], ['get', 'capacity'], 500, 8, 1500, 18]
+                        ],
+                        'circle-color': 'transparent',
+                        'circle-stroke-width': [
+                            'match', ['get', 'status'],
+                            'planned', 2.5,
+                            'announced', 2,
+                            2
+                        ],
+                        'circle-stroke-color': [
+                            'match', ['get', 'status'],
+                            'planned', statusColors.planned,
+                            'announced', statusColors.announced,
+                            statusColors.planned
+                        ],
+                        'circle-stroke-opacity': [
+                            'match', ['get', 'status'],
+                            'planned', 0.9,
+                            'announced', 0.7,
+                            0.8
+                        ]
+                    }
+                });
             }
 
-            // Add power plant markers
-            if (!map.getSource('power-plants')) {
-                const plantColors: Record<string, string> = {
-                    nuclear: '#8B5CF6',
-                    gas: '#F59E0B',
-                    coal: '#6B7280',
-                    solar: '#FBBF24',
-                    wind: '#34D399'
-                };
+            // Add NEW power plant markers (only announced/planned plants, not existing)
+            if (!map.getSource('power-plants') && ppData) {
+                // Add color property to features based on type
+                const featuresWithColor = ppData.features.map((f: { properties: { type: string } }) => ({
+                    ...f,
+                    properties: {
+                        ...f.properties,
+                        color: plantTypeColors[f.properties.type] || '#6B7280'
+                    }
+                }));
 
                 map.addSource('power-plants', {
                     type: 'geojson',
                     data: {
                         type: 'FeatureCollection',
-                        features: powerPlantLocations.map(pp => ({
-                            type: 'Feature' as const,
-                            properties: {
-                                name: pp.name,
-                                type: pp.type,
-                                capacity: pp.capacity,
-                                color: plantColors[pp.type] || '#6B7280'
-                            },
-                            geometry: { type: 'Point' as const, coordinates: [pp.lng, pp.lat] }
-                        }))
+                        features: featuresWithColor
                     }
                 });
 
-                // Glow effect
+                // Glow effect for new plants
                 map.addLayer({
                     id: 'power-plants-glow',
                     type: 'circle',
@@ -280,16 +313,17 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                     paint: {
                         'circle-radius': [
                             'interpolate', ['linear'], ['zoom'],
-                            3, ['interpolate', ['linear'], ['get', 'capacity'], 200, 6, 2500, 15],
-                            10, ['interpolate', ['linear'], ['get', 'capacity'], 200, 15, 2500, 35]
+                            3, ['interpolate', ['linear'], ['get', 'capacity'], 150, 5, 1500, 12],
+                            8, ['interpolate', ['linear'], ['get', 'capacity'], 150, 10, 1500, 22],
+                            12, ['interpolate', ['linear'], ['get', 'capacity'], 150, 14, 1500, 30]
                         ],
                         'circle-color': ['get', 'color'],
-                        'circle-opacity': 0.4,
+                        'circle-opacity': 0.5,
                         'circle-blur': 1
                     }
                 });
 
-                // Core marker
+                // Core marker - ring style to indicate "new/planned"
                 map.addLayer({
                     id: 'power-plants-icon',
                     type: 'circle',
@@ -297,12 +331,13 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                     paint: {
                         'circle-radius': [
                             'interpolate', ['linear'], ['zoom'],
-                            3, ['interpolate', ['linear'], ['get', 'capacity'], 200, 3, 2500, 7],
-                            10, ['interpolate', ['linear'], ['get', 'capacity'], 200, 7, 2500, 16]
+                            3, ['interpolate', ['linear'], ['get', 'capacity'], 150, 3, 1500, 6],
+                            8, ['interpolate', ['linear'], ['get', 'capacity'], 150, 5, 1500, 10],
+                            12, ['interpolate', ['linear'], ['get', 'capacity'], 150, 7, 1500, 14]
                         ],
                         'circle-color': ['get', 'color'],
                         'circle-stroke-width': 2,
-                        'circle-stroke-color': '#1F2937'
+                        'circle-stroke-color': '#FFFFFF'
                     }
                 });
             }
@@ -449,10 +484,13 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                 );
             }
 
-            // Adjust data center visibility
+            // Adjust data center visibility - all layers including planned
             if (map.getLayer('data-centers-core')) {
                 map.setLayoutProperty('data-centers-core', 'visibility', 'visible');
                 map.setLayoutProperty('data-centers-glow', 'visibility', 'visible');
+            }
+            if (map.getLayer('data-centers-planned')) {
+                map.setLayoutProperty('data-centers-planned', 'visibility', 'visible');
             }
 
             // Adjust power plant visibility
@@ -509,7 +547,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
 }
 
 /**
- * Map Legend
+ * Map Legend - Enhanced with existing vs planned distinction
  */
 function MapLegend({ stepId }: { stepId: string }) {
     const showLegend = ['nova', 'ohio', 'oklahoma', 'texas', 'usa'].includes(stepId);
@@ -522,26 +560,50 @@ function MapLegend({ stepId }: { stepId: string }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
         >
-            <div className="text-gray-400 uppercase tracking-wider mb-2 font-medium text-[10px]">Legend</div>
-            <div className="space-y-1.5">
+            <div className="text-gray-400 uppercase tracking-wider mb-2 font-medium text-[10px]">Data Centers</div>
+            <div className="space-y-1.5 mb-3">
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-cyan-500 border border-white" />
-                    <span className="text-gray-300">Data Center</span>
+                    <div className="w-3 h-3 rounded-full bg-cyan-500 border-2 border-white" />
+                    <span className="text-gray-300">Existing (500MW+)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-purple-500 border border-gray-800" />
+                    <div className="w-3 h-3 rounded-full bg-amber-500 border-2 border-white" />
+                    <span className="text-gray-300">Under Construction</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full border-2 border-cyan-300 bg-transparent" />
+                    <span className="text-gray-300">Planned</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full border-2 border-purple-400 bg-transparent" style={{ opacity: 0.7 }} />
+                    <span className="text-gray-300">Announced</span>
+                </div>
+            </div>
+
+            <div className="text-gray-400 uppercase tracking-wider mb-2 font-medium text-[10px]">New Power Plants</div>
+            <div className="space-y-1.5 mb-3">
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-purple-500 border border-white" />
                     <span className="text-gray-300">Nuclear</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-amber-500 border border-gray-800" />
-                    <span className="text-gray-300">Gas Plant</span>
+                    <div className="w-3 h-3 rounded-full bg-amber-500 border border-white" />
+                    <span className="text-gray-300">Natural Gas</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-400 border border-gray-800" />
-                    <span className="text-gray-300">Wind/Solar</span>
+                    <div className="w-3 h-3 rounded-full bg-green-400 border border-white" />
+                    <span className="text-gray-300">Wind</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-0.5 bg-gradient-to-r from-red-500 via-amber-500 to-green-500" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-400 border border-white" />
+                    <span className="text-gray-300">Solar</span>
+                </div>
+            </div>
+
+            <div className="text-gray-400 uppercase tracking-wider mb-2 font-medium text-[10px]">Grid</div>
+            <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                    <div className="w-6 h-0.5 bg-gradient-to-r from-red-500 via-amber-500 to-blue-500" />
                     <span className="text-gray-300">230kV+ Lines</span>
                 </div>
             </div>

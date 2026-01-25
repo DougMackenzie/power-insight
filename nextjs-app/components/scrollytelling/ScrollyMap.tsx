@@ -58,9 +58,9 @@ export default function ScrollyMap() {
                         initial={{ opacity: 0 }}
                         animate={{
                             opacity: showMap ? 1 : 0,
-                            scale: showMap ? 1 : 1.1
+                            scale: showMap ? 1 : 1.05
                         }}
-                        transition={{ duration: 1.2, ease: 'easeInOut' }}
+                        transition={{ duration: 1.8, ease: [0.4, 0, 0.2, 1] }}
                     >
                         <MapView
                             location={mapLocation}
@@ -72,23 +72,25 @@ export default function ScrollyMap() {
                     </motion.div>
                 )}
 
-                {/* 3D Micro layer - on top, fades out when transitioning to map */}
-                <AnimatePresence>
+                {/* 3D Micro layer - on top, fades out seamlessly when transitioning to map */}
+                <AnimatePresence mode="wait">
                     {showMicro && (
                         <motion.div
                             key={`micro-${currentStep.id}`}
                             className="absolute inset-0"
-                            initial={{ opacity: 1 }}
+                            initial={{ opacity: 1, scale: 1 }}
                             animate={{
-                                opacity: currentStep.mode === 'infrastructure' ? 0.3 : 1,
-                                scale: currentStep.mode === 'infrastructure' ? 0.9 : 1
+                                opacity: currentStep.mode === 'infrastructure' ? 0.15 : 1,
+                                scale: currentStep.mode === 'infrastructure' ? 0.92 : 1,
+                                filter: currentStep.mode === 'infrastructure' ? 'blur(2px)' : 'blur(0px)'
                             }}
                             exit={{
                                 opacity: 0,
-                                scale: 0.8,
-                                transition: { duration: 0.8 }
+                                scale: 0.85,
+                                filter: 'blur(4px)',
+                                transition: { duration: 1.5, ease: [0.4, 0, 0.2, 1] }
                             }}
-                            transition={{ duration: 0.6, ease: 'easeInOut' }}
+                            transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
                         >
                             <MicroView3D
                                 visualState={currentStep.visualState || 'chip-glow'}

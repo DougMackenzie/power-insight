@@ -17,16 +17,17 @@ interface MicroView3DProps {
 
 // Camera configurations for seamless continuous zoom
 // All elements exist in one 3D space - camera just moves smoothly
+// GPU zoom increased for true-to-scale feel, smoother transitions between levels
 const cameraConfig: Record<string, {
     position: [number, number, number];
     target: [number, number, number];
     zoom: number;
 }> = {
-    'chip-glow': { position: [3, 2, 3], target: [0, 0.05, 0], zoom: 280 },
-    'rack-zoom': { position: [4, 3, 4], target: [0, 1.2, 0], zoom: 90 },
-    'pod-zoom': { position: [12, 8, 12], target: [0, 1.5, 0], zoom: 30 },
-    'building-iso': { position: [60, 45, 60], target: [0, 8, 0], zoom: 6 },
-    'campus-grid': { position: [200, 140, 200], target: [0, 12, 0], zoom: 2 },
+    'chip-glow': { position: [1.2, 0.8, 1.2], target: [0, 0.03, 0], zoom: 480 },
+    'rack-zoom': { position: [3, 2.5, 3], target: [0, 1.0, 0], zoom: 110 },
+    'pod-zoom': { position: [10, 7, 10], target: [0, 1.2, 0], zoom: 35 },
+    'building-iso': { position: [50, 38, 50], target: [0, 6, 0], zoom: 7 },
+    'campus-grid': { position: [180, 120, 180], target: [0, 10, 0], zoom: 2.2 },
 };
 
 const scaleOrder = ['chip-glow', 'rack-zoom', 'pod-zoom', 'building-iso', 'campus-grid'];
@@ -41,8 +42,8 @@ export default function MicroView3D({ visualState, powerMetric }: MicroView3DPro
             <Canvas
                 orthographic
                 camera={{
-                    position: [3, 2, 3],
-                    zoom: 280,
+                    position: [1.2, 0.8, 1.2],
+                    zoom: 480,
                     near: 0.001,
                     far: 5000
                 }}
@@ -87,8 +88,8 @@ function ContinuousScene({ visualState }: { visualState: string }) {
     useFrame((state, delta) => {
         if (!camera) return;
 
-        // Very smooth interpolation for seamless feel
-        const speed = 1.5;
+        // Slower interpolation for more seamless transitions between scales
+        const speed = 1.0;
 
         camera.position.lerp(targetPosRef.current, delta * speed);
 
@@ -356,20 +357,35 @@ function CRAHUnit({ position }: { position: [number, number, number] }) {
 
 /**
  * Data Center Building - Contains the compute pod
+ * Enhanced with better colors for visibility against dark background
  */
 function DataCenterBuilding() {
     return (
         <group position={[0, 0, 0]}>
-            {/* Main building shell */}
+            {/* Main building shell - lighter color with emissive for visibility */}
             <mesh position={[0, 8, 0]}>
                 <boxGeometry args={[32, 16, 20]} />
-                <meshStandardMaterial color="#1e3a5f" metalness={0.4} roughness={0.6} transparent opacity={0.85} />
+                <meshStandardMaterial
+                    color="#3d6a8f"
+                    emissive="#1a3a5a"
+                    emissiveIntensity={0.15}
+                    metalness={0.3}
+                    roughness={0.5}
+                    transparent
+                    opacity={0.92}
+                />
             </mesh>
+
+            {/* Building edge highlights for definition */}
+            <lineSegments position={[0, 8, 0]}>
+                <edgesGeometry args={[new THREE.BoxGeometry(32, 16, 20)]} />
+                <lineBasicMaterial color="#5a9ac9" transparent opacity={0.4} />
+            </lineSegments>
 
             {/* Foundation */}
             <mesh position={[0, -0.2, 0]}>
                 <boxGeometry args={[36, 0.4, 24]} />
-                <meshStandardMaterial color="#374151" />
+                <meshStandardMaterial color="#4a5568" />
             </mesh>
 
             {/* Window grid */}
@@ -382,11 +398,11 @@ function DataCenterBuilding() {
                 ))
             )}
 
-            {/* Rooftop equipment */}
+            {/* Rooftop equipment - HVAC units */}
             {[...Array(5)].map((_, i) => (
                 <mesh key={i} position={[-8 + i * 4, 16.3, -3]}>
                     <boxGeometry args={[1.8, 1, 1.8]} />
-                    <meshStandardMaterial color="#374151" />
+                    <meshStandardMaterial color="#4a5568" metalness={0.5} />
                 </mesh>
             ))}
 
@@ -410,7 +426,7 @@ function WindowPanel({ position }: { position: [number, number, number] }) {
     return (
         <mesh ref={ref} position={position}>
             <planeGeometry args={[2, 2.8]} />
-            <meshBasicMaterial color="#06b6d4" transparent opacity={0.2} />
+            <meshBasicMaterial color="#06b6d4" transparent opacity={0.35} />
         </mesh>
     );
 }
@@ -433,7 +449,8 @@ function Substation({ position, scale }: { position: [number, number, number]; s
 }
 
 /**
- * Campus Layout - Multiple buildings and infrastructure
+ * Campus Layout - Multiple buildings and comprehensive infrastructure
+ * Includes substations, backup generators, cooling towers, battery storage
  */
 function CampusLayout() {
     const buildings = [
@@ -452,33 +469,333 @@ function CampusLayout() {
                 <SimplifiedBuilding key={i} position={b.pos as [number, number, number]} scale={b.scale} />
             ))}
 
-            {/* Central large substation */}
-            <group position={[-120, 0, 0]}>
-                <mesh position={[0, 5, 0]}>
-                    <boxGeometry args={[16, 10, 10]} />
-                    <meshStandardMaterial color="#374151" />
-                </mesh>
-                {[...Array(4)].map((_, i) => (
-                    <mesh key={i} position={[-4.5 + i * 3, 1.5, 6]}>
-                        <cylinderGeometry args={[0.8, 0.8, 3]} />
-                        <meshStandardMaterial color="#4b5563" />
-                    </mesh>
-                ))}
-            </group>
+            {/* === PRIMARY SUBSTATION (345kV/138kV) === */}
+            <PrimarySubstation position={[-130, 0, -30]} />
 
-            {/* Transmission line towers */}
-            {[...Array(8)].map((_, i) => (
-                <TransmissionTower key={i} position={[-150 - i * 25, 0, Math.sin(i * 0.8) * 20]} />
+            {/* === SECONDARY SUBSTATIONS (138kV/13.8kV) near buildings === */}
+            <SecondarySubstation position={[-75, 0, -40]} />
+            <SecondarySubstation position={[75, 0, -40]} />
+            <SecondarySubstation position={[-75, 0, 40]} />
+
+            {/* === BACKUP GENERATOR COMPLEX === */}
+            <GeneratorComplex position={[120, 0, -50]} />
+
+            {/* === COOLING TOWER FARM === */}
+            <CoolingTowerFarm position={[0, 0, -80]} />
+
+            {/* === BATTERY ENERGY STORAGE (BESS) === */}
+            <BatteryStorage position={[-90, 0, 70]} />
+
+            {/* Transmission line towers - extended corridor */}
+            {[...Array(12)].map((_, i) => (
+                <TransmissionTower key={i} position={[-160 - i * 22, 0, -30 + Math.sin(i * 0.6) * 15]} />
             ))}
 
             {/* Roads/paths connecting buildings */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-                <planeGeometry args={[300, 4]} />
-                <meshStandardMaterial color="#1f2937" />
+                <planeGeometry args={[320, 5]} />
+                <meshStandardMaterial color="#2d3748" />
             </mesh>
             <mesh rotation={[-Math.PI / 2, 0, Math.PI / 2]} position={[0, 0.01, 0]}>
-                <planeGeometry args={[120, 4]} />
-                <meshStandardMaterial color="#1f2937" />
+                <planeGeometry args={[180, 5]} />
+                <meshStandardMaterial color="#2d3748" />
+            </mesh>
+            {/* Perimeter road */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -75]}>
+                <planeGeometry args={[280, 4]} />
+                <meshStandardMaterial color="#2d3748" />
+            </mesh>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 75]}>
+                <planeGeometry args={[280, 4]} />
+                <meshStandardMaterial color="#2d3748" />
+            </mesh>
+
+            {/* Security fence perimeter (visual only) */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+                <ringGeometry args={[140, 145, 4]} />
+                <meshBasicMaterial color="#4a5568" transparent opacity={0.3} />
+            </mesh>
+        </group>
+    );
+}
+
+/**
+ * Primary Substation - 345kV/138kV transformer yard
+ */
+function PrimarySubstation({ position }: { position: [number, number, number] }) {
+    return (
+        <group position={position}>
+            {/* Substation pad/foundation */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+                <planeGeometry args={[50, 35]} />
+                <meshStandardMaterial color="#4a5568" />
+            </mesh>
+
+            {/* Control building */}
+            <mesh position={[18, 3, 10]}>
+                <boxGeometry args={[8, 6, 8]} />
+                <meshStandardMaterial color="#4a5568" metalness={0.3} />
+            </mesh>
+
+            {/* Main power transformers (345kV/138kV) */}
+            {[[-12, 0, 0], [0, 0, 0], [12, 0, 0]].map((pos, i) => (
+                <group key={i} position={pos as [number, number, number]}>
+                    {/* Transformer body */}
+                    <mesh position={[0, 3, 0]}>
+                        <boxGeometry args={[6, 6, 5]} />
+                        <meshStandardMaterial color="#374151" metalness={0.6} />
+                    </mesh>
+                    {/* Radiator fins */}
+                    <mesh position={[0, 3, 3.5]}>
+                        <boxGeometry args={[5, 4, 1]} />
+                        <meshStandardMaterial color="#4b5563" />
+                    </mesh>
+                    {/* HV bushings */}
+                    {[-1.5, 0, 1.5].map((x, j) => (
+                        <mesh key={j} position={[x, 7, 0]}>
+                            <cylinderGeometry args={[0.3, 0.4, 3]} />
+                            <meshStandardMaterial color="#94a3b8" />
+                        </mesh>
+                    ))}
+                </group>
+            ))}
+
+            {/* Bus bars */}
+            <mesh position={[0, 10, 0]}>
+                <boxGeometry args={[45, 0.15, 0.15]} />
+                <meshStandardMaterial color="#f59e0b" metalness={0.8} emissive="#f59e0b" emissiveIntensity={0.1} />
+            </mesh>
+
+            {/* Disconnect switches */}
+            {[-18, -6, 6, 18].map((x, i) => (
+                <mesh key={i} position={[x, 8, 5]}>
+                    <cylinderGeometry args={[0.15, 0.15, 4]} />
+                    <meshStandardMaterial color="#64748b" />
+                </mesh>
+            ))}
+
+            {/* Insulators on steel structures */}
+            {[-20, 0, 20].map((x, i) => (
+                <group key={i} position={[x, 0, -8]}>
+                    <mesh position={[0, 6, 0]}>
+                        <cylinderGeometry args={[0.3, 0.6, 12, 4]} />
+                        <meshStandardMaterial color="#64748b" metalness={0.7} />
+                    </mesh>
+                    <mesh position={[0, 12, 0]}>
+                        <cylinderGeometry args={[0.2, 0.3, 2]} />
+                        <meshStandardMaterial color="#374151" />
+                    </mesh>
+                </group>
+            ))}
+
+            {/* Grounding grid markers */}
+            {[[-22, 0.1, -15], [22, 0.1, -15], [-22, 0.1, 15], [22, 0.1, 15]].map((pos, i) => (
+                <mesh key={i} position={pos as [number, number, number]}>
+                    <cylinderGeometry args={[0.3, 0.3, 0.2]} />
+                    <meshStandardMaterial color="#fbbf24" />
+                </mesh>
+            ))}
+        </group>
+    );
+}
+
+/**
+ * Secondary Substation - 138kV/13.8kV step-down
+ */
+function SecondarySubstation({ position }: { position: [number, number, number] }) {
+    return (
+        <group position={position}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+                <planeGeometry args={[14, 10]} />
+                <meshStandardMaterial color="#4a5568" />
+            </mesh>
+
+            {/* Transformer */}
+            <mesh position={[0, 2, 0]}>
+                <boxGeometry args={[4, 4, 3]} />
+                <meshStandardMaterial color="#374151" metalness={0.5} />
+            </mesh>
+
+            {/* Bushings */}
+            {[-1, 1].map((x, i) => (
+                <mesh key={i} position={[x, 4.5, 0]}>
+                    <cylinderGeometry args={[0.2, 0.25, 1.5]} />
+                    <meshStandardMaterial color="#94a3b8" />
+                </mesh>
+            ))}
+
+            {/* Small control cabinet */}
+            <mesh position={[5, 1.5, 0]}>
+                <boxGeometry args={[2, 3, 2]} />
+                <meshStandardMaterial color="#4b5563" />
+            </mesh>
+        </group>
+    );
+}
+
+/**
+ * Generator Complex - Backup diesel/gas generators with fuel storage
+ */
+function GeneratorComplex({ position }: { position: [number, number, number] }) {
+    const genRef = useRef<THREE.Group>(null);
+
+    useFrame((state) => {
+        if (genRef.current) {
+            // Subtle vibration effect
+            genRef.current.position.y = Math.sin(state.clock.elapsedTime * 8) * 0.02;
+        }
+    });
+
+    return (
+        <group position={position}>
+            {/* Generator pad */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+                <planeGeometry args={[45, 25]} />
+                <meshStandardMaterial color="#4a5568" />
+            </mesh>
+
+            {/* Generator units (6 units) */}
+            <group ref={genRef}>
+                {[[-15, 0, -6], [0, 0, -6], [15, 0, -6], [-15, 0, 6], [0, 0, 6], [15, 0, 6]].map((pos, i) => (
+                    <group key={i} position={pos as [number, number, number]}>
+                        {/* Generator housing */}
+                        <mesh position={[0, 2.5, 0]}>
+                            <boxGeometry args={[8, 5, 4]} />
+                            <meshStandardMaterial color="#374151" metalness={0.4} />
+                        </mesh>
+                        {/* Exhaust stack */}
+                        <mesh position={[3, 6, 0]}>
+                            <cylinderGeometry args={[0.3, 0.4, 3]} />
+                            <meshStandardMaterial color="#4b5563" />
+                        </mesh>
+                        {/* Status light */}
+                        <mesh position={[-3.5, 4, 2.1]}>
+                            <sphereGeometry args={[0.15, 8, 8]} />
+                            <meshBasicMaterial color="#22c55e" />
+                        </mesh>
+                    </group>
+                ))}
+            </group>
+
+            {/* Fuel storage tanks */}
+            <group position={[25, 0, 0]}>
+                {[0, 8].map((z, i) => (
+                    <mesh key={i} position={[0, 3, z - 4]} rotation={[0, 0, Math.PI / 2]}>
+                        <cylinderGeometry args={[2.5, 2.5, 12]} />
+                        <meshStandardMaterial color="#1f2937" metalness={0.3} />
+                    </mesh>
+                ))}
+                {/* Tank supports */}
+                {[-4, 4].map((x, i) => (
+                    <mesh key={i} position={[x, 1, 0]}>
+                        <boxGeometry args={[1, 2, 14]} />
+                        <meshStandardMaterial color="#4b5563" />
+                    </mesh>
+                ))}
+            </group>
+        </group>
+    );
+}
+
+/**
+ * Cooling Tower Farm - Evaporative cooling structures
+ */
+function CoolingTowerFarm({ position }: { position: [number, number, number] }) {
+    return (
+        <group position={position}>
+            {/* Cooling towers (4 units) */}
+            {[[-20, 0, 0], [-7, 0, 0], [7, 0, 0], [20, 0, 0]].map((pos, i) => (
+                <CoolingTower key={i} position={pos as [number, number, number]} />
+            ))}
+
+            {/* Cooling water pipes */}
+            <mesh position={[0, 1, 10]} rotation={[0, 0, Math.PI / 2]}>
+                <cylinderGeometry args={[0.8, 0.8, 50]} />
+                <meshStandardMaterial color="#0891b2" metalness={0.4} />
+            </mesh>
+        </group>
+    );
+}
+
+/**
+ * Single Cooling Tower
+ */
+function CoolingTower({ position }: { position: [number, number, number] }) {
+    const steamRef = useRef<THREE.Mesh>(null);
+
+    useFrame((state) => {
+        if (steamRef.current) {
+            const mat = steamRef.current.material as THREE.MeshBasicMaterial;
+            mat.opacity = 0.15 + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+            steamRef.current.scale.y = 1 + Math.sin(state.clock.elapsedTime * 1.5) * 0.2;
+        }
+    });
+
+    return (
+        <group position={position}>
+            {/* Tower structure */}
+            <mesh position={[0, 6, 0]}>
+                <cylinderGeometry args={[4, 5, 12, 8]} />
+                <meshStandardMaterial color="#4a5568" metalness={0.3} roughness={0.7} />
+            </mesh>
+
+            {/* Top opening */}
+            <mesh position={[0, 12.1, 0]}>
+                <ringGeometry args={[2, 4, 8]} />
+                <meshStandardMaterial color="#374151" />
+            </mesh>
+
+            {/* Steam effect */}
+            <mesh ref={steamRef} position={[0, 15, 0]}>
+                <coneGeometry args={[3, 6, 8]} />
+                <meshBasicMaterial color="#ffffff" transparent opacity={0.2} />
+            </mesh>
+
+            {/* Base */}
+            <mesh position={[0, 0.25, 0]}>
+                <cylinderGeometry args={[5.5, 5.5, 0.5, 8]} />
+                <meshStandardMaterial color="#374151" />
+            </mesh>
+        </group>
+    );
+}
+
+/**
+ * Battery Energy Storage System (BESS)
+ */
+function BatteryStorage({ position }: { position: [number, number, number] }) {
+    return (
+        <group position={position}>
+            {/* Concrete pad */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+                <planeGeometry args={[35, 20]} />
+                <meshStandardMaterial color="#4a5568" />
+            </mesh>
+
+            {/* Battery containers (Tesla Megapack style) */}
+            {[[-12, 0, -5], [0, 0, -5], [12, 0, -5], [-12, 0, 5], [0, 0, 5], [12, 0, 5]].map((pos, i) => (
+                <group key={i} position={pos as [number, number, number]}>
+                    <mesh position={[0, 2, 0]}>
+                        <boxGeometry args={[7, 4, 3]} />
+                        <meshStandardMaterial color="#1f2937" metalness={0.5} />
+                    </mesh>
+                    {/* Ventilation */}
+                    <mesh position={[0, 2, 1.6]}>
+                        <boxGeometry args={[5, 2, 0.1]} />
+                        <meshStandardMaterial color="#374151" />
+                    </mesh>
+                    {/* Status indicator */}
+                    <mesh position={[3, 3.5, 1.6]}>
+                        <boxGeometry args={[0.4, 0.4, 0.1]} />
+                        <meshBasicMaterial color="#22c55e" />
+                    </mesh>
+                </group>
+            ))}
+
+            {/* Inverter/transformer unit */}
+            <mesh position={[18, 2.5, 0]}>
+                <boxGeometry args={[4, 5, 6]} />
+                <meshStandardMaterial color="#374151" metalness={0.4} />
             </mesh>
         </group>
     );
@@ -489,14 +806,25 @@ function SimplifiedBuilding({ position, scale }: { position: [number, number, nu
         <group position={position} scale={scale}>
             <mesh position={[0, 7, 0]}>
                 <boxGeometry args={[28, 14, 16]} />
-                <meshStandardMaterial color="#1e3a5f" metalness={0.3} />
+                <meshStandardMaterial
+                    color="#3d6a8f"
+                    emissive="#1a3a5a"
+                    emissiveIntensity={0.12}
+                    metalness={0.25}
+                    roughness={0.5}
+                />
             </mesh>
-            {/* Simplified windows */}
+            {/* Edge highlights */}
+            <lineSegments position={[0, 7, 0]}>
+                <edgesGeometry args={[new THREE.BoxGeometry(28, 14, 16)]} />
+                <lineBasicMaterial color="#5a9ac9" transparent opacity={0.3} />
+            </lineSegments>
+            {/* Simplified windows - brighter */}
             {[...Array(3)].map((_, row) =>
                 [...Array(6)].map((_, col) => (
                     <mesh key={`${row}-${col}`} position={[-9 + col * 3.6, 2 + row * 4, 8.1]}>
                         <planeGeometry args={[2.5, 3]} />
-                        <meshBasicMaterial color="#06b6d4" transparent opacity={0.15} />
+                        <meshBasicMaterial color="#06b6d4" transparent opacity={0.25} />
                     </mesh>
                 ))
             )}

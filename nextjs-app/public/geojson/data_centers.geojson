@@ -1,0 +1,671 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "description": "US Data Centers 500MW+ (existing) and major planned/announced facilities",
+    "sources": ["Baxtel", "DataCenterMap", "Company announcements", "Utility filings"],
+    "lastUpdated": "2025-01",
+    "notes": "Growth projections based on 150GW total US capacity by 2035"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Digital Realty Ashburn Campus",
+        "operator": "Digital Realty",
+        "capacity": 650,
+        "region": "nova",
+        "status": "operational",
+        "year": 2010
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.4875, 39.0437] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "QTS Ashburn",
+        "operator": "QTS Data Centers",
+        "capacity": 550,
+        "region": "nova",
+        "status": "operational",
+        "year": 2015
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.5012, 39.0521] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Equinix Ashburn Campus",
+        "operator": "Equinix",
+        "capacity": 720,
+        "region": "nova",
+        "status": "operational",
+        "year": 2012
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.4623, 39.0312] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Amazon AWS US-East-1",
+        "operator": "Amazon",
+        "capacity": 1200,
+        "region": "nova",
+        "status": "operational",
+        "year": 2014
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.4502, 39.0289] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Microsoft Azure Virginia",
+        "operator": "Microsoft",
+        "capacity": 850,
+        "region": "nova",
+        "status": "operational",
+        "year": 2016
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.5234, 39.0678] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Google Virginia Campus",
+        "operator": "Google",
+        "capacity": 600,
+        "region": "nova",
+        "status": "operational",
+        "year": 2018
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.4156, 39.0156] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Meta Virginia",
+        "operator": "Meta",
+        "capacity": 550,
+        "region": "nova",
+        "status": "operational",
+        "year": 2020
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.5401, 39.0812] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Loudoun Expansion Phase 4",
+        "operator": "Multiple",
+        "capacity": 800,
+        "region": "nova",
+        "status": "construction",
+        "year": 2026
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.5678, 39.0923] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Prince William County DC Campus",
+        "operator": "Amazon",
+        "capacity": 1500,
+        "region": "nova",
+        "status": "planned",
+        "year": 2028
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.4823, 38.8234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "AWS Columbus",
+        "operator": "Amazon",
+        "capacity": 600,
+        "region": "ohio",
+        "status": "operational",
+        "year": 2021
+      },
+      "geometry": { "type": "Point", "coordinates": [-82.9912, 40.0934] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Google Columbus",
+        "operator": "Google",
+        "capacity": 550,
+        "region": "ohio",
+        "status": "operational",
+        "year": 2022
+      },
+      "geometry": { "type": "Point", "coordinates": [-82.8567, 40.1234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Meta New Albany",
+        "operator": "Meta",
+        "capacity": 750,
+        "region": "ohio",
+        "status": "construction",
+        "year": 2026
+      },
+      "geometry": { "type": "Point", "coordinates": [-82.7845, 40.0812] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "QTS Columbus Expansion",
+        "operator": "QTS",
+        "capacity": 500,
+        "region": "ohio",
+        "status": "planned",
+        "year": 2027
+      },
+      "geometry": { "type": "Point", "coordinates": [-83.0234, 40.0567] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Intel Ohio AI Campus",
+        "operator": "Intel",
+        "capacity": 800,
+        "region": "ohio",
+        "status": "planned",
+        "year": 2028
+      },
+      "geometry": { "type": "Point", "coordinates": [-82.7123, 40.1567] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Project Clydesdale",
+        "operator": "Undisclosed",
+        "capacity": 1000,
+        "region": "oklahoma",
+        "status": "construction",
+        "year": 2026
+      },
+      "geometry": { "type": "Point", "coordinates": [-95.9012, 36.2567] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Project Anthem",
+        "operator": "Undisclosed",
+        "capacity": 800,
+        "region": "oklahoma",
+        "status": "planned",
+        "year": 2027
+      },
+      "geometry": { "type": "Point", "coordinates": [-95.8534, 36.1823] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Google Stillwater Phase 1-2",
+        "operator": "Google",
+        "capacity": 600,
+        "region": "oklahoma",
+        "status": "planned",
+        "year": 2027
+      },
+      "geometry": { "type": "Point", "coordinates": [-97.0645, 36.1156] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Google Stillwater Phase 3-6",
+        "operator": "Google",
+        "capacity": 1200,
+        "region": "oklahoma",
+        "status": "announced",
+        "year": 2030
+      },
+      "geometry": { "type": "Point", "coordinates": [-97.0823, 36.1234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "MAIP Tulsa Campus",
+        "operator": "Microsoft",
+        "capacity": 1500,
+        "region": "oklahoma",
+        "status": "announced",
+        "year": 2028
+      },
+      "geometry": { "type": "Point", "coordinates": [-95.9923, 36.1512] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "OGE Territory AI Campus",
+        "operator": "Multiple",
+        "capacity": 700,
+        "region": "oklahoma",
+        "status": "announced",
+        "year": 2029
+      },
+      "geometry": { "type": "Point", "coordinates": [-97.5234, 35.4823] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tulsa North Industrial",
+        "operator": "Undisclosed",
+        "capacity": 500,
+        "region": "oklahoma",
+        "status": "announced",
+        "year": 2028
+      },
+      "geometry": { "type": "Point", "coordinates": [-95.9456, 36.3012] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Digital Realty Dallas",
+        "operator": "Digital Realty",
+        "capacity": 580,
+        "region": "texas",
+        "status": "operational",
+        "year": 2015
+      },
+      "geometry": { "type": "Point", "coordinates": [-96.8023, 32.7823] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Stream Data Centers Irving",
+        "operator": "Stream",
+        "capacity": 520,
+        "region": "texas",
+        "status": "operational",
+        "year": 2018
+      },
+      "geometry": { "type": "Point", "coordinates": [-96.9456, 32.8512] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "QTS Irving Mega Campus",
+        "operator": "QTS",
+        "capacity": 700,
+        "region": "texas",
+        "status": "operational",
+        "year": 2019
+      },
+      "geometry": { "type": "Point", "coordinates": [-96.9234, 32.8234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "IREN Childress",
+        "operator": "IREN",
+        "capacity": 750,
+        "region": "texas",
+        "status": "operational",
+        "year": 2024
+      },
+      "geometry": { "type": "Point", "coordinates": [-100.2012, 34.4267] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Microsoft San Antonio",
+        "operator": "Microsoft",
+        "capacity": 600,
+        "region": "texas",
+        "status": "operational",
+        "year": 2020
+      },
+      "geometry": { "type": "Point", "coordinates": [-98.4934, 29.4267] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "AWS Texas Expansion",
+        "operator": "Amazon",
+        "capacity": 900,
+        "region": "texas",
+        "status": "construction",
+        "year": 2026
+      },
+      "geometry": { "type": "Point", "coordinates": [-96.7823, 32.9123] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Meta Fort Worth",
+        "operator": "Meta",
+        "capacity": 800,
+        "region": "texas",
+        "status": "planned",
+        "year": 2027
+      },
+      "geometry": { "type": "Point", "coordinates": [-97.3312, 32.7534] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "ERCOT AI Corridor North",
+        "operator": "Multiple",
+        "capacity": 1200,
+        "region": "texas",
+        "status": "announced",
+        "year": 2029
+      },
+      "geometry": { "type": "Point", "coordinates": [-96.5634, 33.0823] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "CyrusOne Chandler",
+        "operator": "CyrusOne",
+        "capacity": 550,
+        "region": "phoenix",
+        "status": "operational",
+        "year": 2019
+      },
+      "geometry": { "type": "Point", "coordinates": [-111.8412, 33.3062] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Microsoft Phoenix",
+        "operator": "Microsoft",
+        "capacity": 650,
+        "region": "phoenix",
+        "status": "operational",
+        "year": 2021
+      },
+      "geometry": { "type": "Point", "coordinates": [-111.9234, 33.4512] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Google Mesa",
+        "operator": "Google",
+        "capacity": 700,
+        "region": "phoenix",
+        "status": "construction",
+        "year": 2026
+      },
+      "geometry": { "type": "Point", "coordinates": [-111.7923, 33.4156] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "AWS Phoenix West",
+        "operator": "Amazon",
+        "capacity": 800,
+        "region": "phoenix",
+        "status": "planned",
+        "year": 2028
+      },
+      "geometry": { "type": "Point", "coordinates": [-112.0823, 33.5234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Digital Realty Chicago",
+        "operator": "Digital Realty",
+        "capacity": 520,
+        "region": "chicago",
+        "status": "operational",
+        "year": 2016
+      },
+      "geometry": { "type": "Point", "coordinates": [-87.8234, 41.8823] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "QTS Chicago",
+        "operator": "QTS",
+        "capacity": 480,
+        "region": "chicago",
+        "status": "operational",
+        "year": 2018
+      },
+      "geometry": { "type": "Point", "coordinates": [-87.9012, 41.9234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Microsoft Chicago Expansion",
+        "operator": "Microsoft",
+        "capacity": 700,
+        "region": "chicago",
+        "status": "construction",
+        "year": 2026
+      },
+      "geometry": { "type": "Point", "coordinates": [-87.8512, 41.9512] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Equinix Silicon Valley",
+        "operator": "Equinix",
+        "capacity": 600,
+        "region": "siliconvalley",
+        "status": "operational",
+        "year": 2012
+      },
+      "geometry": { "type": "Point", "coordinates": [-121.9812, 37.3923] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Digital Realty Santa Clara",
+        "operator": "Digital Realty",
+        "capacity": 550,
+        "region": "siliconvalley",
+        "status": "operational",
+        "year": 2014
+      },
+      "geometry": { "type": "Point", "coordinates": [-121.9512, 37.3512] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Switch TAHOE RENO 1",
+        "operator": "Switch",
+        "capacity": 800,
+        "region": "nevada",
+        "status": "operational",
+        "year": 2017
+      },
+      "geometry": { "type": "Point", "coordinates": [-119.7823, 39.5234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Switch Citadel Campus",
+        "operator": "Switch",
+        "capacity": 1500,
+        "region": "nevada",
+        "status": "construction",
+        "year": 2027
+      },
+      "geometry": { "type": "Point", "coordinates": [-119.8123, 39.5012] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "QTS Atlanta Metro",
+        "operator": "QTS",
+        "capacity": 500,
+        "region": "atlanta",
+        "status": "operational",
+        "year": 2018
+      },
+      "geometry": { "type": "Point", "coordinates": [-84.3923, 33.7534] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Microsoft Georgia",
+        "operator": "Microsoft",
+        "capacity": 600,
+        "region": "atlanta",
+        "status": "construction",
+        "year": 2026
+      },
+      "geometry": { "type": "Point", "coordinates": [-84.2812, 33.8234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Stack Infrastructure Portland",
+        "operator": "Stack",
+        "capacity": 520,
+        "region": "portland",
+        "status": "operational",
+        "year": 2020
+      },
+      "geometry": { "type": "Point", "coordinates": [-122.6534, 45.5234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "AWS Oregon",
+        "operator": "Amazon",
+        "capacity": 700,
+        "region": "portland",
+        "status": "operational",
+        "year": 2018
+      },
+      "geometry": { "type": "Point", "coordinates": [-121.1823, 44.0567] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Microsoft Quincy",
+        "operator": "Microsoft",
+        "capacity": 650,
+        "region": "seattle",
+        "status": "operational",
+        "year": 2015
+      },
+      "geometry": { "type": "Point", "coordinates": [-119.8523, 47.2312] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Google The Dalles",
+        "operator": "Google",
+        "capacity": 550,
+        "region": "portland",
+        "status": "operational",
+        "year": 2016
+      },
+      "geometry": { "type": "Point", "coordinates": [-121.1712, 45.6023] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "NOVA Expansion 2030",
+        "operator": "Multiple",
+        "capacity": 2000,
+        "region": "nova",
+        "status": "announced",
+        "year": 2030
+      },
+      "geometry": { "type": "Point", "coordinates": [-77.6123, 39.1234] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ohio Hyperscale Corridor",
+        "operator": "Multiple",
+        "capacity": 1500,
+        "region": "ohio",
+        "status": "announced",
+        "year": 2031
+      },
+      "geometry": { "type": "Point", "coordinates": [-82.6534, 40.2123] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "ERCOT West Expansion",
+        "operator": "Multiple",
+        "capacity": 1800,
+        "region": "texas",
+        "status": "announced",
+        "year": 2032
+      },
+      "geometry": { "type": "Point", "coordinates": [-101.8234, 31.9967] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SPP Oklahoma Mega Campus",
+        "operator": "Multiple",
+        "capacity": 1200,
+        "region": "oklahoma",
+        "status": "announced",
+        "year": 2032
+      },
+      "geometry": { "type": "Point", "coordinates": [-96.0123, 35.9567] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arizona AI Corridor",
+        "operator": "Multiple",
+        "capacity": 1400,
+        "region": "phoenix",
+        "status": "announced",
+        "year": 2031
+      },
+      "geometry": { "type": "Point", "coordinates": [-111.6534, 33.5823] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Nevada Green AI Campus",
+        "operator": "Multiple",
+        "capacity": 1100,
+        "region": "nevada",
+        "status": "announced",
+        "year": 2030
+      },
+      "geometry": { "type": "Point", "coordinates": [-119.6234, 39.4512] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Georgia AI Hub",
+        "operator": "Multiple",
+        "capacity": 900,
+        "region": "atlanta",
+        "status": "announced",
+        "year": 2030
+      },
+      "geometry": { "type": "Point", "coordinates": [-84.1534, 33.9123] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pacific Northwest Expansion",
+        "operator": "Multiple",
+        "capacity": 1000,
+        "region": "portland",
+        "status": "announced",
+        "year": 2031
+      },
+      "geometry": { "type": "Point", "coordinates": [-122.4234, 45.6567] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "MISO North Campus",
+        "operator": "Multiple",
+        "capacity": 800,
+        "region": "chicago",
+        "status": "announced",
+        "year": 2030
+      },
+      "geometry": { "type": "Point", "coordinates": [-88.0534, 42.0123] }
+    }
+  ]
+}

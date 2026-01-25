@@ -110,8 +110,8 @@ export const steps: StoryStep[] = [
         id: 'campus',
         mode: 'infrastructure',
         visualState: 'campus-grid',
-        // Start zoomed in tight on Ashburn data center campus
-        location: { lng: -77.4875, lat: 39.0437, zoom: 15, pitch: 60, bearing: -45 },
+        // Start zoomed in very tight on Ashburn data center campus for seamless 3D-to-map transition
+        location: { lng: -77.4875, lat: 39.0437, zoom: 16, pitch: 55, bearing: -30 },
         title: "The Grid Connection",
         text: "Large data centers connect directly to high-voltage transmission lines. A 500 MW campus draws power equivalent to a small nuclear reactor—requiring dedicated substations and often triggering grid upgrades paid by all ratepayers.",
         powerMetric: {
