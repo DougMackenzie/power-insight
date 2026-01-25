@@ -1,11 +1,24 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { Scrollama, Step } from 'react-scrollama';
 import { motion, AnimatePresence } from 'framer-motion';
-import MicroView from './MicroView';
 import MapView from './MapView';
 import { steps, type StoryStep } from './storyData';
+
+// Dynamically import 3D component to avoid SSR issues with Three.js
+const MicroView3D = dynamic(() => import('./MicroView3D'), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-full bg-gray-950 flex items-center justify-center">
+            <div className="text-center">
+                <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">Loading 3D view...</p>
+            </div>
+        </div>
+    ),
+});
 
 /**
  * ScrollyMap - Main scrollytelling component
@@ -59,7 +72,7 @@ export default function ScrollyMap() {
                     </motion.div>
                 )}
 
-                {/* Micro layer - on top, fades out when transitioning to map */}
+                {/* 3D Micro layer - on top, fades out when transitioning to map */}
                 <AnimatePresence>
                     {showMicro && (
                         <motion.div
@@ -77,7 +90,7 @@ export default function ScrollyMap() {
                             }}
                             transition={{ duration: 0.6, ease: 'easeInOut' }}
                         >
-                            <MicroView
+                            <MicroView3D
                                 visualState={currentStep.visualState || 'chip-glow'}
                                 powerMetric={currentStep.powerMetric}
                             />

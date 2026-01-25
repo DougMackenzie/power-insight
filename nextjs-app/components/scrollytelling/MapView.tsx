@@ -109,8 +109,8 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
             const isoResponse = await fetch('/geojson/iso_regions.geojson');
             const isoData = await isoResponse.json();
 
-            // Load transmission lines GeoJSON
-            const transResponse = await fetch('/geojson/transmission_500kv.geojson');
+            // Load transmission lines GeoJSON (230kV+)
+            const transResponse = await fetch('/geojson/transmission_230kv_plus.geojson');
             const transData = await transResponse.json();
 
             // Add ISO regions
@@ -143,45 +143,45 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                 });
             }
 
-            // Add transmission lines
+            // Add transmission lines (230kV+) colored by ISO region
             if (!map.getSource('transmission-lines')) {
                 map.addSource('transmission-lines', {
                     type: 'geojson',
                     data: transData
                 });
 
-                // Glow layer
+                // Glow layer - color by ISO region
                 map.addLayer({
                     id: 'transmission-lines-glow',
                     type: 'line',
                     source: 'transmission-lines',
                     paint: {
-                        'line-color': '#FBBF24',
+                        'line-color': ['get', 'color'],
                         'line-width': [
                             'interpolate', ['linear'], ['zoom'],
-                            3, 4,
-                            8, 8,
-                            12, 12
+                            3, ['interpolate', ['linear'], ['get', 'v'], 230, 2, 500, 5, 765, 8],
+                            8, ['interpolate', ['linear'], ['get', 'v'], 230, 4, 500, 8, 765, 12],
+                            12, ['interpolate', ['linear'], ['get', 'v'], 230, 6, 500, 10, 765, 14]
                         ],
-                        'line-opacity': 0.3,
+                        'line-opacity': 0.25,
                         'line-blur': 3
                     }
                 });
 
-                // Core line
+                // Core line - color by ISO region, width by voltage
                 map.addLayer({
                     id: 'transmission-lines-core',
                     type: 'line',
                     source: 'transmission-lines',
                     paint: {
-                        'line-color': '#F59E0B',
+                        'line-color': ['get', 'color'],
                         'line-width': [
                             'interpolate', ['linear'], ['zoom'],
-                            3, 1,
-                            8, 2,
-                            12, 3
+                            3, ['interpolate', ['linear'], ['get', 'v'], 230, 0.5, 500, 1.5, 765, 2.5],
+                            8, ['interpolate', ['linear'], ['get', 'v'], 230, 1, 500, 2, 765, 3],
+                            12, ['interpolate', ['linear'], ['get', 'v'], 230, 1.5, 500, 2.5, 765, 4]
                         ],
-                        'line-opacity': 0.9
+                        'line-opacity': 0.85
                     }
                 });
             }
@@ -513,8 +513,8 @@ function MapLegend({ stepId }: { stepId: string }) {
                     <span className="text-gray-300">Wind/Solar</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-0.5 bg-amber-500" />
-                    <span className="text-gray-300">500kV Lines</span>
+                    <div className="w-6 h-0.5 bg-gradient-to-r from-red-500 via-amber-500 to-green-500" />
+                    <span className="text-gray-300">230kV+ Lines</span>
                 </div>
             </div>
         </motion.div>

@@ -12,6 +12,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "framer-motion": "^12.29.0",
     "mapbox-gl": "^3.18.1",
     "next": "16.1.4",
@@ -20,12 +22,14 @@
     "react-dom": "19.2.3",
     "react-map-gl": "^8.1.0",
     "react-scrollama": "^2.4.2",
-    "recharts": "^3.7.0"
+    "recharts": "^3.7.0",
+    "three": "^0.182.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.182.0",
     "autoprefixer": "^10.4.23",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
