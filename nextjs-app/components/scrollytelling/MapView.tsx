@@ -22,13 +22,23 @@ interface MapViewProps {
     location: MapLocation;
     layerColor?: string;
     stepId: string;
+    region?: {
+        name: string;
+        type: 'iso' | 'regulated' | 'deregulated';
+        color: string;
+    };
+    powerMetric?: {
+        value: string;
+        unit: string;
+        comparison: string;
+    };
 }
 
 /**
  * MapView - Mapbox GL visualization for macro-level story
  * Uses native mapbox-gl for better Turbopack compatibility
  */
-export default function MapView({ location, layerColor = '#EF4444', stepId }: MapViewProps) {
+export default function MapView({ location, layerColor = '#EF4444', stepId, region, powerMetric }: MapViewProps) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MapboxMap | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
@@ -100,7 +110,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId }: Ma
 
     // Fallback when no Mapbox token or error
     if (!mapboxToken || mapError) {
-        return <MapFallback location={location} layerColor={layerColor} stepId={stepId} />;
+        return <MapFallback location={location} layerColor={layerColor} stepId={stepId} region={region} powerMetric={powerMetric} />;
     }
 
     return (
@@ -117,9 +127,9 @@ export default function MapView({ location, layerColor = '#EF4444', stepId }: Ma
                 </div>
             )}
 
-            {/* Risk indicator and location label */}
-            <RiskIndicator color={layerColor} stepId={stepId} />
-            <LocationLabel stepId={stepId} />
+            {/* Region indicator and location label */}
+            <RegionIndicator color={layerColor} stepId={stepId} region={region} />
+            <LocationLabel stepId={stepId} region={region} powerMetric={powerMetric} />
         </div>
     );
 }
@@ -127,7 +137,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId }: Ma
 /**
  * Fallback component when Mapbox token is not available
  */
-function MapFallback({ location, layerColor = '#EF4444', stepId }: MapViewProps) {
+function MapFallback({ location, layerColor = '#EF4444', stepId, region, powerMetric }: MapViewProps) {
     return (
         <div className="relative w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
             {/* Grid background */}
@@ -201,60 +211,82 @@ function MapFallback({ location, layerColor = '#EF4444', stepId }: MapViewProps)
                 </div>
             </motion.div>
 
-            {/* Risk indicator and location label */}
-            <RiskIndicator color={layerColor} stepId={stepId} />
-            <LocationLabel stepId={stepId} />
+            {/* Region indicator and location label */}
+            <RegionIndicator color={layerColor} stepId={stepId} region={region} />
+            <LocationLabel stepId={stepId} region={region} powerMetric={powerMetric} />
         </div>
     );
 }
 
 /**
- * Risk Indicator - Color-coded badge showing risk level
+ * Region Indicator - Color-coded badge showing market type and region
  */
-function RiskIndicator({ color, stepId }: { color: string; stepId: string }) {
-    const riskLabels: Record<string, string> = {
-        substation: 'Infrastructure Risk',
-        nova: 'High Cost Risk',
-        ohio: 'Emerging Risk',
-        oklahoma: 'Regulated Protection',
-        texas: 'Optimized Model',
-        usa: 'National Scale',
+function RegionIndicator({ color, stepId, region }: {
+    color: string;
+    stepId: string;
+    region?: { name: string; type: 'iso' | 'regulated' | 'deregulated'; color: string };
+}) {
+    // Market type labels
+    const marketTypeLabels: Record<string, string> = {
+        iso: 'Organized Market (ISO)',
+        regulated: 'Regulated Utility',
+        deregulated: 'Deregulated Market',
     };
 
-    const label = riskLabels[stepId] || 'Risk Level';
+    // Fallback labels by step ID
+    const fallbackLabels: Record<string, string> = {
+        campus: 'Grid Infrastructure',
+        nova: 'PJM Interconnection',
+        ohio: 'PJM Interconnection',
+        oklahoma: 'SPP (Regulated)',
+        texas: 'ERCOT',
+        usa: 'National Grid',
+    };
+
+    const label = region ? marketTypeLabels[region.type] : fallbackLabels[stepId] || 'Regional View';
+    const displayColor = region?.color || color;
 
     return (
         <AnimatePresence mode="wait">
             <motion.div
                 key={stepId}
                 className="absolute top-8 left-8 flex items-center gap-3 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3 border"
-                style={{ borderColor: color }}
+                style={{ borderColor: displayColor }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
             >
                 <motion.div
                     className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: color }}
+                    style={{ backgroundColor: displayColor }}
                     animate={{ scale: [1, 1.3, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                 />
-                <span className="text-white text-sm font-medium">{label}</span>
+                <div className="flex flex-col">
+                    <span className="text-white text-sm font-medium">{label}</span>
+                    {region && (
+                        <span className="text-gray-400 text-xs">{region.name}</span>
+                    )}
+                </div>
             </motion.div>
         </AnimatePresence>
     );
 }
 
 /**
- * Location Label - Shows current location name
+ * Location Label - Shows current location name and power metrics
  */
-function LocationLabel({ stepId }: { stepId: string }) {
+function LocationLabel({ stepId, region, powerMetric }: {
+    stepId: string;
+    region?: { name: string; type: 'iso' | 'regulated' | 'deregulated'; color: string };
+    powerMetric?: { value: string; unit: string; comparison: string };
+}) {
     const locationNames: Record<string, string> = {
-        substation: 'Ashburn, Virginia',
+        campus: 'Data Center Campus',
         nova: 'Northern Virginia (Data Center Alley)',
-        ohio: 'Columbus, Ohio',
-        oklahoma: 'Tulsa, Oklahoma',
-        texas: 'Dallas-Fort Worth, Texas',
+        ohio: 'Central Ohio',
+        oklahoma: 'Oklahoma (PSO Territory)',
+        texas: 'Texas (ERCOT)',
         usa: 'United States',
     };
 
@@ -264,12 +296,23 @@ function LocationLabel({ stepId }: { stepId: string }) {
     return (
         <motion.div
             key={stepId}
-            className="absolute bottom-8 right-8 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2"
+            className="absolute bottom-8 right-8 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
         >
             <div className="text-gray-400 text-xs uppercase tracking-wider">Location</div>
             <div className="text-white font-medium">{name}</div>
+            {powerMetric && (
+                <div className="mt-2 pt-2 border-t border-gray-700">
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-lg font-bold font-mono" style={{ color: region?.color || '#06b6d4' }}>
+                            {powerMetric.value}
+                        </span>
+                        <span className="text-sm text-gray-400 font-mono">{powerMetric.unit}</span>
+                    </div>
+                    <div className="text-xs text-gray-500">{powerMetric.comparison}</div>
+                </div>
+            )}
         </motion.div>
     );
 }

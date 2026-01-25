@@ -48,14 +48,14 @@ export default function StoryPage() {
                     </div>
 
                     <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                        The Hidden Cost of
+                        The Scale of
                         <span className="block bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                            Artificial Intelligence
+                            AI Data Centers
                         </span>
                     </h1>
 
                     <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-                        A visual journey from a single GPU to the national power grid—and why your electricity bill hangs in the balance.
+                        A visual journey from a single GPU to the national power grid—understanding the infrastructure behind artificial intelligence.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

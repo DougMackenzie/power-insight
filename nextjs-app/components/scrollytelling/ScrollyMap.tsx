@@ -19,40 +19,75 @@ export default function ScrollyMap() {
         setCurrentStepIndex(data as number);
     }, []);
 
+    // Determine which visualization to show based on mode
+    const renderVisualization = () => {
+        // Micro mode: SVG visualizations (chip, rack, pod, building)
+        if (currentStep.mode === 'micro') {
+            return (
+                <motion.div
+                    key={`micro-${currentStep.id}`}
+                    className="w-full h-full"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <MicroView
+                        visualState={currentStep.visualState || 'chip-glow'}
+                        powerMetric={currentStep.powerMetric}
+                    />
+                </motion.div>
+            );
+        }
+
+        // Infrastructure mode: Shows campus with grid elements (transition between micro and map)
+        if (currentStep.mode === 'infrastructure') {
+            return (
+                <motion.div
+                    key={`infra-${currentStep.id}`}
+                    className="w-full h-full"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <MicroView
+                        visualState={currentStep.visualState || 'campus-grid'}
+                        powerMetric={currentStep.powerMetric}
+                    />
+                </motion.div>
+            );
+        }
+
+        // Map mode: Mapbox visualizations for regional views
+        return (
+            <motion.div
+                key={`map-${currentStep.id}`}
+                className="w-full h-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                {currentStep.location && (
+                    <MapView
+                        location={currentStep.location}
+                        layerColor={currentStep.layerColor}
+                        stepId={currentStep.id}
+                        region={currentStep.region}
+                        powerMetric={currentStep.powerMetric}
+                    />
+                )}
+            </motion.div>
+        );
+    };
+
     return (
         <div className="relative min-h-screen bg-gray-950">
             {/* Sticky visual container - Full screen on mobile, 60% on desktop */}
             <div className="sticky top-0 h-screen w-full lg:w-[60%] lg:ml-auto z-0">
                 <AnimatePresence mode="wait">
-                    {currentStep.mode === 'micro' ? (
-                        <motion.div
-                            key="micro"
-                            className="w-full h-full"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5 }}
-                        >
-                            <MicroView visualState={currentStep.visualState || 'chip-glow'} />
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="map"
-                            className="w-full h-full"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5 }}
-                        >
-                            {currentStep.location && (
-                                <MapView
-                                    location={currentStep.location}
-                                    layerColor={currentStep.layerColor}
-                                    stepId={currentStep.id}
-                                />
-                            )}
-                        </motion.div>
-                    )}
+                    {renderVisualization()}
                 </AnimatePresence>
 
                 {/* Progress indicator */}
@@ -102,6 +137,22 @@ function StoryCard({
     stepNumber: number;
     totalSteps: number;
 }) {
+    // Determine mode label and color
+    const getModeInfo = () => {
+        switch (step.mode) {
+            case 'micro':
+                return { label: 'Micro Scale', bgColor: 'bg-cyan-500/20', textColor: 'text-cyan-400' };
+            case 'infrastructure':
+                return { label: 'Grid Infrastructure', bgColor: 'bg-amber-500/20', textColor: 'text-amber-400' };
+            case 'map':
+                return { label: 'Regional View', bgColor: 'bg-blue-500/20', textColor: 'text-blue-400' };
+            default:
+                return { label: 'View', bgColor: 'bg-gray-500/20', textColor: 'text-gray-400' };
+        }
+    };
+
+    const modeInfo = getModeInfo();
+
     return (
         <motion.div
             className={`
@@ -138,18 +189,24 @@ function StoryCard({
                 <span className="text-xs text-gray-500 font-mono">{stepNumber}/{totalSteps}</span>
             </div>
 
-            {/* Mode indicator */}
-            <div className="flex items-center gap-2 mb-4">
-                {step.mode === 'micro' ? (
-                    <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded-full font-medium">
-                        Micro Scale
-                    </span>
-                ) : (
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full font-medium">
-                        Macro Scale
+            {/* Mode indicator and region */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+                <span className={`px-2 py-1 ${modeInfo.bgColor} ${modeInfo.textColor} text-xs rounded-full font-medium`}>
+                    {modeInfo.label}
+                </span>
+                {step.region && (
+                    <span
+                        className="px-2 py-1 text-xs rounded-full font-medium border"
+                        style={{
+                            borderColor: step.region.color,
+                            color: step.region.color,
+                            backgroundColor: `${step.region.color}15`
+                        }}
+                    >
+                        {step.region.name}
                     </span>
                 )}
-                {step.layerColor && (
+                {step.layerColor && !step.region && (
                     <span
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: step.layerColor }}
@@ -167,13 +224,45 @@ function StoryCard({
                 {step.text}
             </p>
 
+            {/* Subtext (sources, additional context) */}
+            {step.subtext && isActive && (
+                <motion.p
+                    className="mt-4 text-sm text-gray-500 italic"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                >
+                    {step.subtext}
+                </motion.p>
+            )}
+
+            {/* Power metric badge */}
+            {step.powerMetric && isActive && (
+                <motion.div
+                    className="mt-4 inline-flex items-baseline gap-1 bg-gray-800/50 rounded-lg px-3 py-2"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <span className="text-xl font-bold text-white font-mono">
+                        {step.powerMetric.value}
+                    </span>
+                    <span className="text-sm text-gray-400 font-mono">
+                        {step.powerMetric.unit}
+                    </span>
+                    <span className="text-xs text-gray-500 ml-2">
+                        {step.powerMetric.comparison}
+                    </span>
+                </motion.div>
+            )}
+
             {/* Visual hint for active card */}
             {isActive && (
                 <motion.div
                     className="mt-6 flex items-center gap-2 text-gray-500 text-sm"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.4 }}
                 >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
