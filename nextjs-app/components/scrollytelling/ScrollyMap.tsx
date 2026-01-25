@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Scrollama, Step } from 'react-scrollama';
 import { motion, AnimatePresence } from 'framer-motion';
 import MicroView from './MicroView';
@@ -10,6 +10,7 @@ import { steps, type StoryStep } from './storyData';
 /**
  * ScrollyMap - Main scrollytelling component
  * Orchestrates the narrative from microchip to national grid
+ * Uses layered rendering for seamless transitions
  */
 export default function ScrollyMap() {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -19,75 +20,69 @@ export default function ScrollyMap() {
         setCurrentStepIndex(data as number);
     }, []);
 
-    // Determine which visualization to show based on mode
-    const renderVisualization = () => {
-        // Micro mode: SVG visualizations (chip, rack, pod, building)
-        if (currentStep.mode === 'micro') {
-            return (
-                <motion.div
-                    key={`micro-${currentStep.id}`}
-                    className="w-full h-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <MicroView
-                        visualState={currentStep.visualState || 'chip-glow'}
-                        powerMetric={currentStep.powerMetric}
-                    />
-                </motion.div>
-            );
-        }
+    // Determine if we should show micro, map, or both (for transitions)
+    const showMicro = currentStep.mode === 'micro' || currentStep.mode === 'infrastructure';
+    const showMap = currentStep.mode === 'map' || currentStep.mode === 'infrastructure';
 
-        // Infrastructure mode: Shows campus with grid elements (transition between micro and map)
-        if (currentStep.mode === 'infrastructure') {
-            return (
-                <motion.div
-                    key={`infra-${currentStep.id}`}
-                    className="w-full h-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <MicroView
-                        visualState={currentStep.visualState || 'campus-grid'}
-                        powerMetric={currentStep.powerMetric}
-                    />
-                </motion.div>
-            );
-        }
+    // Get first step with a map location for preloading
+    const firstMapStep = useMemo(() =>
+        steps.find(s => s.location) || steps[4],
+        []
+    );
 
-        // Map mode: Mapbox visualizations for regional views
-        return (
-            <motion.div
-                key={`map-${currentStep.id}`}
-                className="w-full h-full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-            >
-                {currentStep.location && (
-                    <MapView
-                        location={currentStep.location}
-                        layerColor={currentStep.layerColor}
-                        stepId={currentStep.id}
-                        region={currentStep.region}
-                        powerMetric={currentStep.powerMetric}
-                    />
-                )}
-            </motion.div>
-        );
-    };
+    // Calculate map location - use current or default to first map step for preloading
+    const mapLocation = currentStep.location || firstMapStep.location;
 
     return (
         <div className="relative min-h-screen bg-gray-950">
             {/* Sticky visual container - Full screen on mobile, 60% on desktop */}
-            <div className="sticky top-0 h-screen w-full lg:w-[60%] lg:ml-auto z-0">
-                <AnimatePresence mode="wait">
-                    {renderVisualization()}
+            <div className="sticky top-0 h-screen w-full lg:w-[60%] lg:ml-auto z-0 overflow-hidden">
+
+                {/* Map layer - always rendered after first micro steps to preload, fades in for map/infrastructure */}
+                {mapLocation && (
+                    <motion.div
+                        className="absolute inset-0"
+                        initial={{ opacity: 0 }}
+                        animate={{
+                            opacity: showMap ? 1 : 0,
+                            scale: showMap ? 1 : 1.1
+                        }}
+                        transition={{ duration: 1.2, ease: 'easeInOut' }}
+                    >
+                        <MapView
+                            location={mapLocation}
+                            layerColor={currentStep.layerColor}
+                            stepId={currentStep.id}
+                            region={currentStep.region}
+                            powerMetric={currentStep.powerMetric}
+                        />
+                    </motion.div>
+                )}
+
+                {/* Micro layer - on top, fades out when transitioning to map */}
+                <AnimatePresence>
+                    {showMicro && (
+                        <motion.div
+                            key={`micro-${currentStep.id}`}
+                            className="absolute inset-0"
+                            initial={{ opacity: 1 }}
+                            animate={{
+                                opacity: currentStep.mode === 'infrastructure' ? 0.3 : 1,
+                                scale: currentStep.mode === 'infrastructure' ? 0.9 : 1
+                            }}
+                            exit={{
+                                opacity: 0,
+                                scale: 0.8,
+                                transition: { duration: 0.8 }
+                            }}
+                            transition={{ duration: 0.6, ease: 'easeInOut' }}
+                        >
+                            <MicroView
+                                visualState={currentStep.visualState || 'chip-glow'}
+                                powerMetric={currentStep.powerMetric}
+                            />
+                        </motion.div>
+                    )}
                 </AnimatePresence>
 
                 {/* Progress indicator */}

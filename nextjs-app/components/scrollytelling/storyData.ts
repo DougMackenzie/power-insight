@@ -105,12 +105,13 @@ export const steps: StoryStep[] = [
         }
     },
 
-    // --- PHASE 2: TRANSITION - Infrastructure becomes visible ---
+    // --- PHASE 2: TRANSITION - Infrastructure becomes visible (map starts here) ---
     {
         id: 'campus',
         mode: 'infrastructure',
         visualState: 'campus-grid',
-        location: { lng: -77.46, lat: 39.03, zoom: 14, pitch: 60, bearing: -30 },
+        // Start zoomed in tight on Ashburn data center campus
+        location: { lng: -77.4875, lat: 39.0437, zoom: 15, pitch: 60, bearing: -45 },
         title: "The Grid Connection",
         text: "Large data centers connect directly to high-voltage transmission lines. A 500 MW campus draws power equivalent to a small nuclear reactor—requiring dedicated substations and often triggering grid upgrades paid by all ratepayers.",
         powerMetric: {
@@ -121,11 +122,12 @@ export const steps: StoryStep[] = [
         layerColor: '#EF4444',
     },
 
-    // --- PHASE 3: THE MACRO VIEW - Regional grid impacts ---
+    // --- PHASE 3: THE MACRO VIEW - Continuous sweeping pan across regions ---
     {
         id: 'nova',
         mode: 'map',
-        location: { lng: -77.48, lat: 39.04, zoom: 10, pitch: 45, bearing: 0 },
+        // Pull back to see the NOVA cluster, slight bearing shift for sweep feel
+        location: { lng: -77.46, lat: 39.03, zoom: 10, pitch: 50, bearing: -20 },
         title: "Northern Virginia: Data Center Alley",
         text: "The world's largest data center market. With 5.6 GW of capacity, Northern Virginia hosts more computing power than most countries. This cluster alone consumes 25% of Virginia's electricity—more than all residential customers combined.",
         subtext: "70% of global internet traffic flows through Loudoun County. Dominion Energy projects data center demand reaching 9 GW by 2035.",
@@ -144,7 +146,8 @@ export const steps: StoryStep[] = [
     {
         id: 'ohio',
         mode: 'map',
-        location: { lng: -82.99, lat: 40.10, zoom: 8, pitch: 35, bearing: 15 },
+        // Pan northwest to Ohio - bearing continues sweep
+        location: { lng: -82.99, lat: 40.10, zoom: 8, pitch: 45, bearing: 10 },
         title: "Ohio: The Emerging Frontier",
         text: "Central Ohio is experiencing rapid data center growth as Virginia reaches capacity constraints. AEP Ohio has seen interconnection requests surge, with several gigawatts in the pipeline. Without careful planning, infrastructure costs flow to residential ratepayers.",
         region: {
@@ -157,7 +160,8 @@ export const steps: StoryStep[] = [
     {
         id: 'oklahoma',
         mode: 'map',
-        location: { lng: -95.99, lat: 36.15, zoom: 7, pitch: 30, bearing: 0 },
+        // Pan southwest to Oklahoma - continuous westward motion
+        location: { lng: -96.50, lat: 35.50, zoom: 7, pitch: 40, bearing: 25 },
         title: "Oklahoma: Regulated Market Structure",
         text: "In traditionally regulated markets like Oklahoma (PSO, SPP region), utilities and regulators can design tariff structures that assign infrastructure costs to the customers who cause them. This 'cost causation' principle protects existing ratepayers.",
         subtext: "Regulated utilities use integrated resource planning (IRP) to forecast and allocate costs over 15-20 year horizons.",
@@ -171,7 +175,8 @@ export const steps: StoryStep[] = [
     {
         id: 'texas',
         mode: 'map',
-        location: { lng: -96.79, lat: 32.77, zoom: 6, pitch: 25, bearing: 0 },
+        // Pan south to Texas - bearing rotates to face south
+        location: { lng: -97.50, lat: 31.50, zoom: 6, pitch: 35, bearing: 15 },
         title: "Texas: The ERCOT Model",
         text: "ERCOT's deregulated market uses '4CP' transmission charges that allocate costs based on usage during the four annual coincident peaks. Data centers that reduce load during these critical hours pay significantly less—creating strong incentives for flexibility.",
         subtext: "Flexible data centers acting as 'virtual power plants' can reduce their peak contribution by 25%, lowering both their own costs and grid stress.",
@@ -185,7 +190,8 @@ export const steps: StoryStep[] = [
     {
         id: 'usa',
         mode: 'map',
-        location: { lng: -98.57, lat: 39.82, zoom: 3.5, pitch: 0, bearing: 0 },
+        // Pull way back to see full US - level view
+        location: { lng: -96.00, lat: 38.50, zoom: 4, pitch: 0, bearing: 0 },
         title: "The National Picture",
         text: "U.S. data centers consumed 176 TWh in 2023—about 4.4% of national electricity. By 2030, projections range from 8% to 12%. How we structure rates and incentivize flexibility today determines whether this growth benefits or burdens residential ratepayers.",
         subtext: "The difference between flexible and firm data center operation could save ratepayers billions annually while enabling 33% more data center capacity on existing infrastructure.",
