@@ -102,16 +102,26 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
 
     // Load GeoJSON data and add layers
     const addInfrastructureLayers = useCallback(async (map: ExtendedMap) => {
-        if (!map.loaded()) return;
-
         try {
+            console.log('Adding infrastructure layers...');
+
             // Load ISO regions GeoJSON
             const isoResponse = await fetch('/geojson/iso_regions.geojson');
+            if (!isoResponse.ok) {
+                console.error('Failed to load ISO regions:', isoResponse.status);
+                return;
+            }
             const isoData = await isoResponse.json();
+            console.log('ISO regions loaded:', isoData.features?.length, 'features');
 
             // Load transmission lines GeoJSON (230kV+)
             const transResponse = await fetch('/geojson/transmission_230kv_plus.geojson');
+            if (!transResponse.ok) {
+                console.error('Failed to load transmission lines:', transResponse.status);
+                return;
+            }
             const transData = await transResponse.json();
+            console.log('Transmission lines loaded:', transData.features?.length, 'features');
 
             // Add ISO regions
             if (!map.getSource('iso-regions')) {
@@ -297,6 +307,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                 });
             }
 
+            console.log('Infrastructure layers added successfully');
             setLayersAdded(true);
         } catch (e) {
             console.error('Error adding infrastructure layers:', e);
@@ -373,7 +384,15 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                 setLayersAdded(false);
             }
         };
-    }, [mapboxToken, addInfrastructureLayers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mapboxToken]);
+
+    // Add infrastructure layers once map is loaded
+    useEffect(() => {
+        if (mapRef.current && mapLoaded && !layersAdded) {
+            addInfrastructureLayers(mapRef.current);
+        }
+    }, [mapLoaded, layersAdded, addInfrastructureLayers]);
 
     // Smooth easing function for camera transitions
     const easeInOutCubic = (t: number): number => {
@@ -420,21 +439,30 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
         const highlight = regionHighlights[stepId] || regionHighlights.usa;
 
         try {
-            // Adjust transmission line color based on region
-            if (map.getLayer('transmission-lines-core')) {
-                map.setPaintProperty('transmission-lines-core', 'line-color', layerColor);
-                map.setPaintProperty('transmission-lines-glow', 'line-color', layerColor);
-            }
+            // Keep transmission lines colored by ISO region (from GeoJSON 'color' property)
+            // Don't override with layerColor - the GeoJSON already has ISO-based colors
 
-            // Adjust ISO region visibility
+            // Adjust ISO region visibility based on zoom level
             if (map.getLayer('iso-regions-fill')) {
                 map.setPaintProperty('iso-regions-fill', 'fill-opacity',
-                    stepId === 'usa' ? 0.2 : 0.12
+                    stepId === 'usa' ? 0.25 : 0.15
                 );
             }
 
-        } catch {
-            // Layers may not exist yet
+            // Adjust data center visibility
+            if (map.getLayer('data-centers-core')) {
+                map.setLayoutProperty('data-centers-core', 'visibility', 'visible');
+                map.setLayoutProperty('data-centers-glow', 'visibility', 'visible');
+            }
+
+            // Adjust power plant visibility
+            if (map.getLayer('power-plants-icon')) {
+                map.setLayoutProperty('power-plants-icon', 'visibility', 'visible');
+                map.setLayoutProperty('power-plants-glow', 'visibility', 'visible');
+            }
+
+        } catch (err) {
+            console.log('Layer styling error (layers may not exist yet):', err);
         }
     }, [stepId, layersAdded, layerColor]);
 
