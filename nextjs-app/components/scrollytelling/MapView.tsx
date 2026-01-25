@@ -46,11 +46,12 @@ interface MapViewProps {
 }
 
 // Status colors for data centers
-const statusColors = {
+const statusColors: Record<string, string> = {
     operational: '#06B6D4',    // Cyan - existing
     construction: '#F59E0B',   // Amber - under construction
     planned: '#22D3EE',        // Light cyan - planned
     announced: '#818CF8',      // Purple - announced/future
+    anticipated: '#6366F1',    // Indigo - anticipated growth (2030-35)
 };
 
 // Power plant type colors
@@ -212,6 +213,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                             'construction', statusColors.construction,
                             'planned', statusColors.planned,
                             'announced', statusColors.announced,
+                            'anticipated', statusColors.anticipated,
                             statusColors.operational
                         ],
                         'circle-opacity': [
@@ -220,6 +222,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                             'construction', 0.4,
                             'planned', 0.3,
                             'announced', 0.25,
+                            'anticipated', 0.2,
                             0.3
                         ],
                         'circle-blur': 1
@@ -250,12 +253,12 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                     }
                 });
 
-                // Planned/announced markers - hollow ring style
+                // Planned/announced/anticipated markers - hollow ring style
                 map.addLayer({
                     id: 'data-centers-planned',
                     type: 'circle',
                     source: 'data-centers',
-                    filter: ['in', ['get', 'status'], ['literal', ['planned', 'announced']]],
+                    filter: ['in', ['get', 'status'], ['literal', ['planned', 'announced', 'anticipated']]],
                     paint: {
                         'circle-radius': [
                             'interpolate', ['linear'], ['zoom'],
@@ -268,18 +271,21 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                             'match', ['get', 'status'],
                             'planned', 2.5,
                             'announced', 2,
+                            'anticipated', 1.5,
                             2
                         ],
                         'circle-stroke-color': [
                             'match', ['get', 'status'],
                             'planned', statusColors.planned,
                             'announced', statusColors.announced,
+                            'anticipated', statusColors.anticipated,
                             statusColors.planned
                         ],
                         'circle-stroke-opacity': [
                             'match', ['get', 'status'],
                             'planned', 0.9,
                             'announced', 0.7,
+                            'anticipated', 0.5,
                             0.8
                         ]
                     }
@@ -580,6 +586,10 @@ function MapLegend({ stepId }: { stepId: string }) {
                 <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full border-2 border-purple-400 bg-transparent" style={{ opacity: 0.7 }} />
                     <span className="text-gray-300">Announced</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full border-2 border-indigo-400 bg-transparent" style={{ opacity: 0.5, borderStyle: 'dashed' }} />
+                    <span className="text-gray-300">Anticipated (2030-35)</span>
                 </div>
             </div>
 

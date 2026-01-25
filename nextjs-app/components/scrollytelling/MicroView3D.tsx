@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo, Suspense } from 'react';
+import { useRef, useMemo, Suspense, useEffect, useLayoutEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
@@ -71,35 +71,50 @@ function ContinuousScene({ visualState }: { visualState: string }) {
     const { camera } = useThree();
     const initializedRef = useRef(false);
 
-    // Initialize refs with chip-glow config (initial view)
-    const chipConfig = cameraConfig['chip-glow'];
-    const targetPosRef = useRef(new THREE.Vector3(...chipConfig.position));
-    const targetLookRef = useRef(new THREE.Vector3(...chipConfig.target));
-    const targetZoomRef = useRef(chipConfig.zoom);
-
-    const currentIndex = scaleOrder.indexOf(visualState);
+    // Get current config
     const config = cameraConfig[visualState] || cameraConfig['chip-glow'];
+    const currentIndex = scaleOrder.indexOf(visualState);
 
-    // Update targets when visualState changes
-    useMemo(() => {
-        targetPosRef.current.set(...config.position);
-        targetLookRef.current.set(...config.target);
-        targetZoomRef.current = config.zoom;
-    }, [config]);
+    // Refs for smooth interpolation
+    const targetPosRef = useRef(new THREE.Vector3(...config.position));
+    const targetLookRef = useRef(new THREE.Vector3(...config.target));
+    const targetZoomRef = useRef(config.zoom);
 
-    // Initialize camera position immediately on first render
-    useMemo(() => {
-        if (!initializedRef.current && camera) {
-            camera.position.set(...chipConfig.position);
+    // CRITICAL: Force camera to correct position on mount
+    // useLayoutEffect runs synchronously before paint
+    useLayoutEffect(() => {
+        if (camera && !initializedRef.current) {
+            const initConfig = cameraConfig['chip-glow'];
+            // Set camera position directly
+            camera.position.set(initConfig.position[0], initConfig.position[1], initConfig.position[2]);
+
             if ('zoom' in camera) {
                 const orthoCamera = camera as THREE.OrthographicCamera;
-                orthoCamera.zoom = chipConfig.zoom;
+                orthoCamera.zoom = initConfig.zoom;
                 orthoCamera.updateProjectionMatrix();
             }
-            camera.lookAt(new THREE.Vector3(...chipConfig.target));
+
+            camera.lookAt(new THREE.Vector3(initConfig.target[0], initConfig.target[1], initConfig.target[2]));
+
+            // Also set the targets to match
+            targetPosRef.current.set(...initConfig.position);
+            targetLookRef.current.set(...initConfig.target);
+            targetZoomRef.current = initConfig.zoom;
+
             initializedRef.current = true;
+            console.log('Camera initialized to chip-glow:', initConfig.zoom, camera.position);
         }
-    }, [camera, chipConfig]);
+    }, [camera]);
+
+    // Update targets when visualState changes (after initialization)
+    useEffect(() => {
+        if (initializedRef.current) {
+            targetPosRef.current.set(...config.position);
+            targetLookRef.current.set(...config.target);
+            targetZoomRef.current = config.zoom;
+            console.log('Camera target updated to:', visualState, config.zoom);
+        }
+    }, [visualState, config]);
 
     // Smooth continuous camera animation
     useFrame((state, delta) => {
