@@ -646,9 +646,9 @@ function DataCenterBuilding() {
                 <meshStandardMaterial color="#1f2937" />
             </mesh>
 
-            {/* ROOFTOP EQUIPMENT - Cooling units directly on roof surface (y=15 is roof level) */}
+            {/* ROOFTOP EQUIPMENT - Cooling units in row along Z-axis (rotated 90 degrees) */}
             {[...Array(16)].map((_, i) => (
-                <group key={`rooftop-cooling-${i}`} position={[-36 + i * 5, 15, 0]}>
+                <group key={`rooftop-cooling-${i}`} position={[0, 15, -38 + i * 5]}>
                     {/* Base sits directly on roof (y=0 relative to group = roof surface) */}
                     <mesh position={[0, 0.15, 0]}>
                         <boxGeometry args={[2.8, 0.3, 2.8]} />
@@ -896,9 +896,9 @@ function CampusBuilding({ position }: { position: [number, number, number] }) {
                 <meshStandardMaterial color="#1f2937" />
             </mesh>
 
-            {/* ROOFTOP COOLING - 10 smaller cooling units directly on roof (y=15 is roof surface) */}
+            {/* ROOFTOP COOLING - 10 smaller cooling units in row along Z-axis (rotated 90 degrees) */}
             {[...Array(10)].map((_, i) => (
-                <group key={`cooling-${i}`} position={[-24 + i * 5.5, 15, 0]}>
+                <group key={`cooling-${i}`} position={[0, 15, -30 + i * 6.5]}>
                     {/* Base sits on roof */}
                     <mesh position={[0, 0.12, 0]}>
                         <boxGeometry args={[2.4, 0.25, 2.4]} />
