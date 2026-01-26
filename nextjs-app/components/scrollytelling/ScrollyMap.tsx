@@ -7,14 +7,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MapView from './MapView';
 import { steps, type StoryStep } from './storyData';
 
+/**
+ * NYT-inspired color palette for consistent styling
+ */
+const NYT_COLORS = {
+    bgDeep: '#0a0a0f',
+    bgSurface: '#1a1a24',
+    textPrimary: '#f0ebe3',
+    textSecondary: '#a8a29e',
+    textMuted: '#6b6560',
+    accentAmber: '#d4a574',
+    accentCyan: '#7dd3c0',
+    accentCoral: '#e8927c',
+    accentBlue: '#7c9cc9',
+    border: 'rgba(107, 101, 96, 0.3)',
+};
+
 // Dynamically import 3D component to avoid SSR issues with Three.js
 const MicroView3D = dynamic(() => import('./MicroView3D'), {
     ssr: false,
     loading: () => (
-        <div className="w-full h-full bg-gray-950 flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: NYT_COLORS.bgDeep }}>
             <div className="text-center">
-                <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-gray-500 text-sm">Loading 3D view...</p>
+                <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-2" style={{ borderColor: NYT_COLORS.accentCyan, borderTopColor: 'transparent' }} />
+                <p className="text-sm" style={{ color: NYT_COLORS.textMuted }}>Loading 3D view...</p>
             </div>
         </div>
     ),
@@ -47,7 +63,7 @@ export default function ScrollyMap() {
     const mapLocation = currentStep.location || firstMapStep.location;
 
     return (
-        <div className="relative min-h-screen bg-gray-950">
+        <div className="relative min-h-screen" style={{ backgroundColor: NYT_COLORS.bgDeep }}>
             {/* Sticky visual container - Full screen on mobile, 60% on desktop */}
             <div className="sticky top-0 h-screen w-full lg:w-[60%] lg:ml-auto z-0 overflow-hidden">
 
@@ -131,6 +147,7 @@ export default function ScrollyMap() {
 
 /**
  * Story Card - Individual narrative card
+ * NYT-style muted colors with warm off-white text
  */
 function StoryCard({
     step,
@@ -143,17 +160,17 @@ function StoryCard({
     stepNumber: number;
     totalSteps: number;
 }) {
-    // Determine mode label and color
+    // Determine mode label and color - using NYT muted palette
     const getModeInfo = () => {
         switch (step.mode) {
             case 'micro':
-                return { label: 'Micro Scale', bgColor: 'bg-cyan-500/20', textColor: 'text-cyan-400' };
+                return { label: 'Micro Scale', bgColor: `${NYT_COLORS.accentCyan}25`, textColor: NYT_COLORS.accentCyan };
             case 'infrastructure':
-                return { label: 'Grid Infrastructure', bgColor: 'bg-amber-500/20', textColor: 'text-amber-400' };
+                return { label: 'Grid Infrastructure', bgColor: `${NYT_COLORS.accentAmber}25`, textColor: NYT_COLORS.accentAmber };
             case 'map':
-                return { label: 'Regional View', bgColor: 'bg-blue-500/20', textColor: 'text-blue-400' };
+                return { label: 'Regional View', bgColor: `${NYT_COLORS.accentBlue}25`, textColor: NYT_COLORS.accentBlue };
             default:
-                return { label: 'View', bgColor: 'bg-gray-500/20', textColor: 'text-gray-400' };
+                return { label: 'View', bgColor: `${NYT_COLORS.textMuted}25`, textColor: NYT_COLORS.textMuted };
         }
     };
 
@@ -161,14 +178,13 @@ function StoryCard({
 
     return (
         <motion.div
-            className={`
-                w-full max-w-md mx-auto lg:mx-0
-                bg-gray-900/90 backdrop-blur-md
-                rounded-2xl p-6 lg:p-8
-                border transition-all duration-500
-                pointer-events-auto
-                ${isActive ? 'border-white/30 shadow-2xl shadow-black/50' : 'border-gray-800/50 opacity-40'}
-            `}
+            className="w-full max-w-md mx-auto lg:mx-0 backdrop-blur-md rounded-2xl p-6 lg:p-8 border transition-all duration-500 pointer-events-auto"
+            style={{
+                backgroundColor: `${NYT_COLORS.bgSurface}e6`,
+                borderColor: isActive ? NYT_COLORS.border : `${NYT_COLORS.bgSurface}80`,
+                boxShadow: isActive ? '0 25px 50px -12px rgba(0, 0, 0, 0.5)' : 'none',
+                opacity: isActive ? 1 : 0.4,
+            }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: isActive ? 1 : 0.4, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -176,28 +192,32 @@ function StoryCard({
             {/* Step indicator */}
             <div className="flex items-center gap-3 mb-4">
                 <div
-                    className={`
-                        w-8 h-8 rounded-full flex items-center justify-center
-                        text-xs font-bold transition-colors
-                        ${isActive ? 'bg-white text-gray-900' : 'bg-gray-800 text-gray-500'}
-                    `}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+                    style={{
+                        backgroundColor: isActive ? NYT_COLORS.textPrimary : NYT_COLORS.bgDeep,
+                        color: isActive ? NYT_COLORS.bgDeep : NYT_COLORS.textMuted,
+                    }}
                 >
                     {stepNumber}
                 </div>
-                <div className="flex-1 h-1 bg-gray-800 rounded-full overflow-hidden">
+                <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: NYT_COLORS.bgDeep }}>
                     <motion.div
-                        className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                        className="h-full"
+                        style={{ background: `linear-gradient(to right, ${NYT_COLORS.accentCyan}, ${NYT_COLORS.accentBlue})` }}
                         initial={{ width: 0 }}
                         animate={{ width: isActive ? '100%' : '0%' }}
                         transition={{ duration: 0.5 }}
                     />
                 </div>
-                <span className="text-xs text-gray-500 font-mono">{stepNumber}/{totalSteps}</span>
+                <span className="text-xs font-mono" style={{ color: NYT_COLORS.textMuted }}>{stepNumber}/{totalSteps}</span>
             </div>
 
             {/* Mode indicator and region */}
             <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <span className={`px-2 py-1 ${modeInfo.bgColor} ${modeInfo.textColor} text-xs rounded-full font-medium`}>
+                <span
+                    className="px-2 py-1 text-xs rounded-full font-medium"
+                    style={{ backgroundColor: modeInfo.bgColor, color: modeInfo.textColor }}
+                >
                     {modeInfo.label}
                 </span>
                 {step.region && (
@@ -221,19 +241,20 @@ function StoryCard({
             </div>
 
             {/* Title */}
-            <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4 leading-tight">
+            <h2 className="text-2xl lg:text-3xl font-bold mb-4 leading-tight" style={{ color: NYT_COLORS.textPrimary }}>
                 {step.title}
             </h2>
 
             {/* Text */}
-            <p className="text-gray-300 leading-relaxed text-base lg:text-lg">
+            <p className="leading-relaxed text-base lg:text-lg" style={{ color: NYT_COLORS.textSecondary }}>
                 {step.text}
             </p>
 
             {/* Subtext (sources, additional context) */}
             {step.subtext && isActive && (
                 <motion.p
-                    className="mt-4 text-sm text-gray-500 italic"
+                    className="mt-4 text-sm italic"
+                    style={{ color: NYT_COLORS.textMuted }}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
@@ -245,18 +266,19 @@ function StoryCard({
             {/* Power metric badge */}
             {step.powerMetric && isActive && (
                 <motion.div
-                    className="mt-4 inline-flex items-baseline gap-1 bg-gray-800/50 rounded-lg px-3 py-2"
+                    className="mt-4 inline-flex items-baseline gap-1 rounded-lg px-3 py-2"
+                    style={{ backgroundColor: `${NYT_COLORS.bgDeep}80` }}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2 }}
                 >
-                    <span className="text-xl font-bold text-white font-mono">
+                    <span className="text-xl font-bold font-mono" style={{ color: NYT_COLORS.textPrimary }}>
                         {step.powerMetric.value}
                     </span>
-                    <span className="text-sm text-gray-400 font-mono">
+                    <span className="text-sm font-mono" style={{ color: NYT_COLORS.textSecondary }}>
                         {step.powerMetric.unit}
                     </span>
-                    <span className="text-xs text-gray-500 ml-2">
+                    <span className="text-xs ml-2" style={{ color: NYT_COLORS.textMuted }}>
                         {step.powerMetric.comparison}
                     </span>
                 </motion.div>
@@ -265,7 +287,8 @@ function StoryCard({
             {/* Visual hint for active card */}
             {isActive && (
                 <motion.div
-                    className="mt-6 flex items-center gap-2 text-gray-500 text-sm"
+                    className="mt-6 flex items-center gap-2 text-sm"
+                    style={{ color: NYT_COLORS.textMuted }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
@@ -283,27 +306,38 @@ function StoryCard({
 
 /**
  * Progress Indicator - Shows overall story progress
+ * NYT-style with muted warm tones
  */
 function ProgressIndicator({ currentIndex, totalSteps }: { currentIndex: number; totalSteps: number }) {
     const progress = ((currentIndex + 1) / totalSteps) * 100;
 
     return (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 lg:left-auto lg:right-4 lg:translate-x-0 z-20">
-            <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-4 py-2">
+            <div
+                className="flex items-center gap-2 backdrop-blur-sm rounded-full px-4 py-2"
+                style={{ backgroundColor: `${NYT_COLORS.bgDeep}99` }}
+            >
                 {/* Mini step dots */}
                 <div className="flex gap-1">
                     {steps.map((step, index) => (
                         <div
                             key={step.id}
-                            className={`
-                                w-2 h-2 rounded-full transition-all duration-300
-                                ${index === currentIndex ? 'bg-white scale-125' : index < currentIndex ? 'bg-white/60' : 'bg-gray-600'}
-                            `}
+                            className="w-2 h-2 rounded-full transition-all duration-300"
+                            style={{
+                                backgroundColor: index === currentIndex
+                                    ? NYT_COLORS.textPrimary
+                                    : index < currentIndex
+                                        ? `${NYT_COLORS.textPrimary}99`
+                                        : NYT_COLORS.textMuted,
+                                transform: index === currentIndex ? 'scale(1.25)' : 'scale(1)',
+                            }}
                         />
                     ))}
                 </div>
                 {/* Percentage */}
-                <span className="text-white text-xs font-mono ml-2">{Math.round(progress)}%</span>
+                <span className="text-xs font-mono ml-2" style={{ color: NYT_COLORS.textPrimary }}>
+                    {Math.round(progress)}%
+                </span>
             </div>
         </div>
     );
@@ -311,6 +345,7 @@ function ProgressIndicator({ currentIndex, totalSteps }: { currentIndex: number;
 
 /**
  * Scroll Hint - Animated indicator to scroll down
+ * NYT-style with muted warm text
  */
 function ScrollHint({ currentIndex }: { currentIndex: number }) {
     if (currentIndex > 0) return null;
@@ -323,7 +358,7 @@ function ScrollHint({ currentIndex }: { currentIndex: number }) {
             exit={{ opacity: 0 }}
             transition={{ delay: 2 }}
         >
-            <div className="flex flex-col items-center text-white/60">
+            <div className="flex flex-col items-center" style={{ color: `${NYT_COLORS.textSecondary}99` }}>
                 <span className="text-sm mb-2">Scroll to explore</span>
                 <motion.svg
                     className="w-6 h-6"
@@ -342,6 +377,7 @@ function ScrollHint({ currentIndex }: { currentIndex: number }) {
 
 /**
  * Call to Action - End of story prompt
+ * NYT-style with warm muted colors
  */
 function CallToAction() {
     return (
@@ -352,23 +388,38 @@ function CallToAction() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
         >
-            <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-md rounded-2xl p-8 border border-gray-700 shadow-2xl">
-                <h3 className="text-2xl font-bold text-white mb-4">
+            <div
+                className="backdrop-blur-md rounded-2xl p-8 border shadow-2xl"
+                style={{
+                    background: `linear-gradient(to bottom right, ${NYT_COLORS.bgSurface}f2, ${NYT_COLORS.bgDeep}f2)`,
+                    borderColor: NYT_COLORS.border,
+                }}
+            >
+                <h3 className="text-2xl font-bold mb-4" style={{ color: NYT_COLORS.textPrimary }}>
                     Explore the Numbers
                 </h3>
-                <p className="text-gray-400 mb-6">
+                <p className="mb-6" style={{ color: NYT_COLORS.textSecondary }}>
                     Use our interactive calculator to see how data center policies affect electricity bills in your region.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <a
                         href="/calculator"
-                        className="px-6 py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                        className="px-6 py-3 rounded-lg font-semibold transition-colors hover:opacity-90"
+                        style={{
+                            backgroundColor: NYT_COLORS.textPrimary,
+                            color: NYT_COLORS.bgDeep,
+                        }}
                     >
                         Open Calculator
                     </a>
                     <a
                         href="/methodology"
-                        className="px-6 py-3 bg-gray-800 text-white rounded-lg font-semibold hover:bg-gray-700 transition-colors border border-gray-600"
+                        className="px-6 py-3 rounded-lg font-semibold transition-colors hover:opacity-80 border"
+                        style={{
+                            backgroundColor: NYT_COLORS.bgDeep,
+                            color: NYT_COLORS.textPrimary,
+                            borderColor: NYT_COLORS.border,
+                        }}
                     >
                         Read Methodology
                     </a>

@@ -39,9 +39,38 @@ const scaleOrder = ['chip-glow', 'rack-zoom', 'pod-zoom', 'building-iso', 'campu
  * Based on NVIDIA Rubin/Vera Rubin NVL72 specifications
  * All elements exist in one unified 3D space at their real relative scales
  */
+/**
+ * NYT-inspired color palette - muted but high contrast
+ * Background: Deep charcoal with slight warmth (#0a0a0f to #12121a)
+ * Text: Warm off-white (#f0ebe3) instead of pure white
+ * Accents: Muted amber (#d4a574), soft cyan (#7dd3c0), muted coral (#e8927c)
+ */
+const NYT_COLORS = {
+    // Backgrounds
+    bgDeep: '#0a0a0f',
+    bgMid: '#12121a',
+    bgSurface: '#1a1a24',
+
+    // Text
+    textPrimary: '#f0ebe3',      // Warm off-white
+    textSecondary: '#a8a29e',     // Warm gray
+    textMuted: '#6b6560',         // Muted warm gray
+
+    // Accents - muted but visible
+    accentAmber: '#d4a574',       // Muted gold/amber
+    accentCyan: '#7dd3c0',        // Soft teal
+    accentCoral: '#e8927c',       // Soft coral/red
+    accentBlue: '#7c9cc9',        // Soft blue
+
+    // Data viz specific
+    dcBlue: '#5b7aa6',            // Data centers - muted blue
+    ppGreen: '#6b9e7a',           // Power plants - muted green
+    gridLine: '#3d4f6f',          // Grid/transmission lines
+};
+
 export default function MicroView3D({ visualState, powerMetric }: MicroView3DProps) {
     return (
-        <div className="relative w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden" style={{ background: `linear-gradient(135deg, ${NYT_COLORS.bgDeep} 0%, ${NYT_COLORS.bgMid} 50%, ${NYT_COLORS.bgDeep} 100%)` }}>
             <Canvas
                 orthographic
                 camera={{
@@ -151,10 +180,11 @@ function ContinuousScene({ visualState }: { visualState: string }) {
 
     return (
         <group ref={groupRef}>
-            {/* Lighting - consistent across all scales */}
-            <ambientLight intensity={0.6} />
-            <directionalLight position={[50, 100, 50]} intensity={0.9} />
-            <pointLight position={[0, 5, 0]} intensity={0.4} color="#38bdf8" />
+            {/* Lighting - NYT-style: warmer, more dramatic */}
+            <ambientLight intensity={0.35} color="#f0ebe3" />
+            <directionalLight position={[50, 100, 50]} intensity={0.7} color="#fff8f0" />
+            <pointLight position={[0, 5, 0]} intensity={0.5} color="#d4a574" />
+            <pointLight position={[-20, 30, -20]} intensity={0.2} color="#7dd3c0" />
 
             {/* GPU Chip - always visible at origin */}
             <RubinGPU />
@@ -234,48 +264,48 @@ function RubinGPU() {
 
     return (
         <group ref={chipRef} position={[0, 0.08, 0]}>
-            {/* Glow base effect */}
+            {/* Glow base effect - muted amber */}
             <mesh ref={glowRef} position={[0, -0.02, 0]}>
                 <boxGeometry args={[1.2, 0.02, 1.2]} />
-                <meshBasicMaterial color="#38bdf8" transparent opacity={0.5} />
+                <meshBasicMaterial color="#d4a574" transparent opacity={0.4} />
             </mesh>
 
-            {/* Package substrate - 1.0 × 1.0 units */}
+            {/* Package substrate - 1.0 × 1.0 units - deeper charcoal */}
             <mesh position={[0, 0, 0]}>
                 <boxGeometry args={[1.0, 0.06, 1.0]} />
-                <meshStandardMaterial color="#111827" metalness={0.8} roughness={0.2} />
+                <meshStandardMaterial color="#1a1a24" metalness={0.8} roughness={0.2} />
             </mesh>
 
-            {/* Interposer - 0.8 × 0.8 units, dark PCB green */}
+            {/* Interposer - 0.8 × 0.8 units, dark PCB */}
             <mesh position={[0, 0.04, 0]}>
                 <boxGeometry args={[0.8, 0.025, 0.8]} />
-                <meshStandardMaterial color="#0a1628" metalness={0.6} roughness={0.3} />
+                <meshStandardMaterial color="#12121a" metalness={0.6} roughness={0.3} />
             </mesh>
 
-            {/* Main GPU die - 0.4 × 0.4 units, amber with glow */}
+            {/* Main GPU die - 0.4 × 0.4 units, muted amber with glow */}
             <mesh position={[0, 0.065, 0]}>
                 <boxGeometry args={[0.4, 0.025, 0.4]} />
                 <meshStandardMaterial
-                    color="#1a1a2e"
-                    emissive="#f59e0b"
-                    emissiveIntensity={0.8}
+                    color="#2a2a35"
+                    emissive="#d4a574"
+                    emissiveIntensity={0.9}
                     metalness={0.95}
                     roughness={0.05}
                 />
             </mesh>
 
-            {/* Heat spreader frame - metallic silver border */}
+            {/* Heat spreader frame - warm metallic */}
             <mesh position={[0, 0.08, 0]}>
                 <boxGeometry args={[0.5, 0.015, 0.5]} />
-                <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.1} />
+                <meshStandardMaterial color="#a8a29e" metalness={0.9} roughness={0.1} />
             </mesh>
             {/* Heat spreader cutout (darker center) */}
             <mesh position={[0, 0.085, 0]}>
                 <boxGeometry args={[0.38, 0.01, 0.38]} />
                 <meshStandardMaterial
-                    color="#0f172a"
-                    emissive="#fbbf24"
-                    emissiveIntensity={0.4}
+                    color="#0a0a0f"
+                    emissive="#d4a574"
+                    emissiveIntensity={0.5}
                 />
             </mesh>
 
@@ -288,14 +318,14 @@ function RubinGPU() {
                 <mesh key={i} position={pos as [number, number, number]}>
                     <boxGeometry args={[0.08, 0.06, 0.08]} />
                     <meshStandardMaterial
-                        color="#1e293b"
+                        color="#252530"
                         metalness={0.7}
                         roughness={0.3}
                     />
                 </mesh>
             ))}
 
-            {/* BGA pins array underneath */}
+            {/* BGA pins array underneath - muted gold */}
             {[...Array(64)].map((_, i) => {
                 const row = Math.floor(i / 8);
                 const col = i % 8;
@@ -306,12 +336,12 @@ function RubinGPU() {
                         -0.35 + row * 0.1
                     ]}>
                         <sphereGeometry args={[0.012, 8, 8]} />
-                        <meshStandardMaterial color="#fbbf24" metalness={0.95} />
+                        <meshStandardMaterial color="#d4a574" metalness={0.95} />
                     </mesh>
                 );
             })}
 
-            {/* Circuit traces on interposer */}
+            {/* Circuit traces on interposer - muted amber */}
             {[...Array(12)].map((_, i) => (
                 <mesh key={`trace-${i}`} position={[
                     -0.35 + (i % 4) * 0.23,
@@ -319,7 +349,7 @@ function RubinGPU() {
                     -0.3 + Math.floor(i / 4) * 0.3
                 ]}>
                     <boxGeometry args={[0.15, 0.002, 0.003]} />
-                    <meshStandardMaterial color="#f59e0b" metalness={0.8} emissive="#f59e0b" emissiveIntensity={0.2} />
+                    <meshStandardMaterial color="#d4a574" metalness={0.8} emissive="#d4a574" emissiveIntensity={0.25} />
                 </mesh>
             ))}
         </group>
@@ -389,10 +419,10 @@ function VeraRubinRack() {
                 />
             </mesh>
 
-            {/* Rack frame edges */}
+            {/* Rack frame edges - muted cyan */}
             <lineSegments position={[0, 1.0, 0]}>
                 <edgesGeometry args={[new THREE.BoxGeometry(0.6, 2.0, 1.0)]} />
-                <lineBasicMaterial color="#38bdf8" transparent opacity={0.6} />
+                <lineBasicMaterial color="#7dd3c0" transparent opacity={0.5} />
             </lineSegments>
 
             {/* TRANSPARENT FRONT PANEL - shows GPUs through it */}
@@ -400,7 +430,7 @@ function VeraRubinRack() {
                 <boxGeometry args={[0.58, 1.95, 0.02]} />
                 <meshPhysicalMaterial
                     ref={frontPanelRef}
-                    color="#0c4a6e"
+                    color="#1a2535"
                     metalness={0.1}
                     roughness={0}
                     transmission={0.95}
@@ -421,51 +451,51 @@ function VeraRubinRack() {
                         <mesh>
                             <boxGeometry args={[0.045, 0.12, 0.045]} />
                             <meshStandardMaterial
-                                color="#111827"
+                                color="#1a1a24"
                                 metalness={0.8}
                                 roughness={0.2}
                             />
                         </mesh>
-                        {/* GPU die with glow */}
+                        {/* GPU die with glow - muted amber for main, soft teal for others */}
                         <mesh position={[0, 0.02, 0.024]}>
                             <boxGeometry args={[0.025, 0.06, 0.002]} />
                             <meshStandardMaterial
-                                color="#1a1a2e"
-                                emissive={isMainGPU ? "#f59e0b" : "#38bdf8"}
-                                emissiveIntensity={isMainGPU ? 1.5 : 0.4}
+                                color="#2a2a35"
+                                emissive={isMainGPU ? "#d4a574" : "#7dd3c0"}
+                                emissiveIntensity={isMainGPU ? 1.5 : 0.35}
                             />
                         </mesh>
                         {/* HBM stacks */}
                         <mesh position={[-0.015, 0.02, 0.024]}>
                             <boxGeometry args={[0.008, 0.04, 0.002]} />
-                            <meshStandardMaterial color="#1e293b" />
+                            <meshStandardMaterial color="#252530" />
                         </mesh>
                         <mesh position={[0.015, 0.02, 0.024]}>
                             <boxGeometry args={[0.008, 0.04, 0.002]} />
-                            <meshStandardMaterial color="#1e293b" />
+                            <meshStandardMaterial color="#252530" />
                         </mesh>
                     </group>
                 );
             })}
 
-            {/* Liquid cooling manifolds visible at top and bottom */}
+            {/* Liquid cooling manifolds visible at top and bottom - muted teal/coral */}
             <mesh position={[0, 0.05, 0.3]} rotation={[0, 0, Math.PI / 2]}>
                 <cylinderGeometry args={[0.03, 0.03, 0.5]} />
-                <meshStandardMaterial color="#0891b2" emissive="#38bdf8" emissiveIntensity={0.2} />
+                <meshStandardMaterial color="#4a8c7a" emissive="#7dd3c0" emissiveIntensity={0.15} />
             </mesh>
             <mesh position={[0, 1.95, 0.3]} rotation={[0, 0, Math.PI / 2]}>
                 <cylinderGeometry args={[0.03, 0.03, 0.5]} />
-                <meshStandardMaterial color="#dc2626" emissive="#ef4444" emissiveIntensity={0.15} />
+                <meshStandardMaterial color="#b86a5a" emissive="#e8927c" emissiveIntensity={0.1} />
             </mesh>
 
             {/* Side cooling pipes */}
             <mesh position={[-0.32, 1.0, 0]}>
                 <cylinderGeometry args={[0.025, 0.025, 1.8]} />
-                <meshStandardMaterial color="#0891b2" metalness={0.6} />
+                <meshStandardMaterial color="#4a8c7a" metalness={0.6} />
             </mesh>
             <mesh position={[0.32, 1.0, 0]}>
                 <cylinderGeometry args={[0.025, 0.025, 1.8]} />
-                <meshStandardMaterial color="#dc2626" metalness={0.6} />
+                <meshStandardMaterial color="#b86a5a" metalness={0.6} />
             </mesh>
 
             {/* Power sidecar */}
@@ -477,17 +507,17 @@ function VeraRubinRack() {
             {/* Front panel display */}
             <mesh position={[0, 1.85, 0.53]}>
                 <boxGeometry args={[0.3, 0.1, 0.01]} />
-                <meshBasicMaterial color="#0f172a" />
+                <meshBasicMaterial color="#0a0a0f" />
             </mesh>
             <mesh position={[0, 1.85, 0.535]}>
                 <boxGeometry args={[0.25, 0.06, 0.005]} />
-                <meshBasicMaterial color="#22d3ee" transparent opacity={0.9} />
+                <meshBasicMaterial color="#7dd3c0" transparent opacity={0.85} />
             </mesh>
 
             {/* "72 GPUs" label */}
             <mesh position={[0, 1.72, 0.535]}>
                 <boxGeometry args={[0.15, 0.03, 0.005]} />
-                <meshBasicMaterial color="#f59e0b" transparent opacity={0.7} />
+                <meshBasicMaterial color="#d4a574" transparent opacity={0.7} />
             </mesh>
 
             {/* Status LEDs */}
@@ -585,15 +615,15 @@ function SimplifiedRack({ position }: { position: [number, number, number] }) {
             <mesh position={[0, 1.0, 0]}>
                 <boxGeometry args={[0.6, 2.0, 1.0]} />
                 <meshStandardMaterial
-                    color="#334155"
-                    emissive="#38bdf8"
-                    emissiveIntensity={0.03}
+                    color="#2a2a35"
+                    emissive="#7dd3c0"
+                    emissiveIntensity={0.025}
                     metalness={0.4}
                 />
             </mesh>
             <lineSegments position={[0, 1.0, 0]}>
                 <edgesGeometry args={[new THREE.BoxGeometry(0.6, 2.0, 1.0)]} />
-                <lineBasicMaterial color="#475569" transparent opacity={0.5} />
+                <lineBasicMaterial color="#4a4a55" transparent opacity={0.4} />
             </lineSegments>
         </group>
     );
@@ -604,12 +634,12 @@ function CRAHUnit({ position }: { position: [number, number, number] }) {
         <group position={position}>
             <mesh position={[0, 1.2, 0]}>
                 <boxGeometry args={[1.8, 2.4, 1.2]} />
-                <meshStandardMaterial color="#0891b2" metalness={0.5} roughness={0.4} />
+                <meshStandardMaterial color="#4a8c7a" metalness={0.5} roughness={0.4} />
             </mesh>
             {/* Cooling coils visible */}
             <mesh position={[0, 1.2, 0.65]}>
                 <boxGeometry args={[1.4, 1.8, 0.1]} />
-                <meshStandardMaterial color="#475569" />
+                <meshStandardMaterial color="#3a3a45" />
             </mesh>
         </group>
     );
@@ -624,26 +654,26 @@ function CRAHUnit({ position }: { position: [number, number, number] }) {
 function DataCenterBuilding() {
     return (
         <group position={[0, 0, 0]}>
-            {/* Main building shell - 50m × 100m × 15m */}
+            {/* Main building shell - 50m × 100m × 15m - warmer charcoal */}
             <mesh position={[0, 7.5, 0]}>
                 <boxGeometry args={[50, 15, 100]} />
                 <meshStandardMaterial
-                    color="#475569"
+                    color="#3a3a45"
                     metalness={0.4}
                     roughness={0.5}
                 />
             </mesh>
 
-            {/* Building edge highlights for definition */}
+            {/* Building edge highlights for definition - softer */}
             <lineSegments position={[0, 7.5, 0]}>
                 <edgesGeometry args={[new THREE.BoxGeometry(50, 15, 100)]} />
-                <lineBasicMaterial color="#64748b" transparent opacity={0.5} />
+                <lineBasicMaterial color="#5a5a65" transparent opacity={0.4} />
             </lineSegments>
 
             {/* Foundation */}
             <mesh position={[0, -0.3, 0]}>
                 <boxGeometry args={[54, 0.6, 104]} />
-                <meshStandardMaterial color="#1f2937" />
+                <meshStandardMaterial color="#1a1a24" />
             </mesh>
 
             {/* ROOFTOP EQUIPMENT - Cooling units in row along Z-axis (rotated 90 degrees) */}
@@ -688,11 +718,11 @@ function DataCenterBuilding() {
                         <boxGeometry args={[0.2, 8, 8]} />
                         <meshStandardMaterial color="#1e293b" />
                     </mesh>
-                    {/* Louver slats with cyan glow */}
+                    {/* Louver slats with soft teal glow */}
                     {[...Array(6)].map((_, j) => (
                         <mesh key={j} position={[25.15, 2 + j * 1.2, -40 + i * 11]}>
                             <boxGeometry args={[0.1, 0.1, 7.5]} />
-                            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.15} />
+                            <meshStandardMaterial color="#7dd3c0" emissive="#7dd3c0" emissiveIntensity={0.1} />
                         </mesh>
                     ))}
                     {/* Mirror on back side */}
@@ -1169,15 +1199,15 @@ function InfiniteGround({ currentIndex }: { currentIndex: number }) {
 
     return (
         <group>
-            {/* Dark ground plane */}
+            {/* Dark ground plane - deep charcoal */}
             <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} scale={[3, 1, 3]}>
                 <planeGeometry args={[2, 2]} />
-                <meshStandardMaterial color="#0f172a" />
+                <meshStandardMaterial color="#0a0a0f" />
             </mesh>
 
-            {/* Grid overlay */}
+            {/* Grid overlay - muted warm tones */}
             <gridHelper
-                args={[targetSize * 2, divisions, '#1e293b', '#0f172a']}
+                args={[targetSize * 2, divisions, '#252530', '#0a0a0f']}
                 position={[0, -0.09, 0]}
             />
         </group>
@@ -1186,18 +1216,20 @@ function InfiniteGround({ currentIndex }: { currentIndex: number }) {
 
 /**
  * Power Indicator UI - Updated for NVIDIA Rubin Ultra Kyber specs (600kW racks)
+ * NYT-style: warm off-white text, muted accent colors
  */
 function PowerIndicator({ visualState, powerMetric }: {
     visualState: string;
     powerMetric?: { value: string; unit: string; comparison: string };
 }) {
     // Based on Rubin Ultra NVL576 Kyber (600kW per rack, 2027)
+    // Muted NYT-style colors
     const data: Record<string, { label: string; value: string; unit: string; comparison: string; color: string }> = {
-        'chip-glow': { label: 'NVIDIA Rubin GPU', value: '2.3', unit: 'kW', comparison: '≈ 2 homes', color: '#f59e0b' },
-        'rack-zoom': { label: 'Rubin Ultra Kyber Rack', value: '600', unit: 'kW', comparison: '≈ 500 homes', color: '#38bdf8' },
-        'pod-zoom': { label: 'Compute Pod (8 racks)', value: '4.8', unit: 'MW', comparison: '≈ 4,000 homes', color: '#38bdf8' },
-        'building-iso': { label: 'Data Center Facility', value: '75-150', unit: 'MW', comparison: '≈ 60,000-125,000 homes', color: '#ef4444' },
-        'campus-grid': { label: 'Hyperscale Campus (4 buildings)', value: '600', unit: 'MW', comparison: '≈ small nuclear plant', color: '#ef4444' },
+        'chip-glow': { label: 'NVIDIA Rubin GPU', value: '2.3', unit: 'kW', comparison: '≈ 2 homes', color: '#d4a574' },
+        'rack-zoom': { label: 'Rubin Ultra Kyber Rack', value: '600', unit: 'kW', comparison: '≈ 500 homes', color: '#7dd3c0' },
+        'pod-zoom': { label: 'Compute Pod (8 racks)', value: '4.8', unit: 'MW', comparison: '≈ 4,000 homes', color: '#7dd3c0' },
+        'building-iso': { label: 'Data Center Facility', value: '75-150', unit: 'MW', comparison: '≈ 60,000-125,000 homes', color: '#e8927c' },
+        'campus-grid': { label: 'Hyperscale Campus (4 buildings)', value: '600', unit: 'MW', comparison: '≈ small nuclear plant', color: '#e8927c' },
     };
 
     const d = data[visualState];
@@ -1206,25 +1238,29 @@ function PowerIndicator({ visualState, powerMetric }: {
     return (
         <motion.div
             key={visualState}
-            className="absolute bottom-8 left-8 bg-black/80 backdrop-blur-sm rounded-lg px-5 py-4 border border-slate-600 z-10"
+            className="absolute bottom-8 left-8 rounded-lg px-5 py-4 border z-10"
+            style={{
+                backgroundColor: 'rgba(10, 10, 15, 0.9)',
+                borderColor: 'rgba(107, 101, 96, 0.3)'
+            }}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">{d.label}</div>
+            <div className="text-xs uppercase tracking-wider mb-1" style={{ color: '#a8a29e' }}>{d.label}</div>
             <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-bold font-mono" style={{ color: d.color }}>
                     {powerMetric?.value || d.value}
                 </span>
-                <span className="text-lg font-mono text-slate-300">{powerMetric?.unit || d.unit}</span>
+                <span className="text-lg font-mono" style={{ color: '#f0ebe3' }}>{powerMetric?.unit || d.unit}</span>
             </div>
-            <div className="text-sm text-slate-400 mt-1">{powerMetric?.comparison || d.comparison}</div>
+            <div className="text-sm mt-1" style={{ color: '#a8a29e' }}>{powerMetric?.comparison || d.comparison}</div>
         </motion.div>
     );
 }
 
 /**
- * Scale Indicator UI
+ * Scale Indicator UI - NYT-style muted colors
  */
 function ScaleIndicator({ visualState }: { visualState: string }) {
     const scales: Record<string, { level: number; label: string }> = {
@@ -1239,11 +1275,15 @@ function ScaleIndicator({ visualState }: { visualState: string }) {
 
     return (
         <motion.div
-            className="absolute top-8 right-8 bg-black/70 backdrop-blur-sm rounded-lg px-4 py-3 border border-slate-600 z-10"
+            className="absolute top-8 right-8 rounded-lg px-4 py-3 border z-10"
+            style={{
+                backgroundColor: 'rgba(10, 10, 15, 0.85)',
+                borderColor: 'rgba(107, 101, 96, 0.3)'
+            }}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
         >
-            <div className="text-xs text-slate-400 uppercase tracking-wider mb-2">Scale</div>
+            <div className="text-xs uppercase tracking-wider mb-2" style={{ color: '#a8a29e' }}>Scale</div>
             <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map((level) => (
                     <motion.div
@@ -1251,14 +1291,14 @@ function ScaleIndicator({ visualState }: { visualState: string }) {
                         className="w-2 rounded-sm"
                         style={{ height: 8 + level * 4 }}
                         animate={{
-                            backgroundColor: level <= current.level ? '#38bdf8' : '#475569',
+                            backgroundColor: level <= current.level ? '#7dd3c0' : '#3a3a45',
                             opacity: level <= current.level ? 1 : 0.4,
                         }}
                         transition={{ duration: 0.3 }}
                     />
                 ))}
             </div>
-            <div className="text-sm text-white font-medium mt-2">{current.label}</div>
+            <div className="text-sm font-medium mt-2" style={{ color: '#f0ebe3' }}>{current.label}</div>
         </motion.div>
     );
 }

@@ -45,21 +45,42 @@ interface MapViewProps {
     };
 }
 
-// Data Centers - Blue shades (unified scheme)
-const dcStatusColors: Record<string, string> = {
-    operational: '#1e40af',    // Dark blue - existing/operational
-    construction: '#3b82f6',   // Medium blue - under construction
-    planned: '#60a5fa',        // Light blue - planned
-    announced: '#60a5fa',      // Light blue - announced (same as planned)
-    anticipated: '#93c5fd',    // Lightest blue - anticipated 2030-35
+/**
+ * NYT-inspired color palette - muted but high contrast
+ * More sophisticated, journalistic aesthetic
+ */
+const NYT_COLORS = {
+    // Backgrounds
+    bgDeep: '#0a0a0f',
+    bgSurface: '#1a1a24',
+
+    // Text
+    textPrimary: '#f0ebe3',      // Warm off-white
+    textSecondary: '#a8a29e',     // Warm gray
+    textMuted: '#6b6560',         // Muted warm gray
+
+    // Accents
+    accentAmber: '#d4a574',       // Muted gold
+    accentCyan: '#7dd3c0',        // Soft teal
+    accentCoral: '#e8927c',       // Soft coral
+    accentBlue: '#7c9cc9',        // Soft blue
 };
 
-// Power Plants - Green shades (unified scheme, no type differentiation)
+// Data Centers - Muted blue shades (NYT style)
+const dcStatusColors: Record<string, string> = {
+    operational: '#4a6a94',    // Muted dark blue - existing
+    construction: '#5b7aa6',   // Muted medium blue - under construction
+    planned: '#7c9cc9',        // Muted light blue - planned
+    announced: '#7c9cc9',      // Same as planned
+    anticipated: '#9cb8d9',    // Softest blue - anticipated
+};
+
+// Power Plants - Muted green shades (NYT style)
 const ppStatusColors: Record<string, string> = {
-    operational: '#166534',    // Dark green - operational
-    construction: '#22c55e',   // Medium green - under construction
-    planned: '#4ade80',        // Light green - planned
-    anticipated: '#86efac',    // Lightest green - anticipated
+    operational: '#4a7a5a',    // Muted dark green - operational
+    construction: '#5b9a6a',   // Muted medium green - construction
+    planned: '#6b9e7a',        // Muted light green - planned
+    anticipated: '#8bbaa0',    // Softest green - anticipated
 };
 
 /**
@@ -206,6 +227,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                 });
 
                 // Core marker - solid for operational, ring for planned/announced
+                // Stroke uses warm off-white instead of pure white
                 map.addLayer({
                     id: 'data-centers-core',
                     type: 'circle',
@@ -224,8 +246,8 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                             'construction', dcStatusColors.construction,
                             dcStatusColors.operational
                         ],
-                        'circle-stroke-width': 2,
-                        'circle-stroke-color': '#FFFFFF'
+                        'circle-stroke-width': 1.5,
+                        'circle-stroke-color': '#f0ebe3'
                     }
                 });
 
@@ -275,7 +297,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                     data: ppData
                 });
 
-                // Glow effect for power plants - GREEN shades by status
+                // Glow effect for power plants - muted GREEN shades by status
                 map.addLayer({
                     id: 'power-plants-glow',
                     type: 'circle',
@@ -289,19 +311,19 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                         ],
                         'circle-color': [
                             'match', ['get', 'status'],
-                            'operational', '#166534',
-                            'construction', '#22c55e',
-                            'announced', '#4ade80',
-                            'planned', '#4ade80',
-                            'anticipated', '#86efac',
-                            '#4ade80'
+                            'operational', ppStatusColors.operational,
+                            'construction', ppStatusColors.construction,
+                            'announced', ppStatusColors.planned,
+                            'planned', ppStatusColors.planned,
+                            'anticipated', ppStatusColors.anticipated,
+                            ppStatusColors.planned
                         ],
-                        'circle-opacity': 0.45,
+                        'circle-opacity': 0.35,
                         'circle-blur': 1
                     }
                 });
 
-                // Core marker - GREEN shades by status with white border
+                // Core marker - muted GREEN shades by status with warm off-white border
                 map.addLayer({
                     id: 'power-plants-icon',
                     type: 'circle',
@@ -315,15 +337,15 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                         ],
                         'circle-color': [
                             'match', ['get', 'status'],
-                            'operational', '#166534',
-                            'construction', '#22c55e',
-                            'announced', '#4ade80',
-                            'planned', '#4ade80',
-                            'anticipated', '#86efac',
-                            '#4ade80'
+                            'operational', ppStatusColors.operational,
+                            'construction', ppStatusColors.construction,
+                            'announced', ppStatusColors.planned,
+                            'planned', ppStatusColors.planned,
+                            'anticipated', ppStatusColors.anticipated,
+                            ppStatusColors.planned
                         ],
-                        'circle-stroke-width': 2,
-                        'circle-stroke-color': '#FFFFFF'
+                        'circle-stroke-width': 1.5,
+                        'circle-stroke-color': '#f0ebe3'
                     }
                 });
             }
@@ -349,6 +371,8 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
 
             mbgl.accessToken = mapboxToken;
 
+            // NYT-style darker map with warmer undertones
+            // Using dark-v11 as base, will customize with paint properties
             const map = new mbgl.Map({
                 container: mapContainerRef.current!,
                 style: 'mapbox://styles/mapbox/dark-v11',
@@ -374,6 +398,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                     }
                 }
 
+                // 3D buildings - warm charcoal tone
                 map.addLayer({
                     id: '3d-buildings',
                     source: 'composite',
@@ -382,10 +407,10 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
                     type: 'fill-extrusion',
                     minzoom: 12,
                     paint: {
-                        'fill-extrusion-color': '#1e3a5f',
+                        'fill-extrusion-color': '#2a2a35',
                         'fill-extrusion-height': ['get', 'height'],
                         'fill-extrusion-base': ['get', 'min_height'],
-                        'fill-extrusion-opacity': 0.7
+                        'fill-extrusion-opacity': 0.65
                     }
                 }, labelLayerId);
 
@@ -506,12 +531,12 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
         <div className="relative w-full h-full">
             <div ref={mapContainerRef} className="w-full h-full" />
 
-            {/* Loading overlay */}
+            {/* Loading overlay - NYT-style */}
             {!mapLoaded && (
-                <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
+                <div className="absolute inset-0 flex items-center justify-center z-10" style={{ backgroundColor: '#0a0a0f' }}>
                     <div className="text-center">
-                        <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                        <p className="text-gray-500 text-sm">Loading map...</p>
+                        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-2" style={{ borderColor: '#7dd3c0', borderTopColor: 'transparent' }} />
+                        <p className="text-sm" style={{ color: '#a8a29e' }}>Loading map...</p>
                     </div>
                 </div>
             )}
@@ -529,7 +554,7 @@ export default function MapView({ location, layerColor = '#EF4444', stepId, regi
 }
 
 /**
- * Map Legend - Blue shades for data centers, green shades for power plants
+ * Map Legend - NYT-style muted colors for data centers and power plants
  */
 function MapLegend({ stepId }: { stepId: string }) {
     const showLegend = ['nova', 'ohio', 'oklahoma', 'texas', 'usa'].includes(stepId);
@@ -537,52 +562,56 @@ function MapLegend({ stepId }: { stepId: string }) {
 
     return (
         <motion.div
-            className="absolute bottom-24 left-4 bg-black/80 backdrop-blur-sm rounded-lg p-3 text-xs z-20 border border-gray-700"
+            className="absolute bottom-24 left-4 rounded-lg p-3 text-xs z-20 border"
+            style={{
+                backgroundColor: 'rgba(10, 10, 15, 0.9)',
+                borderColor: 'rgba(107, 101, 96, 0.3)'
+            }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
         >
-            <div className="text-gray-400 uppercase tracking-wider mb-2 font-medium text-[10px]">Data Centers</div>
+            <div className="uppercase tracking-wider mb-2 font-medium text-[10px]" style={{ color: '#a8a29e' }}>Data Centers</div>
             <div className="space-y-1.5 mb-3">
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border-2 border-white" style={{ backgroundColor: '#1e40af' }} />
-                    <span className="text-gray-300">Operational</span>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: dcStatusColors.operational, border: '1.5px solid #f0ebe3' }} />
+                    <span style={{ color: '#f0ebe3' }}>Operational</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border-2 border-white" style={{ backgroundColor: '#3b82f6' }} />
-                    <span className="text-gray-300">Under Construction</span>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: dcStatusColors.construction, border: '1.5px solid #f0ebe3' }} />
+                    <span style={{ color: '#f0ebe3' }}>Under Construction</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border-2 bg-transparent" style={{ borderColor: '#60a5fa' }} />
-                    <span className="text-gray-300">Planned / Announced</span>
+                    <div className="w-3 h-3 rounded-full bg-transparent" style={{ border: `2px solid ${dcStatusColors.planned}` }} />
+                    <span style={{ color: '#f0ebe3' }}>Planned / Announced</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border-2 bg-transparent" style={{ borderColor: '#93c5fd', opacity: 0.6 }} />
-                    <span className="text-gray-300">Anticipated (2030-35)</span>
+                    <div className="w-3 h-3 rounded-full bg-transparent" style={{ border: `2px solid ${dcStatusColors.anticipated}`, opacity: 0.7 }} />
+                    <span style={{ color: '#a8a29e' }}>Anticipated (2030-35)</span>
                 </div>
             </div>
 
-            <div className="text-gray-400 uppercase tracking-wider mb-2 font-medium text-[10px]">Power Plants</div>
+            <div className="uppercase tracking-wider mb-2 font-medium text-[10px]" style={{ color: '#a8a29e' }}>Power Plants</div>
             <div className="space-y-1.5 mb-3">
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border-2 border-white" style={{ backgroundColor: '#166534' }} />
-                    <span className="text-gray-300">Operational</span>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ppStatusColors.operational, border: '1.5px solid #f0ebe3' }} />
+                    <span style={{ color: '#f0ebe3' }}>Operational</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border-2 border-white" style={{ backgroundColor: '#22c55e' }} />
-                    <span className="text-gray-300">Under Construction</span>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ppStatusColors.construction, border: '1.5px solid #f0ebe3' }} />
+                    <span style={{ color: '#f0ebe3' }}>Under Construction</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border-2 border-white" style={{ backgroundColor: '#4ade80' }} />
-                    <span className="text-gray-300">Planned</span>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ppStatusColors.planned, border: '1.5px solid #f0ebe3' }} />
+                    <span style={{ color: '#f0ebe3' }}>Planned</span>
                 </div>
             </div>
 
-            <div className="text-gray-400 uppercase tracking-wider mb-2 font-medium text-[10px]">Grid</div>
+            <div className="uppercase tracking-wider mb-2 font-medium text-[10px]" style={{ color: '#a8a29e' }}>Grid</div>
             <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-0.5 bg-gradient-to-r from-red-500/60 via-amber-500/60 to-blue-500/60" />
-                    <span className="text-gray-300">230kV+ Lines (by ISO)</span>
+                    <div className="w-6 h-0.5" style={{ background: 'linear-gradient(90deg, #e8927c 0%, #d4a574 50%, #7c9cc9 100%)', opacity: 0.7 }} />
+                    <span style={{ color: '#a8a29e' }}>230kV+ Lines (by ISO)</span>
                 </div>
             </div>
         </motion.div>
@@ -590,17 +619,27 @@ function MapLegend({ stepId }: { stepId: string }) {
 }
 
 /**
- * Fallback component when Mapbox token is not available
+ * Fallback component when Mapbox token is not available - NYT-style
  */
 function MapFallback({ location, layerColor = '#EF4444', stepId, region, powerMetric, errorMessage }: MapViewProps & { errorMessage?: string | null }) {
+    // Map bright colors to NYT muted equivalents
+    const colorMap: Record<string, string> = {
+        '#EF4444': '#e8927c',
+        '#F59E0B': '#d4a574',
+        '#3B82F6': '#7c9cc9',
+        '#10B981': '#7dd3c0',
+        '#6366F1': '#8b8ac9',
+    };
+    const displayColor = colorMap[layerColor] || layerColor;
+
     return (
-        <div className="relative w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)' }}>
             {/* Grid background */}
-            <div className="absolute inset-0 opacity-20">
+            <div className="absolute inset-0 opacity-15">
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <pattern id="mapGrid" width="60" height="60" patternUnits="userSpaceOnUse">
-                            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gray-500" />
+                            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#4a4a55" strokeWidth="0.5" />
                         </pattern>
                     </defs>
                     <rect width="100%" height="100%" fill="url(#mapGrid)" />
@@ -616,37 +655,41 @@ function MapFallback({ location, layerColor = '#EF4444', stepId, region, powerMe
                     transition={{ type: 'spring', stiffness: 200 }}
                 >
                     <div
-                        className="w-8 h-8 rounded-full border-4 border-white shadow-xl"
-                        style={{ backgroundColor: layerColor }}
+                        className="w-8 h-8 rounded-full shadow-xl"
+                        style={{ backgroundColor: displayColor, border: '3px solid #f0ebe3' }}
                     />
                     <motion.div
                         className="absolute inset-0 w-8 h-8 rounded-full"
-                        style={{ backgroundColor: layerColor }}
-                        animate={{ scale: [1, 3, 1], opacity: [0.6, 0, 0.6] }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                        style={{ backgroundColor: displayColor }}
+                        animate={{ scale: [1, 2.5, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ duration: 2.5, repeat: Infinity }}
                     />
                 </motion.div>
             </div>
 
             {/* Coordinates */}
             <div className="absolute bottom-24 left-1/2 -translate-x-1/2 text-center z-20">
-                <div className="text-gray-500 text-xs uppercase tracking-wider mb-1">Coordinates</div>
-                <div className="font-mono text-gray-300">
+                <div className="text-xs uppercase tracking-wider mb-1" style={{ color: '#6b6560' }}>Coordinates</div>
+                <div className="font-mono" style={{ color: '#a8a29e' }}>
                     {location.lat.toFixed(2)}°N, {Math.abs(location.lng).toFixed(2)}°W
                 </div>
             </div>
 
             {/* Error prompt */}
             <motion.div
-                className="absolute top-20 right-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3 border border-amber-500/50 max-w-xs z-30"
+                className="absolute top-20 right-4 rounded-lg px-4 py-3 border max-w-xs z-30"
+                style={{
+                    backgroundColor: 'rgba(10, 10, 15, 0.9)',
+                    borderColor: 'rgba(212, 165, 116, 0.4)'
+                }}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
             >
-                <div className="text-amber-400 text-sm font-medium mb-1">
+                <div className="text-sm font-medium mb-1" style={{ color: '#d4a574' }}>
                     {errorMessage ? 'Map Error' : 'Map Preview Mode'}
                 </div>
-                <div className="text-gray-400 text-xs">
+                <div className="text-xs" style={{ color: '#a8a29e' }}>
                     {errorMessage || 'Add NEXT_PUBLIC_MAPBOX_TOKEN to .env.local for the full experience.'}
                 </div>
             </motion.div>
@@ -658,7 +701,7 @@ function MapFallback({ location, layerColor = '#EF4444', stepId, region, powerMe
 }
 
 /**
- * Region Indicator
+ * Region Indicator - NYT-style
  */
 function RegionIndicator({ color, stepId, region }: {
     color: string;
@@ -680,15 +723,28 @@ function RegionIndicator({ color, stepId, region }: {
         usa: 'National Grid',
     };
 
+    // Map bright colors to NYT muted equivalents
+    const colorMap: Record<string, string> = {
+        '#EF4444': '#e8927c',  // Red -> Muted coral
+        '#F59E0B': '#d4a574',  // Amber -> Muted gold
+        '#3B82F6': '#7c9cc9',  // Blue -> Muted blue
+        '#10B981': '#7dd3c0',  // Green -> Muted teal
+        '#6366F1': '#8b8ac9',  // Indigo -> Muted indigo
+    };
+
     const label = region ? marketTypeLabels[region.type] : fallbackLabels[stepId] || 'Regional View';
-    const displayColor = region?.color || color;
+    const originalColor = region?.color || color;
+    const displayColor = colorMap[originalColor] || originalColor;
 
     return (
         <AnimatePresence mode="wait">
             <motion.div
                 key={stepId}
-                className="absolute top-20 left-4 flex items-center gap-3 bg-black/80 backdrop-blur-sm rounded-lg px-4 py-3 border z-20"
-                style={{ borderColor: displayColor }}
+                className="absolute top-20 left-4 flex items-center gap-3 rounded-lg px-4 py-3 border z-20"
+                style={{
+                    backgroundColor: 'rgba(10, 10, 15, 0.9)',
+                    borderColor: displayColor
+                }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -696,13 +752,13 @@ function RegionIndicator({ color, stepId, region }: {
                 <motion.div
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: displayColor }}
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
                 />
                 <div className="flex flex-col">
-                    <span className="text-white text-sm font-medium">{label}</span>
+                    <span className="text-sm font-medium" style={{ color: '#f0ebe3' }}>{label}</span>
                     {region && (
-                        <span className="text-gray-400 text-xs">{region.name}</span>
+                        <span className="text-xs" style={{ color: '#a8a29e' }}>{region.name}</span>
                     )}
                 </div>
             </motion.div>
@@ -711,7 +767,7 @@ function RegionIndicator({ color, stepId, region }: {
 }
 
 /**
- * Location Label
+ * Location Label - NYT-style
  */
 function LocationLabel({ stepId, region, powerMetric }: {
     stepId: string;
@@ -727,27 +783,43 @@ function LocationLabel({ stepId, region, powerMetric }: {
         usa: 'United States',
     };
 
+    // Map bright colors to NYT muted equivalents
+    const colorMap: Record<string, string> = {
+        '#EF4444': '#e8927c',
+        '#F59E0B': '#d4a574',
+        '#3B82F6': '#7c9cc9',
+        '#10B981': '#7dd3c0',
+        '#6366F1': '#8b8ac9',
+    };
+
     const name = locationNames[stepId];
     if (!name) return null;
+
+    const originalColor = region?.color || '#7dd3c0';
+    const displayColor = colorMap[originalColor] || originalColor;
 
     return (
         <motion.div
             key={stepId}
-            className="absolute bottom-8 right-4 bg-black/80 backdrop-blur-sm rounded-lg px-4 py-3 z-20 border border-gray-700"
+            className="absolute bottom-8 right-4 rounded-lg px-4 py-3 z-20 border"
+            style={{
+                backgroundColor: 'rgba(10, 10, 15, 0.9)',
+                borderColor: 'rgba(107, 101, 96, 0.3)'
+            }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
         >
-            <div className="text-gray-400 text-xs uppercase tracking-wider">Location</div>
-            <div className="text-white font-medium">{name}</div>
+            <div className="text-xs uppercase tracking-wider" style={{ color: '#a8a29e' }}>Location</div>
+            <div className="font-medium" style={{ color: '#f0ebe3' }}>{name}</div>
             {powerMetric && (
-                <div className="mt-2 pt-2 border-t border-gray-700">
+                <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(107, 101, 96, 0.3)' }}>
                     <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-bold font-mono" style={{ color: region?.color || '#06b6d4' }}>
+                        <span className="text-lg font-bold font-mono" style={{ color: displayColor }}>
                             {powerMetric.value}
                         </span>
-                        <span className="text-sm text-gray-400 font-mono">{powerMetric.unit}</span>
+                        <span className="text-sm font-mono" style={{ color: '#f0ebe3' }}>{powerMetric.unit}</span>
                     </div>
-                    <div className="text-xs text-gray-500">{powerMetric.comparison}</div>
+                    <div className="text-xs" style={{ color: '#a8a29e' }}>{powerMetric.comparison}</div>
                 </div>
             )}
         </motion.div>
