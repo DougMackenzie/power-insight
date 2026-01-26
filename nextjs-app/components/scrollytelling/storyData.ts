@@ -96,12 +96,12 @@ export const steps: StoryStep[] = [
         mode: 'micro',
         visualState: 'building-iso',
         title: "A Data Center Facility",
-        text: "Multiple data halls form a facility drawing 100-500 MW—equivalent to a small city. Each hall with 60 Kyber racks draws 36 MW. These facilities require dedicated substations and transmission lines.",
-        subtext: "Modern hyperscale facilities typically have 3-5 data halls, each with 60 racks at 600 kW.",
+        text: "A single data center building with 125 Kyber racks draws 75-150 MW continuously. Rooftop cooling equipment rejects heat to the atmosphere while backup generators ensure 99.999% uptime.",
+        subtext: "Each facility requires its own transformer substation and dedicated utility feed. Buildings this size need planning years in advance.",
         powerMetric: {
-            value: "100-500",
+            value: "75-150",
             unit: "MW",
-            comparison: "≈ 80,000-400,000 homes"
+            comparison: "≈ 60,000-125,000 homes"
         }
     },
     {
@@ -109,12 +109,12 @@ export const steps: StoryStep[] = [
         mode: 'micro',
         visualState: 'campus-grid',
         title: "A Hyperscale Campus",
-        text: "Multiple data halls with adjacent backup generators, liquid cooling distribution centers, and battery storage form a hyperscale campus. A 500 MW campus requires its own 345kV substation, transmission towers, and grid interconnection.",
-        subtext: "Kyber racks use full liquid immersion—no cooling towers needed. Heat exchangers transfer thermal energy to external loops.",
+        text: "Four data center buildings share a central 345kV substation, battery storage, and transmission corridor. At 600 MW total capacity, this campus rivals a small nuclear plant in power consumption.",
+        subtext: "Building a campus this size requires 3-5 years of planning, $2-4 billion in capital, and coordination with regional transmission operators.",
         powerMetric: {
-            value: "500",
+            value: "600",
             unit: "MW",
-            comparison: "≈ half a nuclear plant"
+            comparison: "≈ small nuclear plant"
         }
     },
 
@@ -128,9 +128,9 @@ export const steps: StoryStep[] = [
         title: "The Grid Connection",
         text: "These massive campuses connect directly to high-voltage transmission lines. The transition from 3D model to satellite view shows real data center locations in Northern Virginia—the world's largest data center market.",
         powerMetric: {
-            value: "500",
+            value: "600",
             unit: "MW",
-            comparison: "≈ half a nuclear plant"
+            comparison: "≈ small nuclear plant"
         },
         layerColor: '#EF4444',
     },
