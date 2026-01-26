@@ -209,9 +209,9 @@ export default function CalculatorPage() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
             {/* Header */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-8 text-white">
                 <h1 className="text-3xl font-bold mb-4">Calculator: Your Community's Numbers</h1>
-                <p className="text-lg text-gray-300 max-w-3xl">
+                <p className="text-lg text-slate-300 max-w-3xl">
                     Adjust the parameters below to match your community's utility and the proposed data
                     center. See how different configurations affect projected electricity costs.
                 </p>
@@ -221,14 +221,14 @@ export default function CalculatorPage() {
                 {/* Input panel */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Location Selector */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-4">
-                        <label className="block text-sm font-semibold text-blue-900 mb-2">
+                    <div className="bg-gradient-to-br from-slate-100 to-slate-50 rounded-xl border-2 border-slate-200 p-4">
+                        <label className="block text-sm font-semibold text-slate-800 mb-2">
                             Select Your Utility / Location
                         </label>
                         <select
                             value={selectedUtilityId}
                             onChange={(e) => selectUtilityProfile(e.target.value)}
-                            className="w-full px-3 py-2.5 bg-white border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                            className="w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-slate-900 font-medium"
                         >
                             {getUtilitiesGroupedByState().map((group) => (
                                 <optgroup key={group.state} label={group.state || 'Other Options'}>
@@ -241,10 +241,10 @@ export default function CalculatorPage() {
                             ))}
                         </select>
                         {selectedUtilityProfile && selectedUtilityProfile.id !== 'custom' && (
-                            <div className="mt-3 text-xs text-blue-700 space-y-1">
+                            <div className="mt-3 text-xs text-slate-600 space-y-1">
                                 <p><strong>{selectedUtilityProfile.residentialCustomers.toLocaleString()}</strong> residential customers in rate base</p>
                                 {selectedUtilityProfile.hasDataCenterActivity && selectedUtilityProfile.dataCenterNotes && (
-                                    <p className="text-blue-600 italic">{selectedUtilityProfile.dataCenterNotes}</p>
+                                    <p className="text-slate-500 italic">{selectedUtilityProfile.dataCenterNotes}</p>
                                 )}
                             </div>
                         )}
@@ -575,17 +575,17 @@ export default function CalculatorPage() {
             </div>
 
             {/* Energy View Link */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6">
+            <div className="bg-gradient-to-br from-slate-100 to-slate-50 rounded-xl border border-slate-200 p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h3 className="font-semibold text-indigo-900">Visualize Grid Impact</h3>
-                        <p className="text-sm text-indigo-700">
+                        <h3 className="font-semibold text-slate-800">Visualize Grid Impact</h3>
+                        <p className="text-sm text-slate-600">
                             See hourly load profiles and load duration curves for each scenario
                         </p>
                     </div>
                     <Link
                         href="/energy-view"
-                        className="px-5 py-2.5 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 font-medium flex items-center gap-2"
+                        className="px-5 py-2.5 text-white bg-slate-700 rounded-lg hover:bg-slate-600 font-medium flex items-center gap-2"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />

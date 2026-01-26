@@ -100,11 +100,11 @@ export default function MethodologyPage() {
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
             {/* Header */}
-            <div className="bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl p-8 border border-gray-200">
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <div className="bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl p-8 border border-slate-200">
+                <h1 className="text-3xl font-bold text-slate-800 mb-4">
                     Methodology & Technical Documentation
                 </h1>
-                <p className="text-lg text-gray-600 max-w-3xl mb-4">
+                <p className="text-lg text-slate-600 max-w-3xl mb-4">
                     This calculator models how large data center loads affect residential electricity bills,
                     with particular attention to <strong>capacity market dynamics</strong> and the "Hockey Stick"
                     effect that can cause cost spillovers to existing ratepayers.
@@ -113,7 +113,7 @@ export default function MethodologyPage() {
                     <span className="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
                         Endogenous Capacity Pricing
                     </span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                    <span className="px-3 py-1 bg-slate-200 text-slate-700 text-sm font-medium rounded-full">
                         3-Year Auction Lag
                     </span>
                     <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">

@@ -48,17 +48,17 @@ export default function LearnMorePage() {
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
             {/* Header */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <div className="bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl p-8 border border-slate-200">
+                <h1 className="text-3xl font-bold text-slate-800 mb-4">
                     Learn More
                 </h1>
-                <p className="text-lg text-gray-600 max-w-3xl">
+                <p className="text-lg text-slate-600 max-w-3xl">
                     This guide explains the basics of electricity costs and how large industrial loads like data centers
                     can affect your bill. No technical background required—just the essentials for informed community members.
                 </p>
-                <p className="text-sm text-gray-500 mt-4">
+                <p className="text-sm text-slate-500 mt-4">
                     Looking for detailed methodology and data sources? See our{' '}
-                    <Link href="/methodology" className="text-blue-600 hover:underline font-medium">
+                    <Link href="/methodology" className="text-amber-600 hover:underline font-medium">
                         full methodology documentation
                     </Link>.
                 </p>
@@ -586,9 +586,9 @@ export default function LearnMorePage() {
                             </div>
                         </div>
 
-                        <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                            <h4 className="font-semibold text-indigo-900 mb-2">Where to Find Information</h4>
-                            <ul className="space-y-2 text-sm text-gray-700">
+                        <div className="p-4 bg-slate-100 rounded-lg border border-slate-200">
+                            <h4 className="font-semibold text-slate-800 mb-2">Where to Find Information</h4>
+                            <ul className="space-y-2 text-sm text-slate-700">
                                 <li>• <strong>State PUC website:</strong> Docket filings, rate cases, and public notices</li>
                                 <li>• <strong>Utility annual reports:</strong> Infrastructure plans and customer statistics</li>
                                 <li>• <strong>Local news coverage:</strong> Often covers major economic development proposals</li>
@@ -670,21 +670,21 @@ export default function LearnMorePage() {
             </div>
 
             {/* Call to Action */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-8 text-white">
                 <h3 className="text-xl font-bold mb-3">Ready to Calculate Impact?</h3>
-                <p className="text-gray-300 mb-6">
+                <p className="text-slate-300 mb-6">
                     Use our calculator to see how a specific data center scenario might affect electricity costs in your community.
                 </p>
                 <div className="flex flex-wrap gap-4">
                     <Link
                         href="/calculator"
-                        className="px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                        className="px-6 py-3 bg-amber-400 text-slate-900 font-semibold rounded-lg hover:bg-amber-300 transition-colors"
                     >
                         Open Calculator →
                     </Link>
                     <Link
                         href="/methodology"
-                        className="px-6 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors border border-gray-600"
+                        className="px-6 py-3 bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-500 transition-colors border border-slate-500"
                     >
                         View Full Methodology
                     </Link>

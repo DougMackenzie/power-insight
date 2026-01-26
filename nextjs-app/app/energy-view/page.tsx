@@ -353,14 +353,14 @@ export default function EnergyViewPage() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
             {/* Header */}
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 text-white">
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+            <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-8 text-white">
+                <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
                     <Link href="/calculator" className="hover:text-white">Calculator</Link>
                     <span>/</span>
                     <span>Energy View</span>
                 </div>
                 <h1 className="text-3xl font-bold mb-4">Energy View: Load Profile Visualization</h1>
-                <p className="text-lg text-gray-300 max-w-3xl">
+                <p className="text-lg text-slate-300 max-w-3xl">
                     Illustrative visualization showing how flexible data center operations affect grid load patterns.
                     These representative profiles demonstrate the framework for understanding capacity benefits.
                 </p>
@@ -693,13 +693,13 @@ export default function EnergyViewPage() {
             </div>
 
             {/* Methodology Note */}
-            <div className="bg-blue-50 rounded-xl border border-blue-200 p-6">
-                <h3 className="font-semibold text-blue-900 mb-3">About This Visualization</h3>
-                <p className="text-sm text-blue-800 mb-3">
+            <div className="bg-slate-100 rounded-xl border border-slate-200 p-6">
+                <h3 className="font-semibold text-slate-800 mb-3">About This Visualization</h3>
+                <p className="text-sm text-slate-700 mb-3">
                     These charts are <strong>illustrative representations</strong> designed to communicate the framework
                     for understanding how flexible data center operations benefit grid capacity. Key assumptions:
                 </p>
-                <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                <ul className="text-sm text-slate-600 space-y-1 list-disc list-inside">
                     <li>Grid capacity = system peak ({formatMW(utility.systemPeakMW)}) + firm data center baseline ({formatMW(metrics.dcFirmBaseline)})</li>
                     <li>Data center wants to run at {(dataCenter.flexLoadFactor * 100).toFixed(0)}% load factor whenever grid headroom allows</li>
                     <li>When base grid + data center would exceed capacity, data center shifts load to off-peak hours</li>
@@ -724,7 +724,7 @@ export default function EnergyViewPage() {
                         </Link>
                         <Link
                             href="/methodology"
-                            className="px-4 py-2 text-white bg-gray-900 rounded-lg hover:bg-gray-800"
+                            className="px-4 py-2 text-white bg-slate-700 rounded-lg hover:bg-slate-600"
                         >
                             View Methodology
                         </Link>
