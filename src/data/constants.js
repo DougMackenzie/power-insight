@@ -340,3 +340,64 @@ export const formatMW = (value) => {
   }
   return `${value.toFixed(0)} MW`;
 };
+
+// ============================================
+// NATIONAL DATA CENTER STATISTICS
+// ============================================
+
+export const NATIONAL_DC_STATS = {
+  // Current state (2024-2025)
+  currentCapacityGW: 50,
+  currentElectricityShare: 0.044, // 4.4%
+  currentTWh: 176, // 2023 consumption
+
+  // Projections
+  projected2030ShareLow: 0.06,
+  projected2030ShareHigh: 0.09,
+  projected2035CapacityGW: 150,
+  growthMultiplier2035: 6, // 6x from 2024
+
+  // Equivalents
+  gwPerNuclearPlant: 1, // 1 GW ≈ 1 nuclear plant
+  homesPerGW: 750000, // ~750k-1M homes per GW
+
+  // Demand backlog
+  totalUSRequestedGW: 1000, // GW requested from US utilities
+
+  // PJM capacity market impact
+  pjmCapacityPrice2024: 269.92, // $/MW-day
+  pjmCapacityPricePrior: 28.92, // $/MW-day (prior year)
+  pjmPriceIncreaseMultiple: 10, // 10x increase
+  dcAttributionPercent: 0.63, // 63% of increase attributed to DC growth
+};
+
+// State-level data center statistics
+export const STATE_DC_DATA = {
+  VA: {
+    capacityGW: 5.6,
+    stateElectricityShare: 0.25, // 25% of Virginia's electricity
+    notes: 'Data center capital of the world, 70% of global internet traffic flows through Loudoun County',
+    projected2035GW: 9,
+  },
+  TX: {
+    capacityGW: 4.2,
+    loadGrowthShare: 0.46, // 46% of ERCOT projected load growth
+    notes: 'ERCOT energy-only market with 4CP transmission allocation',
+  },
+  OH: {
+    capacityGW: 1.2,
+    notes: 'Emerging frontier as Virginia reaches capacity constraints',
+  },
+  AZ: {
+    capacityGW: 1.8,
+    notes: 'Phoenix metro data center growth',
+  },
+  GA: {
+    capacityGW: 1.5,
+    notes: 'Atlanta metro growing tech sector',
+  },
+  NC: {
+    capacityGW: 1.3,
+    notes: 'Charlotte and Research Triangle growth',
+  },
+};
