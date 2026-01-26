@@ -9,7 +9,7 @@ import { formatCurrency, formatMW, SUPPLY_CURVE } from '@/lib/constants';
 import { getUtilitiesGroupedByState } from '@/lib/utilityData';
 import { calculateDynamicCapacityPrice, type CapacityPriceResult } from '@/lib/calculations';
 
-// Reserve Margin Indicator - Shows "Hockey Stick" scarcity warning
+// Reserve Margin Indicator - Shows capacity scarcity warning
 interface ReserveMarginIndicatorProps {
     utility: {
         systemPeakMW: number;
@@ -85,7 +85,7 @@ const ReserveMarginIndicator = ({ utility, dcCapacityMW, peakCoincidence }: Rese
                     </div>
                     {(isScarcity || isCritical) && (
                         <div className={`mt-2 text-xs ${textColor} bg-white/50 p-2 rounded`}>
-                            <strong>PJM Effect:</strong> This load consumes the reserve margin, triggering a capacity auction spike (3-year lag) that will be socialized across all ratepayers.
+                            <strong>Capacity cost spillover:</strong> This load consumes the reserve margin, triggering higher capacity prices that affect all ratepayers in this market.
                         </div>
                     )}
                 </div>

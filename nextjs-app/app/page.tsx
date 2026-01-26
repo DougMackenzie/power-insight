@@ -241,101 +241,105 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Two Column Cards */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-              <h4 className="font-semibold text-slate-700 mb-3">Fair Cost Allocation Through Good Policy</h4>
-              <p className="text-slate-600 text-sm mb-3">
-                New large electricity users like data centers require new power plants and transmission lines.
-                <strong className="text-slate-800"> The critical question is: who pays for this new infrastructure?</strong>
-              </p>
-              <ul className="space-y-2 text-slate-600 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-slate-500">→</span>
-                  <span>With good policy, data centers pay their fair share of the costs they create</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-slate-500">→</span>
-                  <span>Without good policy, existing customers may subsidize data center infrastructure</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-slate-500">→</span>
-                  <span>When done right, more customers sharing the grid can lower costs for everyone</span>
-                </li>
-              </ul>
+          {/* Two Column Cards - Integrated with extended content */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Left Column: Policy */}
+            <div className="space-y-4">
+              <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                <h4 className="font-semibold text-slate-700 mb-3">Fair Cost Allocation Through Good Policy</h4>
+                <p className="text-slate-600 text-sm mb-3">
+                  New large electricity users like data centers require new power plants and transmission lines.
+                  <strong className="text-slate-800"> The critical question is: who pays for this new infrastructure?</strong>
+                </p>
+                <ul className="space-y-2 text-slate-600 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-500">→</span>
+                    <span>With good policy, data centers pay their fair share of the costs they create</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-500">→</span>
+                    <span>Without good policy, existing customers may subsidize data center infrastructure</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-500">→</span>
+                    <span>When done right, more customers sharing the grid can lower costs for everyone</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Why Rate Structure Matters - Integrated */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                <p className="text-slate-600 text-sm mb-2">
+                  <strong className="text-amber-800">Example:</strong> In Virginia, electricity bills have been rising in part because data centers aren't fully covering
+                  the infrastructure costs they create.
+                </p>
+                <p className="text-slate-600 text-sm">
+                  In contrast, some states charge data centers based on how much they contribute to peak demand—giving them a financial reason to operate in ways that benefit everyone.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-              <h4 className="font-semibold text-green-700 mb-3">Flexible Data Centers Maximize Benefits</h4>
-              <p className="text-slate-600 text-sm mb-3">
-                How a data center operates matters as much as how big it is. Flexible operations can protect communities:
-              </p>
-              <ul className="space-y-2 text-slate-600 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Flexible loads can reduce power use during peak demand, avoiding costly infrastructure</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>On-site generators reduce reliance on the shared power grid</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600">✓</span>
-                  <span>During emergencies (like heat waves or storms), data centers can cut back so homes have power</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Why Policy Matters - Simplified */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
-            <h4 className="font-semibold text-amber-800 mb-3">Why Rate Structure Matters</h4>
-            <p className="text-slate-600 text-sm mb-3">
-              In Virginia, electricity bills have been rising in part because data centers aren't fully covering
-              the infrastructure costs they create. Existing households end up paying more.
-            </p>
-            <p className="text-slate-600 text-sm">
-              In contrast, some states have rate structures that create strong incentives for data centers
-              to operate flexibly and reduce their impact during high-demand periods. <strong className="text-slate-800">When data centers
-              are charged based on how much they contribute to peak demand</strong>, they have a financial reason
-              to operate in ways that benefit everyone.
-            </p>
-          </div>
-
-          {/* Data Center Operations - Simplified */}
-          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h4 className="font-semibold text-slate-800 mb-6 text-center">How Data Center Design Affects You</h4>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-xl mb-2 border border-red-200">
-                  <svg className="w-6 h-6 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18.364 5.636a9 9 0 11-12.728 0M12 9v4" />
-                  </svg>
-                </div>
-                <h5 className="font-bold text-red-700 text-sm">Always-On</h5>
-                <p className="text-xs text-slate-500 mt-1">Runs at full power 24/7</p>
-                <p className="text-xs font-medium text-red-600 mt-1">Highest cost to grid</p>
+            {/* Right Column: Flexibility */}
+            <div className="space-y-4">
+              <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                <h4 className="font-semibold text-green-700 mb-3">Flexible Data Centers Maximize Benefits</h4>
+                <p className="text-slate-600 text-sm mb-3">
+                  How a data center operates matters as much as how big it is. Flexible operations can protect communities:
+                </p>
+                <ul className="space-y-2 text-slate-600 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Flexible loads can reduce power use during peak demand, avoiding costly infrastructure</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>On-site generators reduce reliance on the shared power grid</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>During emergencies (like heat waves or storms), data centers can cut back so homes have power</span>
+                  </li>
+                </ul>
               </div>
-              <div>
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-xl mb-2 border border-amber-200">
-                  <svg className="w-6 h-6 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4v16h16M8 16l4-8 4 4 4-8" />
+
+              {/* Data Center Design Types - Integrated */}
+              <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-center flex-1">
+                    <div className="inline-flex items-center justify-center w-10 h-10 bg-red-100 rounded-lg mb-1 border border-red-200">
+                      <svg className="w-5 h-5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18.364 5.636a9 9 0 11-12.728 0M12 9v4" />
+                      </svg>
+                    </div>
+                    <p className="text-xs font-semibold text-red-700">Always-On</p>
+                    <p className="text-[10px] text-slate-500">Highest cost</p>
+                  </div>
+                  <svg className="w-4 h-4 text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
-                </div>
-                <h5 className="font-bold text-amber-700 text-sm">Flexible</h5>
-                <p className="text-xs text-slate-500 mt-1">Can reduce power when needed</p>
-                <p className="text-xs font-medium text-amber-600 mt-1">Lower grid impact</p>
-              </div>
-              <div>
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mb-2 border border-green-200">
-                  <svg className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 12l2 2 4-4" />
-                    <circle cx="12" cy="12" r="9" />
+                  <div className="text-center flex-1">
+                    <div className="inline-flex items-center justify-center w-10 h-10 bg-amber-100 rounded-lg mb-1 border border-amber-200">
+                      <svg className="w-5 h-5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 4v16h16M8 16l4-8 4 4 4-8" />
+                      </svg>
+                    </div>
+                    <p className="text-xs font-semibold text-amber-700">Flexible</p>
+                    <p className="text-[10px] text-slate-500">Lower impact</p>
+                  </div>
+                  <svg className="w-4 h-4 text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
+                  <div className="text-center flex-1">
+                    <div className="inline-flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg mb-1 border border-green-200">
+                      <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 12l2 2 4-4" />
+                        <circle cx="12" cy="12" r="9" />
+                      </svg>
+                    </div>
+                    <p className="text-xs font-semibold text-green-700">Optimized</p>
+                    <p className="text-[10px] text-slate-500">Minimal cost</p>
+                  </div>
                 </div>
-                <h5 className="font-bold text-green-700 text-sm">Optimized</h5>
-                <p className="text-xs text-slate-500 mt-1">Flexible + own power source</p>
-                <p className="text-xs font-medium text-green-600 mt-1">Minimal community cost</p>
               </div>
             </div>
           </div>

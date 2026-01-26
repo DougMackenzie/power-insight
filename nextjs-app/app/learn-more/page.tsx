@@ -426,7 +426,7 @@ export default function LearnMorePage() {
 
                 <Section
                     id="capacity-markets"
-                    title="Capacity Markets: The 'PJM Effect'"
+                    title="Capacity Markets and Cost Spillovers"
                     expandedSection={expandedSection}
                     toggleSection={toggleSection}
                 >
@@ -436,19 +436,19 @@ export default function LearnMorePage() {
                             bid to be available when needed. These markets can amplify the impact of large new loads like data centers.
                         </p>
 
-                        <div className="border-2 border-red-200 rounded-lg p-5 bg-red-50">
-                            <h4 className="font-semibold text-red-900 mb-3">What is the "PJM Effect"?</h4>
+                        <div className="border border-amber-200 rounded-lg p-5 bg-amber-50">
+                            <h4 className="font-semibold text-amber-900 mb-3">How Capacity Cost Spillovers Work</h4>
                             <p className="text-sm text-gray-700 mb-3">
                                 When massive new loads (like data centers) connect to the grid, they consume available <strong>reserve margin</strong>—the
                                 cushion of extra generation capacity that ensures reliability. As reserve margins shrink, capacity prices
-                                spike non-linearly in a "hockey stick" pattern.
+                                can spike non-linearly.
                             </p>
                             <div className="bg-white rounded-lg p-4 mt-3">
-                                <p className="text-sm font-medium text-gray-900 mb-2">The key insight:</p>
+                                <p className="text-sm font-medium text-gray-900 mb-2">Why this matters:</p>
                                 <p className="text-sm text-gray-700">
                                     When a data center causes capacity prices to rise, it doesn't just pay higher prices for its own load—<strong>all
-                                    existing customers</strong> also pay the higher price on their existing load. This "socialized" cost is why
-                                    data center growth in PJM has drawn regulatory attention.
+                                    existing customers</strong> also pay the higher price on their existing load. This "spillover" cost is why
+                                    data center growth in regions like PJM has drawn regulatory attention.
                                 </p>
                             </div>
                         </div>

@@ -93,7 +93,7 @@ function interpolateCapacityPrice(reserveMargin: number): number {
 /**
  * Calculate dynamic capacity price based on reserve margin impact from DC addition
  *
- * This models the "PJM Effect" where:
+ * This models the "capacity cost spillover" where:
  * 1. Large loads consume the reserve margin
  * 2. Reduced reserve margin triggers capacity price spikes via the supply curve
  * 3. Higher capacity prices are paid by ALL load (socialization)
@@ -136,7 +136,7 @@ export function calculateDynamicCapacityPrice(
     const isCritical = newReserveMargin < SUPPLY_CURVE.criticalThreshold;
 
     // Calculate socialized cost impact on existing customers
-    // This is the key "PJM Effect" - existing load now pays higher prices
+    // This is the key "capacity cost spillover" - existing load now pays higher prices
     // Existing residential MW * (NewPrice - OldPrice) * 365 days
     const residentialPeakShare = 0.35; // ~35% of peak is residential
     const existingResidentialPeakMW = systemPeakMW * residentialPeakShare;
@@ -501,7 +501,7 @@ const calculateNetResidentialImpact = (
 
     // Endogenous capacity pricing variables
     let capacityPriceResult: CapacityPriceResult | null = null;
-    let socializedCapacityCost = 0; // The "PJM Effect" cost impact
+    let socializedCapacityCost = 0; // The "capacity cost spillover" cost impact
 
     if (utility?.hasCapacityMarket) {
         // Calculate dynamic capacity price based on reserve margin impact
@@ -598,12 +598,31 @@ const calculateNetResidentialImpact = (
     // ============================================
     // REVENUE OFFSET CALCULATION
     // ============================================
-    // Energy margin flows through to benefit ratepayers
-    const energyMarginFlowThrough = utility?.marketType === 'ercot' ? 0.90 : 0.85;
+    // Energy margin flows through to benefit ratepayers, but with significant friction:
+    // - Regulated utilities: Revenue goes to utility, benefits flow through rate cases over years
+    // - ISO markets: More direct connection but still regulatory friction
+    // - ERCOT: Most direct since competitive retail, but still not 1:1
+    //
+    // CRITICAL: For small utilities (like BHE Cheyenne with 45k customers), the flow-through
+    // must account for the fact that:
+    // 1. PPA/tolling arrangements mean revenue goes to developers, not ratepayers
+    // 2. Rate cases are infrequent (every 2-5 years)
+    // 3. Utilities may retain margin as shareholder value, not rate reduction
+    //
+    // We use a conservative flow-through that scales with utility size to reflect
+    // that larger utilities have more regulatory scrutiny and cost allocation mechanisms.
+    const baseFlowThrough = utility?.marketType === 'ercot' ? 0.50 :
+                            utility?.hasCapacityMarket ? 0.40 : 0.25;
+
+    // Scale down for very small utilities where DC revenue dominates
+    // and regulatory mechanisms are less refined
+    const customerScaleFactor = Math.min(1.0, residentialCustomers / 200000);
+    const energyMarginFlowThrough = baseFlowThrough * (0.3 + 0.7 * customerScaleFactor);
 
     // NCP/Max demand charges provide fixed cost spreading benefit
     // (The DC is paying toward system costs regardless of when they use power)
-    const ncpDemandBenefit = dcRevenue.ncpDemandRevenue * 0.20;
+    // Reduced from 0.20 to 0.10 - demand charges cover utility costs, not ratepayer relief
+    const ncpDemandBenefit = dcRevenue.ncpDemandRevenue * 0.10;
 
     // Total revenue offset
     let revenueOffset = (dcRevenue.energyMargin * energyMarginFlowThrough) + ncpDemandBenefit;
@@ -635,10 +654,20 @@ const calculateNetResidentialImpact = (
     // socializedCapacityCost is added explicitly below. This avoids double-counting.
 
     // Add socialized capacity cost to the residential impact
-    // This is the "PJM Effect" - the price increase caused by the DC
+    // This is the "capacity cost spillover" - the price increase caused by the DC
     // is paid by ALL existing customers on their existing load
     const baseResidentialImpact = netAnnualImpact * adjustedAllocation;
-    const residentialImpact = baseResidentialImpact + socializedCapacityCost;
+    let residentialImpact = baseResidentialImpact + socializedCapacityCost;
+
+    // Apply floor to prevent unrealistically large bill decreases
+    // Even with ideal DC integration, bills don't drop by more than ~15% from DC revenue alone
+    // This reflects regulatory friction, utility retained earnings, and infrastructure reality
+    const maxBenefitPerCustomerAnnual = -0.15 * 12 * (utility?.averageMonthlyBill ?? 130);
+    const minResidentialImpact = maxBenefitPerCustomerAnnual * residentialCustomers;
+    if (residentialImpact < minResidentialImpact) {
+        residentialImpact = minResidentialImpact;
+    }
+
     const perCustomerMonthly = residentialImpact / residentialCustomers / 12;
 
     return {
@@ -729,9 +758,16 @@ export const calculateUnoptimizedTrajectory = (
     const firmLF = dataCenter.firmLoadFactor || 0.80;
     const firmPeakCoincidence = dataCenter.firmPeakCoincidence || 1.0;
 
-    // Auction lag: capacity market price impacts take 3 years to flow through
-    // (auction clears ~3 years ahead of delivery year)
-    const marketLag = utility.hasCapacityMarket ? 3 : 0;
+    // Auction lag: capacity market price impacts
+    // NOTE: In the current environment (2025-2026), capacity prices in PJM and other
+    // organized markets are ALREADY elevated due to data center load growth that was
+    // factored into recent auctions (2025/26: $269.92/MW-day, 2026/27 and 2027/28 at caps).
+    // New data center load coming online immediately contributes to the tight reserve
+    // margin environment. We use marketLag = 0 because:
+    // 1. Capacity prices are already high and reflect anticipated DC growth
+    // 2. New load immediately adds to the scarcity that's driving current prices
+    // 3. Retail rates are already being updated to reflect these higher capacity costs
+    const marketLag = 0;
 
     for (let year = 0; year <= years; year++) {
         let dcImpact = 0;
@@ -765,7 +801,7 @@ export const calculateUnoptimizedTrajectory = (
 
             yearMetrics = yearImpact.metrics;
 
-            // Separate socialized capacity cost (PJM Effect) from direct infrastructure costs
+            // Separate socialized capacity cost (capacity cost spillover) from direct infrastructure costs
             // Socialized cost only applies after the auction lag period
             const socializedPerCustomerMonthly = yearImpact.socializedCapacityCost / utility.residentialCustomers / 12;
             const baseImpactPerCustomerMonthly = yearImpact.perCustomerMonthly - socializedPerCustomerMonthly;
@@ -826,8 +862,8 @@ export const calculateFlexibleTrajectory = (
     const flexLF = dataCenter.flexLoadFactor || 0.95;
     const flexPeakCoincidence = dataCenter.flexPeakCoincidence || 0.75;
 
-    // Auction lag: capacity market price impacts take 3 years to flow through
-    const marketLag = utility.hasCapacityMarket ? 3 : 0;
+    // Capacity costs apply immediately - see comment in calculateUnoptimizedTrajectory
+    const marketLag = 0;
 
     for (let year = 0; year <= years; year++) {
         let dcImpact = 0;
@@ -923,8 +959,8 @@ export const calculateDispatchableTrajectory = (
     const flexPeakCoincidence = dataCenter.flexPeakCoincidence || 0.75;
     const onsiteGenMW = dataCenter.onsiteGenerationMW || dataCenter.capacityMW * 0.2;
 
-    // Auction lag: capacity market price impacts take 3 years to flow through
-    const marketLag = utility.hasCapacityMarket ? 3 : 0;
+    // Capacity costs apply immediately - see comment in calculateUnoptimizedTrajectory
+    const marketLag = 0;
 
     for (let year = 0; year <= years; year++) {
         let dcImpact = 0;

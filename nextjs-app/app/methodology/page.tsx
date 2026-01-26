@@ -104,51 +104,39 @@ export default function MethodologyPage() {
                 <h1 className="text-3xl font-bold text-slate-800 mb-4">
                     Methodology & Technical Documentation
                 </h1>
-                <p className="text-lg text-slate-600 max-w-3xl mb-4">
+                <p className="text-lg text-slate-600 max-w-3xl">
                     This calculator models how large data center loads affect residential electricity bills,
-                    with particular attention to <strong>capacity market dynamics</strong> and the "Hockey Stick"
-                    effect that can cause cost spillovers to existing ratepayers.
+                    with particular attention to <strong>capacity market dynamics</strong> and the supply curve
+                    effects that can cause cost spillovers to existing ratepayers.
                 </p>
-                <div className="flex flex-wrap gap-2 mt-4">
-                    <span className="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
-                        Endogenous Capacity Pricing
-                    </span>
-                    <span className="px-3 py-1 bg-slate-200 text-slate-700 text-sm font-medium rounded-full">
-                        3-Year Auction Lag
-                    </span>
-                    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                        Market-Specific Models
-                    </span>
-                </div>
             </div>
 
-            {/* Executive Summary Card */}
-            <div className="bg-white rounded-xl border-2 border-red-200 p-6">
+            {/* Summary Card */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
                 <div className="flex items-start gap-4">
-                    <div className="p-3 bg-red-100 rounded-lg">
-                        <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="p-3 bg-slate-100 rounded-lg">
+                        <svg className="w-6 h-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
                     <div className="flex-1">
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">Key Model Innovation: Endogenous Capacity Pricing</h2>
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">Endogenous Capacity Pricing</h2>
                         <p className="text-gray-600 mb-4">
-                            Unlike simpler models that use static capacity prices, our calculator models how capacity prices
-                            <strong> respond dynamically</strong> to changes in reserve margin. When massive data center loads
-                            consume available reserves, prices spike non-linearly—the "Hockey Stick" effect seen in
-                            PJM's 2025/26 auction where prices jumped 10x from the prior year.
+                            This calculator models how capacity prices respond dynamically to changes in reserve margin.
+                            When large data center loads consume available reserves, prices can spike non-linearly.
+                            The PJM 2025/26 auction provides a real-world example of this dynamic.
                         </p>
                         <div className="grid md:grid-cols-3 gap-4">
                             <div className="p-3 bg-gray-50 rounded-lg">
-                                <p className="text-2xl font-bold text-red-600">$269.92</p>
+                                <p className="text-2xl font-bold text-slate-700">$269.92</p>
                                 <p className="text-xs text-gray-500">PJM 2025/26 capacity price ($/MW-day)</p>
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg">
-                                <p className="text-2xl font-bold text-red-600">10x</p>
+                                <p className="text-2xl font-bold text-slate-700">10x</p>
                                 <p className="text-xs text-gray-500">Increase from prior year ($28.92)</p>
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg">
-                                <p className="text-2xl font-bold text-red-600">63%</p>
+                                <p className="text-2xl font-bold text-slate-700">63%</p>
                                 <p className="text-xs text-gray-500">Attributed to data center load growth</p>
                             </div>
                         </div>
@@ -248,12 +236,12 @@ export default function MethodologyPage() {
                         <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
                             <p className="text-sm font-semibold text-amber-900 mb-2">Capacity Market Addition (PJM/NYISO/MISO)</p>
                             <p className="text-sm text-gray-700">
-                                For utilities in organized capacity markets, we add a <strong>Socialized Capacity Cost</strong> component
-                                that captures the "PJM Effect"—when large loads consume reserve margin, capacity auction prices spike,
+                                For utilities in organized capacity markets, we add a <strong>Socialized Capacity Cost</strong> component.
+                                When large loads consume reserve margin, capacity auction prices can spike,
                                 and this price increase is paid by <em>all</em> existing customers on their existing load.
                             </p>
                             <p className="text-sm text-gray-600 mt-2">
-                                This cost is calculated using <strong>Endogenous Capacity Pricing</strong> (see dedicated section below)
+                                This cost is calculated using <strong>endogenous capacity pricing</strong> (see dedicated section below)
                                 and applies with a <strong>3-year auction lag</strong> to reflect the time between capacity auction clearing
                                 and delivery year. Direct infrastructure costs apply immediately.
                             </p>
@@ -408,20 +396,18 @@ export default function MethodologyPage() {
                     </div>
                 </Section>
 
-                {/* HOCKEY STICK SUPPLY CURVE */}
+                {/* SUPPLY CURVE */}
                 <Section
                     id="hockey-stick"
-                    title="The 'Hockey Stick' Supply Curve"
+                    title="Capacity Market Supply Curve"
                     expandedSection={expandedSection}
                     toggleSection={toggleSection}
-                    badge="Key Innovation"
-                    badgeColor="bg-red-100 text-red-800"
                 >
                     <div className="space-y-6 text-gray-600">
                         <p>
                             In organized capacity markets (PJM, NYISO, MISO), capacity prices are determined through auctions
                             that clear based on the <strong>Variable Resource Requirement (VRR) curve</strong>. This curve creates
-                            a "hockey stick" price pattern: prices are stable when reserves are abundant, but spike exponentially
+                            a non-linear price pattern: prices are stable when reserves are abundant, but spike exponentially
                             as reserve margins decline below the target level.
                         </p>
 
@@ -452,7 +438,7 @@ $1,120 |                                              * Emergency
                             </div>
                             <p className="text-sm text-gray-600 mt-4 text-center">
                                 The curve shows how capacity prices respond to changes in reserve margin.
-                                Below 15%, prices rise sharply. Below 10%, the "hockey stick" effect kicks in.
+                                Below 15%, prices rise sharply. Below 10%, prices spike exponentially.
                             </p>
                         </div>
 
@@ -528,45 +514,40 @@ $1,120 |                                              * Emergency
                     </div>
                 </Section>
 
-                {/* SOCIALIZED SCARCITY */}
+                {/* CAPACITY COST SPILLOVERS */}
                 <Section
                     id="socialized-scarcity"
-                    title="Socialized Scarcity: The 'PJM Effect'"
+                    title="Capacity Cost Spillovers to Existing Customers"
                     expandedSection={expandedSection}
                     toggleSection={toggleSection}
-                    badge="Critical Concept"
-                    badgeColor="bg-red-100 text-red-800"
                 >
                     <div className="space-y-6 text-gray-600">
                         <p>
-                            When a data center triggers a capacity price spike, the cost isn't borne by the data center alone.
+                            When a data center triggers a capacity price increase, the cost isn't borne by the data center alone.
                             The increased capacity price applies to <strong>all load in the market</strong>, meaning existing
-                            residential customers pay higher prices on their existing consumption. This is the "socialization"
-                            effect that has drawn regulatory attention in PJM and other markets.
+                            residential customers pay higher prices on their existing consumption. This spillover effect
+                            has drawn regulatory attention in organized capacity markets.
                         </p>
 
-                        {/* The PJM Effect */}
-                        <div className="border-2 border-red-200 rounded-lg p-5 bg-red-50">
-                            <h4 className="font-semibold text-red-900 mb-3 flex items-center gap-2">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                The "PJM Effect" - Price Socialization
+                        {/* PJM Case Study */}
+                        <div className="border border-amber-200 rounded-lg p-5 bg-amber-50">
+                            <h4 className="font-semibold text-amber-900 mb-3">
+                                Case Study: PJM 2025/26 Capacity Auction
                             </h4>
                             <p className="text-sm text-gray-700 mb-3">
+                                PJM's 2025/26 capacity auction illustrates how rapid load growth can affect prices for all customers.
                                 When a large data center adds to system peak, it doesn't just pay higher capacity prices for its own load—
-                                the capacity price increase affects <strong>all existing load</strong>. This "socialized" cost impact
-                                is a key mechanism by which data center growth can affect residential bills in capacity markets.
+                                the capacity price increase affects <strong>all existing load</strong>.
                             </p>
                             <div className="grid md:grid-cols-2 gap-4 mt-4">
                                 <div className="bg-white rounded-lg p-3">
-                                    <p className="font-semibold text-red-800 text-sm mb-1">PJM 2025/26 Auction</p>
-                                    <p className="text-2xl font-bold text-red-600">$269.92/MW-day</p>
-                                    <p className="text-xs text-gray-600">Cleared at 10x previous year prices</p>
+                                    <p className="font-semibold text-amber-800 text-sm mb-1">2025/26 Auction Result</p>
+                                    <p className="text-2xl font-bold text-slate-700">$269.92/MW-day</p>
+                                    <p className="text-xs text-gray-600">Up from $28.92 the prior year</p>
                                 </div>
                                 <div className="bg-white rounded-lg p-3">
-                                    <p className="font-semibold text-red-800 text-sm mb-1">Data Center Attribution</p>
-                                    <p className="text-2xl font-bold text-red-600">63%</p>
+                                    <p className="font-semibold text-amber-800 text-sm mb-1">Data Center Attribution</p>
+                                    <p className="text-2xl font-bold text-slate-700">63%</p>
                                     <p className="text-xs text-gray-600">Of price increase attributed to DC load growth</p>
                                 </div>
                             </div>
@@ -626,51 +607,29 @@ $1,120 |                                              * Emergency
                 {/* AUCTION LAG */}
                 <Section
                     id="auction-lag"
-                    title="The 3-Year Auction Lag"
+                    title="Capacity Auction Timing and Rate Impacts"
                     expandedSection={expandedSection}
                     toggleSection={toggleSection}
-                    badge="Timing Model"
-                    badgeColor="bg-blue-100 text-blue-800"
                 >
                     <div className="space-y-6 text-gray-600">
                         <p>
-                            In PJM and other organized capacity markets, the <strong>Base Residual Auction (BRA)</strong> clears
-                            approximately 3 years before the delivery year. This means capacity price impacts from new load
-                            don't affect ratepayer bills immediately—there's a lag between when load connects and when the
-                            socialized cost flows through.
+                            In PJM and other organized capacity markets, the <strong>Base Residual Auction (BRA)</strong> historically
+                            cleared approximately 3 years before the delivery year. However, recent schedule changes and accelerated
+                            proceedings have compressed this timeline significantly.
                         </p>
 
-                        {/* Timeline */}
-                        <div className="border-2 border-blue-200 rounded-lg p-6 bg-blue-50">
-                            <h4 className="font-semibold text-blue-900 mb-4 text-center">Capacity Cost Timeline</h4>
-                            <div className="relative">
-                                <div className="h-2 bg-blue-200 rounded-full mb-8"></div>
-                                <div className="grid grid-cols-4 gap-2 text-center">
-                                    <div>
-                                        <div className="w-4 h-4 bg-gray-400 rounded-full mx-auto -mt-11 mb-4 ring-4 ring-blue-50"></div>
-                                        <p className="font-semibold text-gray-900">Year 0</p>
-                                        <p className="text-xs text-gray-600 mt-1">DC announces project</p>
-                                    </div>
-                                    <div>
-                                        <div className="w-4 h-4 bg-amber-500 rounded-full mx-auto -mt-11 mb-4 ring-4 ring-blue-50"></div>
-                                        <p className="font-semibold text-gray-900">Year 2</p>
-                                        <p className="text-xs text-gray-600 mt-1">DC comes online</p>
-                                        <p className="text-xs text-amber-600 font-medium">Direct costs begin</p>
-                                    </div>
-                                    <div>
-                                        <div className="w-4 h-4 bg-blue-500 rounded-full mx-auto -mt-11 mb-4 ring-4 ring-blue-50"></div>
-                                        <p className="font-semibold text-gray-900">Year 2-3</p>
-                                        <p className="text-xs text-gray-600 mt-1">BRA reflects new load</p>
-                                        <p className="text-xs text-blue-600 font-medium">Auction clears</p>
-                                    </div>
-                                    <div>
-                                        <div className="w-4 h-4 bg-red-500 rounded-full mx-auto -mt-11 mb-4 ring-4 ring-blue-50"></div>
-                                        <p className="font-semibold text-gray-900">Year 5+</p>
-                                        <p className="text-xs text-gray-600 mt-1">Delivery year</p>
-                                        <p className="text-xs text-red-600 font-medium">Socialized costs hit bills</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                            <h4 className="font-semibold text-amber-900 mb-2">Recent PJM Auction Timeline (Actual)</h4>
+                            <ul className="text-sm text-gray-700 space-y-1">
+                                <li>• <strong>2025/26 delivery year:</strong> Auction held July 2024 (11 months ahead)</li>
+                                <li>• <strong>2026/27 delivery year:</strong> Auction held July 2025 (11 months ahead)</li>
+                                <li>• <strong>2027/28 delivery year:</strong> Auction held December 2025 (18 months ahead)</li>
+                            </ul>
+                            <p className="text-sm text-amber-800 mt-3">
+                                Because data center load growth was already factored into these recent auctions, capacity costs
+                                are already elevated and flowing through to customer bills. Our model uses a <strong>1-year lag</strong> to
+                                reflect the time for retail rates to be updated, rather than the traditional 3-year forward assumption.
+                            </p>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-4">
@@ -682,18 +641,18 @@ $1,120 |                                              * Emergency
                                     <li>- Interconnection costs</li>
                                 </ul>
                                 <p className="text-xs text-amber-800 mt-2 font-medium">
-                                    Apply when data center connects (Year 2)
+                                    Apply when data center connects
                                 </p>
                             </div>
-                            <div className="border border-red-200 rounded-lg p-4 bg-red-50">
-                                <h4 className="font-semibold text-red-900 mb-2">Socialized Costs (3-Year Lag)</h4>
+                            <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
+                                <h4 className="font-semibold text-slate-900 mb-2">Capacity Costs (1-Year Lag)</h4>
                                 <ul className="text-sm text-gray-700 space-y-1">
-                                    <li>- Capacity auction price increase</li>
+                                    <li>- Capacity auction price impacts</li>
                                     <li>- Applied to all existing load</li>
-                                    <li>- Flows through retail rates</li>
+                                    <li>- Flows through retail rate updates</li>
                                 </ul>
-                                <p className="text-xs text-red-800 mt-2 font-medium">
-                                    Apply ~3 years after connection (Year 5+)
+                                <p className="text-xs text-slate-700 mt-2 font-medium">
+                                    Apply ~1 year after connection
                                 </p>
                             </div>
                         </div>
@@ -702,11 +661,11 @@ $1,120 |                                              * Emergency
                             <p className="text-sm font-semibold text-gray-900 mb-2">Model Implementation</p>
                             <div className="mt-3 font-mono text-xs bg-white p-3 rounded overflow-x-auto">
                                 <p className="text-gray-500">// In trajectory calculations:</p>
-                                <p>const marketLag = utility.hasCapacityMarket ? 3 : 0;</p>
+                                <p>const marketLag = utility.hasCapacityMarket ? 1 : 0;</p>
                                 <p className="mt-2">// Direct costs apply immediately</p>
                                 <p>if (yearsOnline &gt;= 0) applyDirectCosts();</p>
-                                <p className="mt-2">// Socialized costs apply after lag</p>
-                                <p>if (yearsOnline &gt;= marketLag) applySocializedCosts();</p>
+                                <p className="mt-2">// Capacity cost spillovers apply after lag</p>
+                                <p>if (yearsOnline &gt;= marketLag) applyCapacityCosts();</p>
                             </div>
                         </div>
                     </div>
@@ -1409,8 +1368,8 @@ $1,120 |                                              * Emergency
                                 </ul>
                                 <p className="text-xs text-gray-500 mt-3">
                                     <strong>Note:</strong> For capacity markets (PJM/NYISO/MISO), socialized capacity costs are calculated
-                                    separately via the <em>Endogenous Capacity Pricing</em> model and added to the residential impact.
-                                    This avoids double-counting while accurately capturing the "PJM Effect."
+                                    separately via the endogenous capacity pricing model and added to the residential impact.
+                                    This avoids double-counting while accurately capturing capacity cost spillovers.
                                 </p>
                             </div>
                             <p className="mt-3 text-sm text-gray-600">

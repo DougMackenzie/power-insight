@@ -186,15 +186,8 @@ function USDataCenterHeatMap({ className = '' }: USDataCenterHeatMapProps) {
           </div>
         </div>
 
-        {/* Key callouts */}
-        <div className="flex flex-wrap justify-center gap-4 text-xs">
-          <span className="text-slate-700 font-semibold bg-slate-200 px-2 py-1 rounded">TX: Highest requests</span>
-          <span className="text-slate-700 font-semibold bg-slate-200 px-2 py-1 rounded">VA: Data center capital</span>
-          <span className="text-slate-700 font-semibold bg-slate-200 px-2 py-1 rounded">GA, PA, NC: Growing hubs</span>
-        </div>
-
         {/* Source */}
-        <p className="mt-4 text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-slate-500">
           Data: Utility interconnection queue requests (SemiAnalysis)
         </p>
       </div>

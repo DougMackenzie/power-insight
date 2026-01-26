@@ -74,8 +74,8 @@ export interface WorkloadType {
 
 // ============================================
 // SUPPLY CURVE FOR ENDOGENOUS CAPACITY PRICING
-// Models "Hockey Stick" dynamics where large loads consume reserve margin
-// and trigger exponential price spikes (the "PJM Effect")
+// Models non-linear dynamics where large loads consume reserve margin
+// and trigger exponential price spikes in capacity markets
 // ============================================
 
 export interface SupplyCurveSlope {
