@@ -19,7 +19,7 @@ const Navigation = () => {
 
     const navLinks = [
         { href: '/', label: 'Home' },
-        { href: '/story', label: 'The Story' },
+        { href: '/story', label: 'AI Energy Explorer' },
         { href: '/calculator', label: 'Calculator' },
         { href: '/energy-view', label: 'Energy View' },
         { href: '/learn-more', label: 'Learn More' },
