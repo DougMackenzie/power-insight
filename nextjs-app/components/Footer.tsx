@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 
-const SITE_URL = 'https://community-energy.dev';
+const SITE_URL = 'https://power-insight.org';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -31,7 +31,7 @@ const Footer = () => {
                                 </svg>
                             </div>
                             <span className="font-display font-bold text-gray-900 text-lg">
-                                Community Energy Calculator
+                                Power Insight
                             </span>
                         </div>
                         <p className="text-gray-600 mb-4 max-w-md">
@@ -154,7 +154,7 @@ const Footer = () => {
                 <div className="mt-12 pt-8 border-t border-gray-200">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-sm text-gray-500">
-                            © {currentYear} Community Energy Calculator. Open source under MIT License.
+                            © {currentYear} Power Insight. Open source under MIT License.
                         </p>
                         <p className="text-sm text-gray-500 text-center md:text-right">
                             Built for communities. Not affiliated with any data center company or utility.

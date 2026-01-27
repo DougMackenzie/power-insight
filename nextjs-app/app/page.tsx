@@ -31,7 +31,7 @@ export default function HomePage() {
           <div className="max-w-4xl">
             <div className="mb-6">
               <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-amber-300 text-sm font-medium border border-white/10">
-                Community Energy Calculator
+                Power Insight — Take Charge of Your Energy Future
               </span>
             </div>
 

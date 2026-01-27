@@ -53,7 +53,7 @@ const Navigation = () => {
                             </svg>
                         </div>
                         <span className="font-display font-bold text-gray-900 text-lg hidden sm:inline">
-                            Community Energy
+                            Power Insight
                         </span>
                     </Link>
 

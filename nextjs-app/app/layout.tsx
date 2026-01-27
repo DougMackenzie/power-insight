@@ -19,28 +19,28 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Community Energy Calculator - Data Center Impact Analysis',
+  title: 'Power Insight - Take Charge of Your Energy Future',
   description:
-    'Understand how data center development impacts your electric bill. Free, open-source tool for homeowners and community leaders to evaluate ratepayer benefits.',
+    'Understand how data center development impacts your electric bill. Free, open-source tool for individuals and community leaders to evaluate ratepayer impacts.',
   keywords: [
     'data center',
     'electricity costs',
     'ratepayer impact',
-    'community energy',
+    'power insight',
     'electric bill calculator',
     'demand response',
     'grid flexibility',
   ],
-  authors: [{ name: 'Community Energy Calculator Contributors' }],
+  authors: [{ name: 'Power Insight Contributors' }],
   openGraph: {
-    title: 'Community Energy Calculator - Data Center Impact Analysis',
+    title: 'Power Insight - Take Charge of Your Energy Future',
     description: 'Understand how data center development impacts your electric bill',
     type: 'website',
-    siteName: 'Community Energy Calculator',
+    siteName: 'Power Insight',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Community Energy Calculator',
+    title: 'Power Insight',
     description: 'Understand data center impact on your electric bill',
   },
   robots: {

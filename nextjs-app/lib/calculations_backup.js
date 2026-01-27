@@ -1,5 +1,5 @@
 /**
- * Community Energy Cost Calculator - Calculation Engine
+ * Power Insight - Calculation Engine
  *
  * Based on the original research framework + EPRI DCFlex 2024 validation:
  * - FIRM scenario: 4 GW of DC at 80% LF, 100% adds to peak

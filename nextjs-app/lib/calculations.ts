@@ -1,5 +1,5 @@
 /**
- * Community Energy Cost Calculator - Calculation Engine (TypeScript)
+ * Power Insight - Calculation Engine (TypeScript)
  *
  * Core calculation logic migrated from React app with TypeScript types
  */

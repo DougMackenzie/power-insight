@@ -1,5 +1,5 @@
 /**
- * Community Energy Cost Calculator - Constants and Default Values
+ * Power Insight - Constants and Default Values
  *
  * TypeScript version migrated from original React app
  */
