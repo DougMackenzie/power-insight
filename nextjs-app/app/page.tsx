@@ -31,7 +31,7 @@ export default function HomePage() {
           <div className="max-w-4xl">
             <div className="mb-6">
               <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-amber-300 text-sm font-medium border border-white/10">
-                Power Insight — Take Charge of Your Energy Future
+                Power Insight — Open Data for Smarter Energy Decisions
               </span>
             </div>
 
@@ -42,9 +42,9 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="text-xl text-slate-300 mb-8 leading-relaxed max-w-3xl">
-              The public needs to understand how the rapid expansion of data centers impacts
-              electricity costs. Individuals and community leaders can use this website to get
-              the real numbers and advocate for responsible development and policy.
+              New data centers are reshaping our energy landscape. With the right policies, this
+              growth can mean lower bills, a more reliable grid, and breakthroughs in science and
+              medicine. Explore the data and help shape better outcomes for your community.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -60,6 +60,27 @@ export default function HomePage() {
                 See Our Data Sources
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why This Matters */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-4">
+        <div className="bg-gradient-to-br from-emerald-50 to-slate-50 rounded-2xl p-8 md:p-10 border border-emerald-100">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">
+              Energy Growth Has Always Driven Progress
+            </h2>
+            <p className="text-slate-600 leading-relaxed mb-4">
+              From electrification to the internet, new demands on our energy system have preceded
+              breakthroughs that improved daily life. AI-powered data centers are accelerating research
+              in medicine, materials science, and clean energy itself.
+            </p>
+            <p className="text-slate-600 leading-relaxed">
+              The question isn't whether to build — it's <strong className="text-slate-800">how to build responsibly</strong> so
+              that communities benefit and household bills stay affordable. This site gives you the
+              real numbers so you can be part of that conversation.
+            </p>
           </div>
         </div>
       </section>
@@ -119,7 +140,7 @@ export default function HomePage() {
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
-              Household Costs
+              What This Means for Your Electric Bill
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
               One large data center campus uses as much power as <strong className="text-slate-800">300,000 homes</strong>. Here's how costs flow to your bill.
@@ -186,11 +207,11 @@ export default function HomePage() {
                     <circle cx="12" cy="12" r="9" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-green-700 mb-2">Best Case Scenario</p>
+                <p className="text-sm font-medium text-green-700 mb-2">Well-Managed Growth</p>
                 <p className="text-3xl font-bold text-green-700 mb-2">-$5 to $0</p>
                 <p className="text-xs text-slate-600">per month change</p>
                 <p className="text-xs text-slate-500 mt-3 italic">
-                  Flexible data centers in markets with cost control policies
+                  When data centers pay their fair share and operate flexibly, they add revenue to the grid — which can reduce costs for households
                 </p>
               </div>
 
@@ -201,18 +222,18 @@ export default function HomePage() {
                     <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-red-700 mb-2">Worst Case Scenario</p>
+                <p className="text-sm font-medium text-red-700 mb-2">Poorly Managed Growth</p>
                 <p className="text-3xl font-bold text-red-700 mb-2">+$20 to $35</p>
                 <p className="text-xs text-slate-600">per month increase</p>
                 <p className="text-xs text-slate-500 mt-3 italic">
-                  Rapid growth in markets without proper cost allocation and protections
+                  Rapid growth without proper cost allocation or operational requirements
                 </p>
               </div>
             </div>
 
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
               <p className="text-sm text-slate-700">
-                <strong className="text-amber-800">The right policies and operational requirements are critical</strong> to ensuring individual households aren't covering the cost of data center development.
+                <strong className="text-amber-800">The difference between these outcomes comes down to policy and operational design</strong> — and communities have a voice in both.
               </p>
             </div>
           </div>
@@ -233,10 +254,10 @@ export default function HomePage() {
               </svg>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">The Path Forward: Fair Rates and Flexible Operations</h2>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">How Responsible Development Lowers Your Bills</h2>
               <p className="text-slate-600">
-                The good news: data center growth doesn't have to mean higher bills for you. With the right policies
-                and smart operations, large industrial loads can actually benefit communities. Here's what matters most.
+                When data centers are built with proper cost allocation and flexible operations, they bring new
+                revenue to the grid, fund infrastructure upgrades, and can reduce what households pay. Here's how that works.
               </p>
             </div>
           </div>
@@ -248,8 +269,9 @@ export default function HomePage() {
               <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
                 <h4 className="font-semibold text-slate-700 mb-3">Fair Cost Allocation Through Good Policy</h4>
                 <p className="text-slate-600 text-sm mb-3">
-                  New large electricity users like data centers require new power plants and transmission lines.
-                  <strong className="text-slate-800"> The critical question is: who pays for this new infrastructure?</strong>
+                  A single large data center can contribute tens of millions in annual grid payments — revenue
+                  that offsets costs for all ratepayers when allocated properly.
+                  <strong className="text-slate-800"> The critical question is: who pays for new infrastructure?</strong>
                 </p>
                 <ul className="space-y-2 text-slate-600 text-sm">
                   <li className="flex items-start gap-2">
