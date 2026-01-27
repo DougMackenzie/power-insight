@@ -21,25 +21,33 @@ interface MicroView3DProps {
 
 // GPU POSITIONING CONSTANTS
 // The rack is 2.0 units tall centered at Y=1.0 (so Y=0 to Y=2.0)
-// GPUs are arranged in 8 rows inside the rack
-// We position the main GPU at row 3 (middle-ish) so it's clearly visible inside the rack
+// GPUs are arranged in 8 rows × 9 columns inside the rack
+// We position the main GPU at row 3, col 4 (center-ish) so it's clearly visible inside the rack
 const RACK_GPU_START_Y = 0.25;      // First row Y position (inside rack)
 const RACK_GPU_ROW_SPACING = 0.20;  // Spacing between rows
-const MAIN_GPU_ROW = 3;             // Which row the detailed GPU aligns with
+const RACK_GPU_COL_START_X = -0.22; // First column X position
+const RACK_GPU_COL_SPACING = 0.055; // Spacing between columns
+const MAIN_GPU_ROW = 3;             // Which row the detailed GPU aligns with (0-indexed)
+const MAIN_GPU_COL = 4;             // Center column (0-indexed, col 4 = center)
 const MAIN_GPU_Y = RACK_GPU_START_Y + MAIN_GPU_ROW * RACK_GPU_ROW_SPACING; // = 0.85
+const MAIN_GPU_X = RACK_GPU_COL_START_X + MAIN_GPU_COL * RACK_GPU_COL_SPACING; // = 0 (center)
+
+// GPU sizing
+const RACK_GPU_PACKAGE_SIZE = 0.045; // Size of GPU package in rack
+const DETAIL_GPU_SCALE = 0.12;       // Scale for detailed close-up view (larger for visibility)
 
 const cameraConfig: Record<string, {
     position: [number, number, number];
     target: [number, number, number];
     zoom: number;
+    gpuScale: number; // Scale factor for main GPU at this zoom level
 }> = {
-    // Pure Z-axis dolly: camera moves along [1, 0.6, 1] normalized direction
-    // Target stays at main GPU height for chip view, rack center for rack view
-    'chip-glow': { position: [0.8, 0.9, 0.8], target: [0, MAIN_GPU_Y, 0], zoom: 550 },
-    'rack-zoom': { position: [3, 2.0, 3], target: [0, 1.0, 0], zoom: 100 },
-    'pod-zoom': { position: [18, 10.8, 18], target: [0, 1.0, 0], zoom: 28 },
-    'building-iso': { position: [80, 48, 80], target: [0, 1.0, 0], zoom: 5 },
-    'campus-grid': { position: [400, 240, 400], target: [0, 1.0, 0], zoom: 0.9 },
+    // GPU scale animates from large (detail) to small (fits in rack slot)
+    'chip-glow': { position: [0.8, 0.9, 0.8], target: [0, MAIN_GPU_Y, 0], zoom: 550, gpuScale: DETAIL_GPU_SCALE },
+    'rack-zoom': { position: [3, 2.0, 3], target: [0, 1.0, 0], zoom: 100, gpuScale: RACK_GPU_PACKAGE_SIZE },
+    'pod-zoom': { position: [18, 10.8, 18], target: [0, 1.0, 0], zoom: 28, gpuScale: RACK_GPU_PACKAGE_SIZE },
+    'building-iso': { position: [80, 48, 80], target: [0, 1.0, 0], zoom: 5, gpuScale: RACK_GPU_PACKAGE_SIZE },
+    'campus-grid': { position: [400, 240, 400], target: [0, 1.0, 0], zoom: 0.9, gpuScale: RACK_GPU_PACKAGE_SIZE },
 };
 
 const scaleOrder = ['chip-glow', 'rack-zoom', 'pod-zoom', 'building-iso', 'campus-grid'];
@@ -203,8 +211,8 @@ function ContinuousScene({ visualState }: { visualState: string }) {
             <pointLight position={[0, 5, 0]} intensity={0.8} color="#f0c040" />
             <pointLight position={[-20, 30, -20]} intensity={0.3} color="#88c4c8" />
 
-            {/* GPU Chip - always visible at origin */}
-            <RubinGPU />
+            {/* GPU Chip - always visible, scales down to fit in rack slot */}
+            <RubinGPU visualState={visualState} />
 
             {/* Server Rack - visible from rack-zoom onwards */}
             {showRack && <FadeInGroup delay={0}><VeraRubinRack /></FadeInGroup>}
@@ -262,7 +270,7 @@ function FadeInGroup({ children, delay = 0 }: { children: React.ReactNode; delay
 }
 
 /**
- * NVIDIA Rubin GPU - Detailed isometric view
+ * NVIDIA Rubin GPU - Detailed isometric view with animated scale
  * Based on NVIDIA Rubin architecture (2025+):
  * - 336 billion transistors
  * - Two reticle-limit dies (Rubin Ultra)
@@ -274,38 +282,44 @@ function FadeInGroup({ children, delay = 0 }: { children: React.ReactNode; delay
  * - Package: ~100mm × 100mm
  * - Total height with heatsink: ~40mm
  *
- * SCALE: GPU is sized to exactly match rack GPU position at center
- * The main GPU position aligns with rack GPU at row 0 (bottom), col 4 (center)
- * When zooming out, it should seamlessly become one of the rack GPUs
+ * SCALE ANIMATION: GPU starts large for detail visibility in chip-glow view,
+ * then smoothly scales down to fit exactly in the rack GPU slot when zooming out.
+ * Position is fixed at the exact rack GPU slot location [MAIN_GPU_X, MAIN_GPU_Y, 0]
  *
  * NYT STYLE: White/cream colors with yellow/gold accents on slate-blue background
  */
-
-// Scale of GPU package in rack units - used for both main GPU and rack GPUs
-const GPU_PACKAGE_SIZE = 0.045;
-
-function RubinGPU() {
+function RubinGPU({ visualState }: { visualState: string }) {
     const glowRef = useRef<THREE.Mesh>(null);
     const chipRef = useRef<THREE.Group>(null);
+    const targetScaleRef = useRef(DETAIL_GPU_SCALE);
 
-    useFrame((state) => {
+    // Update target scale when visualState changes
+    useEffect(() => {
+        const config = cameraConfig[visualState] || cameraConfig['chip-glow'];
+        targetScaleRef.current = config.gpuScale;
+    }, [visualState]);
+
+    useFrame((state, delta) => {
         if (glowRef.current) {
             const mat = glowRef.current.material as THREE.MeshBasicMaterial;
             mat.opacity = 0.6 + Math.sin(state.clock.elapsedTime * 2.5) * 0.3;
         }
         if (chipRef.current) {
-            // Subtle floating animation - small enough to not break alignment
-            chipRef.current.position.y = MAIN_GPU_Y + Math.sin(state.clock.elapsedTime * 1.5) * 0.002;
+            // Subtle floating animation - only when close up
+            const currentScale = chipRef.current.scale.x;
+            const isCloseUp = currentScale > RACK_GPU_PACKAGE_SIZE * 1.5;
+            const floatAmount = isCloseUp ? Math.sin(state.clock.elapsedTime * 1.5) * 0.002 : 0;
+            chipRef.current.position.y = MAIN_GPU_Y + floatAmount;
+
+            // Smoothly animate scale toward target
+            const newScale = THREE.MathUtils.lerp(currentScale, targetScaleRef.current, delta * 2.0);
+            chipRef.current.scale.setScalar(newScale);
         }
     });
 
-    // Scale factor: matches the rack GPU package size but larger for detail visibility
-    // We use 2x scale for the detailed view, which provides good visual detail while
-    // maintaining proportional correctness during the zoom transition
-    const scale = GPU_PACKAGE_SIZE * 2; // 0.09 units
-
     return (
-        <group ref={chipRef} position={[0, MAIN_GPU_Y, 0]} scale={[scale, scale, scale]}>
+        // Position GPU at exact rack slot location - it will scale to fit
+        <group ref={chipRef} position={[MAIN_GPU_X, MAIN_GPU_Y, 0]} scale={[DETAIL_GPU_SCALE, DETAIL_GPU_SCALE, DETAIL_GPU_SCALE]}>
             {/* Glow base effect - YELLOW/GOLD (NYT particle style) */}
             <mesh ref={glowRef} position={[0, -0.3, 0]}>
                 <boxGeometry args={[14, 0.2, 14]} />
@@ -440,16 +454,20 @@ function VeraRubinRack() {
 
     // GPU arrangement: 72 GPUs in 8 rows × 9 columns (Vera Rubin NVL72 spec)
     // Rack frame: 2.0 units tall centered at Y=1.0 (Y range: 0 to 2.0)
-    // GPUs positioned inside rack with proper spacing
-    // Main detailed GPU aligns with row MAIN_GPU_ROW (3), center column (4)
-    const gpuPositions: [number, number, number][] = [];
+    // GPUs positioned inside rack with proper spacing using shared constants
+    // Main detailed GPU (RubinGPU) occupies row MAIN_GPU_ROW, col MAIN_GPU_COL
+    const gpuPositions: { pos: [number, number, number]; row: number; col: number }[] = [];
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 9; col++) {
-            gpuPositions.push([
-                -0.22 + col * 0.055,              // X: spread across width, col 4 = center = 0
-                RACK_GPU_START_Y + row * RACK_GPU_ROW_SPACING,  // Y: inside rack
-                0                                  // Z: centered front-to-back
-            ]);
+            gpuPositions.push({
+                pos: [
+                    RACK_GPU_COL_START_X + col * RACK_GPU_COL_SPACING,  // X: uses shared constants
+                    RACK_GPU_START_Y + row * RACK_GPU_ROW_SPACING,       // Y: inside rack
+                    0                                                     // Z: centered front-to-back
+                ],
+                row,
+                col
+            });
         }
     }
 
@@ -491,12 +509,13 @@ function VeraRubinRack() {
             </mesh>
 
             {/* 72 GPU dies arranged in grid - VISIBLE through front panel */}
-            {gpuPositions.map((pos, i) => {
-                // Highlight the GPU that matches the main detailed GPU position
-                // Main GPU is at row MAIN_GPU_ROW (3), center column (4)
-                const row = Math.floor(i / 9);
-                const col = i % 9;
-                const isMainGPU = row === MAIN_GPU_ROW && col === 4;
+            {/* Skip the slot where the main detailed RubinGPU sits to avoid z-fighting */}
+            {gpuPositions.map(({ pos, row, col }, i) => {
+                // The main detailed GPU (RubinGPU) occupies this slot
+                const isMainGPUSlot = row === MAIN_GPU_ROW && col === MAIN_GPU_COL;
+                // Skip rendering this slot - the animated RubinGPU will fill it
+                if (isMainGPUSlot) return null;
+
                 return (
                     <group key={i} position={pos}>
                         {/* GPU package - WHITE/CREAM */}
@@ -508,13 +527,13 @@ function VeraRubinRack() {
                                 roughness={0.3}
                             />
                         </mesh>
-                        {/* GPU die with glow - YELLOW/GOLD for main, dimmer yellow for others */}
+                        {/* GPU die with glow - YELLOW/GOLD */}
                         <mesh position={[0, 0.02, 0.024]}>
                             <boxGeometry args={[0.025, 0.06, 0.002]} />
                             <meshStandardMaterial
                                 color={NYT_COLORS.accentYellow}
                                 emissive={NYT_COLORS.accentYellow}
-                                emissiveIntensity={isMainGPU ? 1.5 : 0.4}
+                                emissiveIntensity={0.4}
                             />
                         </mesh>
                         {/* HBM stacks - white */}
