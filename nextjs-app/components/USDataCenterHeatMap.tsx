@@ -186,10 +186,7 @@ function USDataCenterHeatMap({ className = '' }: USDataCenterHeatMapProps) {
           </div>
         </div>
 
-        {/* Source */}
-        <p className="text-center text-xs text-slate-500">
-          Data: Utility interconnection queue requests (SemiAnalysis)
-        </p>
+        {/* Source removed - SemiAnalysis credited in page-level sources */}
       </div>
     </div>
   );

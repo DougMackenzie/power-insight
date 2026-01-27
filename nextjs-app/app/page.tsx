@@ -131,7 +131,8 @@ export default function HomePage() {
             <a href="https://www.energy.gov/articles/doe-releases-new-report-evaluating-increase-electricity-demand-data-centers" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">U.S. DOE</a>,
             <a href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">Grid Strategies</a>,
             <a href="https://www.epri.com/about/media-resources/press-release/q5vu86fr8tkxatfx8ihf1u48vw4r1dzf" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">EPRI</a>,
-            <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">LBNL Queued Up</a>.
+            <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">LBNL Queued Up</a>,
+            <a href="https://newsletter.semianalysis.com/p/how-ai-labs-are-solving-the-power" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">SemiAnalysis</a>.
           </p>
         </div>
       </section>
