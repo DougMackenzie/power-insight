@@ -205,13 +205,13 @@ export const steps: StoryStep[] = [
         mode: 'map',
         // Pull way back to see full US - level view
         location: { lng: -96.00, lat: 38.50, zoom: 4, pitch: 0, bearing: 0 },
-        title: "The National Picture: 150 GW by 2035",
-        text: "U.S. data centers consumed 176 TWh in 2023—about 4.4% of national electricity. By 2035, AI and cloud computing demand is projected to drive total capacity to 150+ GW, requiring 100+ GW of new generation. How we structure rates and incentivize flexibility today determines whether this growth benefits or burdens residential ratepayers.",
-        subtext: "Meeting this demand will require a mix of nuclear restarts and SMRs, new gas plants, and massive renewable buildout. Flexible data center operation could defer $50+ billion in grid upgrades while enabling faster deployment.",
+        title: "The National Picture: 100–150 GW by 2035",
+        text: "U.S. data centers consumed 176 TWh in 2023—about 4.4% of national electricity. By 2030, data centers are projected to add 50–65 GW of new demand. By 2035, total capacity could reach 100–150 GW depending on AI adoption rates. How we structure rates and incentivize flexibility today determines whether this growth benefits or burdens residential ratepayers.",
+        subtext: "Meeting this demand will require a mix of nuclear restarts and SMRs, new gas plants, and massive renewable buildout. Flexible data center operation could defer $50+ billion in grid upgrades while enabling faster deployment. Sources: LBNL, DOE, EPRI, BloombergNEF, Grid Strategies.",
         powerMetric: {
-            value: "150+",
+            value: "100–150",
             unit: "GW by 2035",
-            comparison: "6x growth from 2024"
+            comparison: "4–6x growth from 2024"
         },
         region: {
             name: 'United States',
@@ -276,16 +276,20 @@ export const powerPlantTypes = {
     wind: { avgCapacityMW: 150, color: '#34D399', icon: 'wind' },
 };
 
-// Growth projection data (for animation) - Extended to 2035 for 150+ GW
+// Growth projection data (for animation)
+// Sources: LBNL 2024, DOE, EPRI, BloombergNEF (Dec 2025), Grid Strategies 2025
+// 2024 baseline: ~25 GW operating (LBNL). 2030: ~75-90 GW (DOE/Grid Strategies).
+// 2035: 100-150 GW range (BNEF conservative: 106 GW; high-end estimates: 150 GW).
+// percentOfUS based on EPRI 6-9% by 2030, BNEF 8.6% by 2035.
 export const growthProjection = {
     2024: { totalGW: 25, novaGW: 4.9, percentOfUS: 4.4 },
-    2025: { totalGW: 30, novaGW: 5.6, percentOfUS: 5.2 },
-    2026: { totalGW: 38, novaGW: 6.5, percentOfUS: 6.5 },
-    2028: { totalGW: 55, novaGW: 8.5, percentOfUS: 8.5 },
-    2030: { totalGW: 80, novaGW: 13.8, percentOfUS: 12.0 },
-    2032: { totalGW: 110, novaGW: 18.0, percentOfUS: 15.5 },
-    2034: { totalGW: 135, novaGW: 22.0, percentOfUS: 18.0 },
-    2035: { totalGW: 155, novaGW: 25.0, percentOfUS: 20.0 },
+    2025: { totalGW: 32, novaGW: 5.6, percentOfUS: 5.0 },
+    2026: { totalGW: 40, novaGW: 6.5, percentOfUS: 5.8 },
+    2028: { totalGW: 55, novaGW: 8.5, percentOfUS: 7.0 },
+    2030: { totalGW: 75, novaGW: 12.0, percentOfUS: 8.5 },
+    2032: { totalGW: 90, novaGW: 15.0, percentOfUS: 9.5 },
+    2034: { totalGW: 100, novaGW: 18.0, percentOfUS: 10.5 },
+    2035: { totalGW: 106, novaGW: 20.0, percentOfUS: 11.0 },
 };
 
 // Color mapping for market types

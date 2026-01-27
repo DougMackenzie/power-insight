@@ -94,16 +94,16 @@ export default function HomePage() {
 
           <div className="space-y-4 text-slate-600 leading-relaxed mb-8">
             <p>
-              Today, data centers make up about <strong className="text-slate-800">4% of total U.S. electricity
-              consumption</strong>. By 2030, this share is projected to reach <strong className="text-slate-800">6 to 9%</strong> —
-              that's equivalent to building approximately <strong className="text-slate-800">100 nuclear power plants</strong> or
-              100 GW of new power generation capacity.
+              Today, data centers make up about <strong className="text-slate-800">4.4% of total U.S. electricity
+              consumption</strong> (176 TWh in 2023). By 2030, this share is projected to reach <strong className="text-slate-800">6 to 9%</strong>,
+              adding an estimated <strong className="text-slate-800">50 to 65 GW</strong> of new electricity demand — equivalent
+              to building 50 to 65 nuclear power plants.
             </p>
             <p>
               This growth, driven by the AI revolution, has led to a backlog of power demand. U.S.
-              utilities around the country have received requests for <strong className="text-slate-800">1,000 GW of power</strong>.
-              This massive demand creates a supply-constrained market where there isn't enough power
-              to meet all of these requests.
+              utilities have received interconnection requests totaling over <strong className="text-slate-800">1,000 GW</strong> —
+              though historically only about 13% of such requests reach commercial operation. Even so,
+              the scale creates a supply-constrained market where infrastructure planning is critical.
             </p>
           </div>
 
@@ -130,7 +130,8 @@ export default function HomePage() {
             Sources: <a href="https://eta.lbl.gov/publications/2024-lbnl-data-center-energy-usage-report" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline">LBNL 2024 Report</a>,
             <a href="https://www.energy.gov/articles/doe-releases-new-report-evaluating-increase-electricity-demand-data-centers" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">U.S. DOE</a>,
             <a href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">Grid Strategies</a>,
-            <a href="https://semianalysis.com/" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">SemiAnalysis</a>.
+            <a href="https://www.epri.com/about/media-resources/press-release/q5vu86fr8tkxatfx8ihf1u48vw4r1dzf" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">EPRI</a>,
+            <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-800 underline ml-1">LBNL Queued Up</a>.
           </p>
         </div>
       </section>

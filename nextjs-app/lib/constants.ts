@@ -404,28 +404,38 @@ export const formatMW = (value: number): string => {
 
 export const NATIONAL_DC_STATS = {
     // Current state (2024-2025)
-    currentCapacityGW: 50,
-    currentElectricityShare: 0.044, // 4.4%
-    currentTWh: 176, // 2023 consumption
+    // Source: LBNL 2024 Data Center Energy Usage Report
+    currentCapacityGW: 25, // ~25 GW operating capacity (LBNL 2024); BNEF estimates ~35-40 GW by late 2025
+    currentElectricityShare: 0.044, // 4.4% (LBNL 2024)
+    currentTWh: 176, // 2023 consumption (LBNL 2024)
 
     // Projections
+    // Sources: EPRI (6-9% by 2030), DOE (~50 GW net new DC demand by 2030),
+    // Grid Strategies (market-adjusted ~65 GW net new by 2030),
+    // BloombergNEF (106 GW total by 2035, conservative estimate, Dec 2025)
     projected2030ShareLow: 0.06,
     projected2030ShareHigh: 0.09,
-    projected2035CapacityGW: 150,
-    growthMultiplier2035: 6, // 6x from 2024
+    projected2030NetNewGWLow: 50, // DOE estimate
+    projected2030NetNewGWHigh: 65, // Grid Strategies market-adjusted
+    projected2035CapacityGWLow: 100, // Conservative (BNEF 106 GW)
+    projected2035CapacityGWHigh: 150, // High-end / aggressive scenario
+    growthMultiplier2035: '4-6x', // Range from 2024 baseline
 
     // Equivalents
     gwPerNuclearPlant: 1, // 1 GW ≈ 1 nuclear plant
-    homesPerGW: 750000, // ~750k-1M homes per GW
+    homesPerGW: 750000, // ~750k-1M homes per GW (CRS)
 
     // Demand backlog
-    totalUSRequestedGW: 1000, // GW requested from US utilities
+    // Source: LBNL Queued Up database; ERCOT alone has 233 GW of large load requests
+    // Note: historically only ~13% of interconnection requests reach commercial operation
+    totalUSRequestedGW: 1000, // GW requested from US utilities (aggregate)
 
     // PJM capacity market impact
+    // Source: PJM 2025/26 Base Residual Auction Report
     pjmCapacityPrice2024: 269.92, // $/MW-day
     pjmCapacityPricePrior: 28.92, // $/MW-day (prior year)
     pjmPriceIncreaseMultiple: 10, // 10x increase
-    dcAttributionPercent: 0.63, // 63% of increase attributed to DC growth
+    dcAttributionPercent: 0.63, // 63% of increase attributed to DC growth (Grid Strategies)
 };
 
 // State-level data center statistics
