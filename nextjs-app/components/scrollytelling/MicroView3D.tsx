@@ -43,7 +43,14 @@ const cameraConfig: Record<string, {
     gpuScale: number; // Scale factor for main GPU at this zoom level
 }> = {
     // GPU scale animates from large (detail) to small (fits in rack slot)
-    'chip-glow': { position: [0.8, 0.9, 0.8], target: [0, MAIN_GPU_Y, 0], zoom: 550, gpuScale: DETAIL_GPU_SCALE },
+    // Chip view: true isometric angle looking DOWN at the GPU die (camera high above target)
+    // Position formula: [x, y, z] where y >> target.y for top-down isometric view
+    'chip-glow': {
+        position: [0.6, MAIN_GPU_Y + 0.8, 0.6],  // Camera positioned above and to the side
+        target: [0, MAIN_GPU_Y, 0],
+        zoom: 550,
+        gpuScale: DETAIL_GPU_SCALE
+    },
     'rack-zoom': { position: [3, 2.0, 3], target: [0, 1.0, 0], zoom: 100, gpuScale: RACK_GPU_PACKAGE_SIZE },
     'pod-zoom': { position: [18, 10.8, 18], target: [0, 1.0, 0], zoom: 28, gpuScale: RACK_GPU_PACKAGE_SIZE },
     'building-iso': { position: [80, 48, 80], target: [0, 1.0, 0], zoom: 5, gpuScale: RACK_GPU_PACKAGE_SIZE },
@@ -98,7 +105,8 @@ export default function MicroView3D({ visualState, powerMetric }: MicroView3DPro
             <Canvas
                 orthographic
                 camera={{
-                    position: [0.8, 0.5, 0.8],
+                    // Initial position: isometric view looking DOWN at GPU
+                    position: [0.6, MAIN_GPU_Y + 0.8, 0.6],
                     zoom: 550,
                     near: 0.001,
                     far: 5000
