@@ -34,7 +34,7 @@ const MAIN_GPU_X = RACK_GPU_COL_START_X + MAIN_GPU_COL * RACK_GPU_COL_SPACING; /
 
 // GPU sizing
 const RACK_GPU_PACKAGE_SIZE = 0.045; // Size of GPU package in rack
-const DETAIL_GPU_SCALE = 0.12;       // Scale for detailed close-up view (larger for visibility)
+const DETAIL_GPU_SCALE = 0.075;      // Scale for detailed close-up view (balanced for visibility and rack proportion)
 
 const cameraConfig: Record<string, {
     position: [number, number, number];
@@ -48,7 +48,7 @@ const cameraConfig: Record<string, {
     'chip-glow': {
         position: [0.6, MAIN_GPU_Y + 0.8, 0.6],  // Camera positioned above and to the side
         target: [0, MAIN_GPU_Y, 0],
-        zoom: 550,
+        zoom: 880,
         gpuScale: DETAIL_GPU_SCALE
     },
     'rack-zoom': { position: [3, 2.0, 3], target: [0, 1.0, 0], zoom: 100, gpuScale: RACK_GPU_PACKAGE_SIZE },
