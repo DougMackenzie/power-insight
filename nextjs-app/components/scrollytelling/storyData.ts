@@ -83,8 +83,9 @@ export const steps: StoryStep[] = [
         id: 'pod',
         mode: 'micro',
         visualState: 'pod-zoom',
-        title: "A Compute Pod",
-        text: "Multiple Kyber racks form a compute pod. With 8 racks at 600 kW each, a single pod draws 4.8 MW continuously—as much power as a small downtown district.",
+        title: "A SuperPOD",
+        text: "Eight NVL72 racks form an NVIDIA DGX SuperPOD—576 GPUs interconnected via NVLink-6 fabric, operating as a single coherent compute unit. At 4.8 MW continuous power, one SuperPOD draws as much electricity as a small downtown district.",
+        subtext: "Racks connect via blind-mate connectors with no cables—enabling 18× faster assembly and servicing than previous generations.",
         powerMetric: {
             value: "4.8",
             unit: "MW",
