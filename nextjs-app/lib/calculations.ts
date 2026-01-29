@@ -641,16 +641,21 @@ const calculateNetResidentialImpact = (
     // - ISO markets: More direct connection but still regulatory friction
     // - ERCOT: Most direct since competitive retail, but still not 1:1
     //
-    // CRITICAL: For small utilities (like BHE Cheyenne with 45k customers), the flow-through
-    // must account for the fact that:
-    // 1. PPA/tolling arrangements mean revenue goes to developers, not ratepayers
-    // 2. Rate cases are infrequent (every 2-5 years)
-    // 3. Utilities may retain margin as shareholder value, not rate reduction
+    // CRITICAL UPDATE: For regulated markets with proper cost-of-service ratemaking,
+    // large industrial loads paying their allocated share should NOT increase residential rates.
+    // The DC's demand charges and energy payments cover their cost causation.
+    // Revenue flow-through should be HIGHER for regulated markets because:
+    // 1. DC revenue reduces the utility's revenue requirement directly
+    // 2. This flows through at rate cases (with lag, but higher certainty)
+    // 3. The utility must justify rates based on cost of service
     //
-    // We use a conservative flow-through that scales with utility size to reflect
-    // that larger utilities have more regulatory scrutiny and cost allocation mechanisms.
-    const baseFlowThrough = utility?.marketType === 'ercot' ? 0.50 :
-                            utility?.hasCapacityMarket ? 0.40 : 0.25;
+    // We use a higher flow-through for regulated markets to reflect proper cost causation:
+    // - Regulated: DC pays tariff rates designed to cover their costs → high flow-through
+    // - Capacity markets: DC pays market rates that may not fully cover costs → medium flow-through
+    // - ERCOT: Direct market exposure → medium-high flow-through
+    const baseFlowThrough = utility?.marketType === 'ercot' ? 0.55 :
+                            utility?.hasCapacityMarket ? 0.45 :
+                            0.60; // Regulated markets: higher because tariff = cost recovery
 
     // Scale down for very small utilities where DC revenue dominates
     // and regulatory mechanisms are less refined
@@ -678,9 +683,24 @@ const calculateNetResidentialImpact = (
     const netAnnualImpact = grossAnnualInfraCost - revenueOffset;
 
     // ============================================
-    // RESIDENTIAL ALLOCATION - Market-adjusted
+    // RESIDENTIAL ALLOCATION - Market-adjusted with Cost Causation
     // ============================================
     let adjustedAllocation = residentialAllocation;
+
+    // COST CAUSATION ADJUSTMENT
+    // -------------------------
+    // In proper cost-of-service ratemaking, costs are allocated based on causation:
+    // - The DC should only be allocated costs they actually cause
+    // - If they pay demand charges covering their peak contribution, that cost is "paid for"
+    // - Residential allocation should reflect only UNRECOVERED costs, not total costs
+    //
+    // For regulated markets: If the DC pays tariff rates designed to recover their cost of service,
+    // the net impact on residential customers should be minimal or even positive (rate spreading).
+    // The higher the DC's cost recovery through tariff charges, the lower the residential impact.
+    //
+    // Cost causation factor: reduces allocation based on how well DC revenue covers DC costs
+    const dcCostRecoveryRatio = Math.min(1.0, dcRevenue.total / Math.max(1, grossAnnualInfraCost));
+    const COST_CAUSATION_BASE = 0.85; // 85% base - some overhead always shared
 
     // ERCOT 4CP Cost Causation Adjustment
     // ------------------------------------
@@ -692,16 +712,16 @@ const calculateNetResidentialImpact = (
     // - A flexible DC that avoids 4CP peaks is NOT driving transmission investment
     // - The utility's transmission revenue requirement doesn't change, BUT
     // - The DC is correctly paying less because they're not causing the peak-driven costs
-    // - This model reduces residential allocation because the DC's NET IMPACT on the system
-    //   is lower when they don't contribute to peaks that drive transmission buildout
-    //
-    // Note: If viewed purely as cost ALLOCATION (fixed pie), residential share would
-    // technically increase when DC pays less. But our model calculates NET IMPACT
-    // (costs caused minus revenue contributed), so reduced cost causation = reduced impact.
     const ERCOT_4CP_COST_CAUSATION_FACTOR = 0.70;
 
     if (utility?.marketType === 'ercot') {
         adjustedAllocation = residentialAllocation * ERCOT_4CP_COST_CAUSATION_FACTOR;
+    } else if (!utility?.hasCapacityMarket) {
+        // REGULATED MARKETS: Apply cost causation adjustment
+        // The higher the DC's cost recovery ratio, the less impact on residential rates
+        // If DC revenue = DC costs, residential allocation drops significantly
+        const regulatedCostCausationFactor = COST_CAUSATION_BASE - (dcCostRecoveryRatio * 0.40);
+        adjustedAllocation = residentialAllocation * Math.max(0.35, regulatedCostCausationFactor);
     }
     // Note: For capacity markets, we no longer adjust allocation here because
     // socializedCapacityCost is added explicitly below. This avoids double-counting.
