@@ -4,7 +4,7 @@
  * Calculator Context and Hook (TypeScript)
  */
 
-import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useMemo, useCallback, useEffect, ReactNode } from 'react';
 import { DEFAULT_UTILITY, DEFAULT_DATA_CENTER, ESCALATION_RANGES, type Utility, type DataCenter } from '@/lib/constants';
 import {
     generateAllTrajectories,
@@ -144,21 +144,27 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
                 currentReserveMargin: profile.currentReserveMargin,
             });
 
-            // Calculate DC capacity from market forecast or use profile default
-            let defaultCapacityMW = profile.defaultDataCenterMW;
+            // Calculate DC capacity - prefer utility-specific default, fall back to market share
+            let defaultCapacityMW: number;
 
-            // If market forecast is available and profile doesn't have a utility-specific forecast,
-            // calculate based on market share
-            if (profile.market?.type) {
+            if (profile.defaultDataCenterMW && profile.defaultDataCenterMW > 0) {
+                // Use utility-specific default if available (e.g., PSO 6000 MW)
+                defaultCapacityMW = profile.defaultDataCenterMW;
+            } else if (profile.market?.type) {
+                // Otherwise calculate from market share
                 const marketForecast = MARKET_FORECASTS[profile.market.type];
-                if (marketForecast && !profile.defaultDataCenterMW) {
+                if (marketForecast) {
                     const share = calculateUtilityMarketShare(
                         profile.systemPeakMW,
                         marketForecast,
                         forecastScenario
                     );
                     defaultCapacityMW = Math.round(share.utilityNetGrowthMW);
+                } else {
+                    defaultCapacityMW = 1000; // fallback
                 }
+            } else {
+                defaultCapacityMW = 1000; // fallback
             }
 
             // Auto-populate data center capacity
@@ -168,7 +174,27 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
                 onsiteGenerationMW: Math.round(defaultCapacityMW * 0.2),
             }));
         }
-    }, [utility, forecastScenario]);
+    }, [utility]);
+
+    // Recalculate DC capacity when forecast scenario changes (for utilities without specific defaults)
+    useEffect(() => {
+        const profile = getUtilityById(selectedUtilityId);
+        if (profile && (!profile.defaultDataCenterMW || profile.defaultDataCenterMW === 0) && profile.market?.type) {
+            const marketForecast = MARKET_FORECASTS[profile.market.type];
+            if (marketForecast) {
+                const share = calculateUtilityMarketShare(
+                    profile.systemPeakMW,
+                    marketForecast,
+                    forecastScenario
+                );
+                setDataCenter((prev) => ({
+                    ...prev,
+                    capacityMW: Math.round(share.utilityNetGrowthMW),
+                    onsiteGenerationMW: Math.round(share.utilityNetGrowthMW * 0.2),
+                }));
+            }
+        }
+    }, [forecastScenario, selectedUtilityId]);
 
     const resetToDefaults = useCallback(() => {
         setUtility(DEFAULT_UTILITY);
