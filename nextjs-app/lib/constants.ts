@@ -260,6 +260,25 @@ export const TIME_PARAMS = {
 };
 
 // ============================================
+// ESCALATION RANGES FOR USER-CONTROLLABLE TOGGLES
+// ============================================
+
+export const ESCALATION_RANGES = {
+    inflation: {
+        min: 0.01,      // 1%
+        max: 0.05,      // 5%
+        default: 0.025, // 2.5% (matches TIME_PARAMS.generalInflation)
+        step: 0.005,    // 0.5% increments
+    },
+    infrastructureAging: {
+        min: 0.005,     // 0.5%
+        max: 0.03,      // 3%
+        default: 0.015, // 1.5% (matches INFRASTRUCTURE_COSTS.annualBaselineUpgradePercent)
+        step: 0.005,    // 0.5% increments
+    },
+};
+
+// ============================================
 // WORKLOAD FLEXIBILITY
 // ============================================
 

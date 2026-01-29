@@ -11,10 +11,22 @@ import {
     TIME_PARAMS,
     DC_RATE_STRUCTURE,
     SUPPLY_CURVE,
+    ESCALATION_RANGES,
     calculateDCRevenueOffset,
     type Utility,
     type DataCenter,
 } from './constants';
+
+// ============================================
+// ESCALATION CONFIG TYPE
+// ============================================
+
+export interface EscalationConfig {
+    inflationEnabled: boolean;
+    inflationRate: number;
+    infrastructureAgingEnabled: boolean;
+    infrastructureAgingRate: number;
+}
 
 import {
     type TariffStructure,
@@ -753,19 +765,25 @@ const calculateNetResidentialImpact = (
 
 export const calculateBaselineTrajectory = (
     utility: Utility = DEFAULT_UTILITY,
-    years: number = TIME_PARAMS.projectionYears
+    years: number = TIME_PARAMS.projectionYears,
+    escalationConfig?: EscalationConfig
 ): TrajectoryPoint[] => {
     const trajectory: TrajectoryPoint[] = [];
     const baseYear = TIME_PARAMS.baseYear;
     let currentBill = utility.averageMonthlyBill;
 
-    const baselineIncreaseRate =
-        TIME_PARAMS.generalInflation +
-        INFRASTRUCTURE_COSTS.annualBaselineUpgradePercent +
-        0.005;
+    // Calculate escalation rate based on enabled toggles
+    // If no config provided or both toggles off, baseline is flat (no escalation)
+    let baselineIncreaseRate = 0;
+    if (escalationConfig?.inflationEnabled) {
+        baselineIncreaseRate += escalationConfig.inflationRate;
+    }
+    if (escalationConfig?.infrastructureAgingEnabled) {
+        baselineIncreaseRate += escalationConfig.infrastructureAgingRate;
+    }
 
     for (let year = 0; year <= years; year++) {
-        if (year > 0) {
+        if (year > 0 && baselineIncreaseRate > 0) {
             currentBill = utility.averageMonthlyBill * Math.pow(1 + baselineIncreaseRate, year);
         }
 
@@ -790,11 +808,12 @@ export const calculateUnoptimizedTrajectory = (
     utility: Utility = DEFAULT_UTILITY,
     dataCenter: DataCenter = DEFAULT_DATA_CENTER,
     years: number = TIME_PARAMS.projectionYears,
-    tariff?: TariffStructure
+    tariff?: TariffStructure,
+    escalationConfig?: EscalationConfig
 ): TrajectoryPoint[] => {
     const trajectory: TrajectoryPoint[] = [];
     const baseYear = TIME_PARAMS.baseYear;
-    const baseline = calculateBaselineTrajectory(utility, years);
+    const baseline = calculateBaselineTrajectory(utility, years, escalationConfig);
 
     const firmLF = dataCenter.firmLoadFactor || 0.80;
     const firmPeakCoincidence = dataCenter.firmPeakCoincidence || 1.0;
@@ -894,11 +913,12 @@ export const calculateFlexibleTrajectory = (
     utility: Utility = DEFAULT_UTILITY,
     dataCenter: DataCenter = DEFAULT_DATA_CENTER,
     years: number = TIME_PARAMS.projectionYears,
-    tariff?: TariffStructure
+    tariff?: TariffStructure,
+    escalationConfig?: EscalationConfig
 ): TrajectoryPoint[] => {
     const trajectory: TrajectoryPoint[] = [];
     const baseYear = TIME_PARAMS.baseYear;
-    const baseline = calculateBaselineTrajectory(utility, years);
+    const baseline = calculateBaselineTrajectory(utility, years, escalationConfig);
 
     const flexLF = dataCenter.flexLoadFactor || 0.95;
     const flexPeakCoincidence = dataCenter.flexPeakCoincidence || 0.75;
@@ -1011,11 +1031,12 @@ export const calculateDispatchableTrajectory = (
     utility: Utility = DEFAULT_UTILITY,
     dataCenter: DataCenter = DEFAULT_DATA_CENTER,
     years: number = TIME_PARAMS.projectionYears,
-    tariff?: TariffStructure
+    tariff?: TariffStructure,
+    escalationConfig?: EscalationConfig
 ): TrajectoryPoint[] => {
     const trajectory: TrajectoryPoint[] = [];
     const baseYear = TIME_PARAMS.baseYear;
-    const baseline = calculateBaselineTrajectory(utility, years);
+    const baseline = calculateBaselineTrajectory(utility, years, escalationConfig);
 
     const flexLF = dataCenter.flexLoadFactor || 0.95;
     const flexPeakCoincidence = dataCenter.flexPeakCoincidence || 0.75;
@@ -1117,13 +1138,14 @@ export const generateAllTrajectories = (
     utility: Utility = DEFAULT_UTILITY,
     dataCenter: DataCenter = DEFAULT_DATA_CENTER,
     years: number = TIME_PARAMS.projectionYears,
-    tariff?: TariffStructure
+    tariff?: TariffStructure,
+    escalationConfig?: EscalationConfig
 ) => {
     return {
-        baseline: calculateBaselineTrajectory(utility, years),
-        unoptimized: calculateUnoptimizedTrajectory(utility, dataCenter, years, tariff),
-        flexible: calculateFlexibleTrajectory(utility, dataCenter, years, tariff),
-        dispatchable: calculateDispatchableTrajectory(utility, dataCenter, years, tariff),
+        baseline: calculateBaselineTrajectory(utility, years, escalationConfig),
+        unoptimized: calculateUnoptimizedTrajectory(utility, dataCenter, years, tariff, escalationConfig),
+        flexible: calculateFlexibleTrajectory(utility, dataCenter, years, tariff, escalationConfig),
+        dispatchable: calculateDispatchableTrajectory(utility, dataCenter, years, tariff, escalationConfig),
     };
 };
 

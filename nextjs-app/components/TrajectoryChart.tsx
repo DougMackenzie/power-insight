@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import { SCENARIOS } from '@/lib/constants';
 import { useCalculator } from '@/hooks/useCalculator';
+import { EscalationControls } from './EscalationControls';
 
 interface TooltipProps {
     active?: boolean;
@@ -85,6 +86,7 @@ interface TrajectoryChartProps {
     showLegend?: boolean;
     showTooltip?: boolean;
     interactive?: boolean;
+    showEscalationControls?: boolean;
 }
 
 const TrajectoryChart = ({
@@ -92,8 +94,21 @@ const TrajectoryChart = ({
     showLegend = true,
     showTooltip = true,
     interactive = true,
+    showEscalationControls = true,
 }: TrajectoryChartProps) => {
-    const { chartData, selectedScenarios, toggleScenario } = useCalculator();
+    const {
+        chartData,
+        selectedScenarios,
+        toggleScenario,
+        inflationEnabled,
+        setInflationEnabled,
+        inflationRate,
+        setInflationRate,
+        infrastructureAgingEnabled,
+        setInfrastructureAgingEnabled,
+        infrastructureAgingRate,
+        setInfrastructureAgingRate,
+    } = useCalculator();
 
     const yDomain = useMemo(() => {
         if (!chartData.length) return [0, 200];
@@ -115,6 +130,18 @@ const TrajectoryChart = ({
 
     return (
         <div className="w-full">
+            {showEscalationControls && (
+                <EscalationControls
+                    inflationEnabled={inflationEnabled}
+                    setInflationEnabled={setInflationEnabled}
+                    inflationRate={inflationRate}
+                    setInflationRate={setInflationRate}
+                    infrastructureAgingEnabled={infrastructureAgingEnabled}
+                    setInfrastructureAgingEnabled={setInfrastructureAgingEnabled}
+                    infrastructureAgingRate={infrastructureAgingRate}
+                    setInfrastructureAgingRate={setInfrastructureAgingRate}
+                />
+            )}
             <ResponsiveContainer width="100%" height={height}>
                 <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />

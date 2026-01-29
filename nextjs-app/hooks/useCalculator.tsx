@@ -5,13 +5,14 @@
  */
 
 import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from 'react';
-import { DEFAULT_UTILITY, DEFAULT_DATA_CENTER, type Utility, type DataCenter } from '@/lib/constants';
+import { DEFAULT_UTILITY, DEFAULT_DATA_CENTER, ESCALATION_RANGES, type Utility, type DataCenter } from '@/lib/constants';
 import {
     generateAllTrajectories,
     formatTrajectoriesForChart,
     calculateSummaryStats,
     type SummaryStats,
     type TrajectoryPoint,
+    type EscalationConfig,
 } from '@/lib/calculations';
 import { UTILITY_PROFILES, getUtilityById, getUtilitiesSortedByState, type UtilityProfile } from '@/lib/utilityData';
 
@@ -30,6 +31,16 @@ interface CalculatorContextType {
     };
     chartData: any[];
     summary: SummaryStats;
+    // Escalation controls
+    inflationEnabled: boolean;
+    inflationRate: number;
+    infrastructureAgingEnabled: boolean;
+    infrastructureAgingRate: number;
+    setInflationEnabled: (enabled: boolean) => void;
+    setInflationRate: (rate: number) => void;
+    setInfrastructureAgingEnabled: (enabled: boolean) => void;
+    setInfrastructureAgingRate: (rate: number) => void;
+    // Actions
     updateUtility: (updates: Partial<Utility>) => void;
     updateDataCenter: (updates: Partial<DataCenter>) => void;
     toggleScenario: (scenarioId: string) => void;
@@ -54,15 +65,29 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
     const [projectionYears, setProjectionYears] = useState(10);
     const [selectedUtilityId, setSelectedUtilityId] = useState<string>('pso-oklahoma');
 
+    // Escalation control state - default OFF for flat baseline
+    const [inflationEnabled, setInflationEnabled] = useState(false);
+    const [inflationRate, setInflationRate] = useState(ESCALATION_RANGES.inflation.default);
+    const [infrastructureAgingEnabled, setInfrastructureAgingEnabled] = useState(false);
+    const [infrastructureAgingRate, setInfrastructureAgingRate] = useState(ESCALATION_RANGES.infrastructureAging.default);
+
     const selectedUtilityProfile = useMemo(() => {
         return getUtilityById(selectedUtilityId);
     }, [selectedUtilityId]);
 
+    // Build escalation config from state
+    const escalationConfig: EscalationConfig = useMemo(() => ({
+        inflationEnabled,
+        inflationRate,
+        infrastructureAgingEnabled,
+        infrastructureAgingRate,
+    }), [inflationEnabled, inflationRate, infrastructureAgingEnabled, infrastructureAgingRate]);
+
     const trajectories = useMemo(() => {
         // Pass the tariff from the selected utility profile for utility-specific demand charge calculations
         const tariff = selectedUtilityProfile?.tariff;
-        return generateAllTrajectories(utility, dataCenter, projectionYears, tariff);
-    }, [utility, dataCenter, projectionYears, selectedUtilityProfile]);
+        return generateAllTrajectories(utility, dataCenter, projectionYears, tariff, escalationConfig);
+    }, [utility, dataCenter, projectionYears, selectedUtilityProfile, escalationConfig]);
 
     const chartData = useMemo(() => {
         return formatTrajectoriesForChart(trajectories);
@@ -126,6 +151,11 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
         setSelectedScenarios(['baseline', 'unoptimized', 'flexible', 'dispatchable']);
         setProjectionYears(10);
         setSelectedUtilityId('pso-oklahoma');
+        // Reset escalation controls to defaults (OFF)
+        setInflationEnabled(false);
+        setInflationRate(ESCALATION_RANGES.inflation.default);
+        setInfrastructureAgingEnabled(false);
+        setInfrastructureAgingRate(ESCALATION_RANGES.infrastructureAging.default);
     }, []);
 
     const value: CalculatorContextType = {
@@ -138,6 +168,16 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
         trajectories,
         chartData,
         summary,
+        // Escalation controls
+        inflationEnabled,
+        inflationRate,
+        infrastructureAgingEnabled,
+        infrastructureAgingRate,
+        setInflationEnabled,
+        setInflationRate,
+        setInfrastructureAgingEnabled,
+        setInfrastructureAgingRate,
+        // Actions
         updateUtility,
         updateDataCenter,
         toggleScenario,
