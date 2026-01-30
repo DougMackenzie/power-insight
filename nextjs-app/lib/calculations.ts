@@ -347,9 +347,21 @@ export function calculateRevenueAdequacy(
     }
 
     // Energy cost (wholesale) - this is the marginal generation cost
-    // Fuel costs are a direct pass-through and cancel out
+    // For wholesale pass-through tariffs (like PSO's LPL), the energy component nets out:
+    // - DC pays wholesale rate as pass-through
+    // - Utility pays wholesale rate to generators
+    // - Net margin on energy = 0 (by design for large power tariffs)
+    //
+    // We detect pass-through tariffs when energy charge < 150% of wholesale cost
+    // In this case, use the SAME rate for both revenue and cost to net them out
     const wholesaleEnergyCost = utility?.marginalEnergyCost ?? 38; // $/MWh
-    const marginalEnergyCost = annualMWh * wholesaleEnergyCost;
+    const tariffEnergyCost = tariff?.energyCharge ?? 30; // $/MWh
+
+    // If tariff energy charge is near or below wholesale, it's a pass-through rate
+    // Use energy revenue as cost (nets to zero margin), not wholesale cost
+    const isWholesalePassThrough = tariffEnergyCost < wholesaleEnergyCost * 1.5;
+    const effectiveEnergyCostRate = isWholesalePassThrough ? tariffEnergyCost : wholesaleEnergyCost;
+    const marginalEnergyCost = annualMWh * effectiveEnergyCostRate;
 
     // Network upgrade cost (only socialized portion, not CIAC)
     const interconnection = utility?.interconnection ?? {
