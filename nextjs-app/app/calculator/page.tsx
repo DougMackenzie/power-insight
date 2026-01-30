@@ -102,9 +102,10 @@ interface RevenueAdequacyIndicatorProps {
     dcCapacityMW: number;
     loadFactor: number;
     peakCoincidence: number;
+    scenarioLabel?: string;
 }
 
-const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, peakCoincidence }: RevenueAdequacyIndicatorProps) => {
+const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, peakCoincidence, scenarioLabel = "optimized" }: RevenueAdequacyIndicatorProps) => {
     const revenueAdequacy = calculateRevenueAdequacy(
         dcCapacityMW,
         loadFactor,
@@ -121,15 +122,36 @@ const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, p
 
     const { surplusOrDeficitPerMW, revenueAdequacyRatio, contributesSurplus } = revenueAdequacy;
 
+    // Format assumption values
+    const ciacPercent = ((utility?.interconnection?.ciacRecoveryFraction || 0.60) * 100).toFixed(0);
+    const networkCost = ((utility?.interconnection?.networkUpgradeCostPerMW || 140000) / 1000).toFixed(0);
+    const wholesaleCost = utility?.marginalEnergyCost || 38;
+
     return (
         <div className="bg-white p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Revenue Adequacy</p>
+            <p className="text-sm text-gray-600 mb-1">Revenue Adequacy <span className="text-xs text-gray-400">({scenarioLabel})</span></p>
             <p className={`text-2xl font-bold ${contributesSurplus ? 'text-green-600' : 'text-amber-600'}`}>
                 {contributesSurplus ? '+' : ''}{formatCurrencyShort(surplusOrDeficitPerMW)}/MW
             </p>
             <p className="text-xs text-gray-500">
                 {contributesSurplus ? 'surplus' : 'deficit'} per MW ({(revenueAdequacyRatio * 100).toFixed(0)}% coverage)
             </p>
+            <details className="mt-2">
+                <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600">
+                    View assumptions
+                </summary>
+                <div className="mt-1 text-xs text-gray-500 space-y-0.5 pl-2 border-l-2 border-gray-200">
+                    <p>• Peak Coincidence: {(peakCoincidence * 100).toFixed(0)}%</p>
+                    <p>• Load Factor: {(loadFactor * 100).toFixed(0)}%</p>
+                    <p>• Market: {utility?.marketType?.toUpperCase() || 'REGULATED'}</p>
+                    <p>• Wholesale Energy: ${wholesaleCost}/MWh</p>
+                    <p>• CIAC Recovery: {ciacPercent}%</p>
+                    <p>• Network Upgrades: ${networkCost}k/MW</p>
+                    {utility?.hasCapacityMarket && (
+                        <p>• Capacity Price: ${utility.capacityPrice2024?.toFixed(0) || 'N/A'}/MW-day</p>
+                    )}
+                </div>
+            </details>
         </div>
     );
 };
@@ -642,10 +664,7 @@ export default function CalculatorPage() {
                         <TrajectoryChart height={350} />
                     </div>
 
-                    {/* Summary stats */}
-                    <SummaryCards />
-
-                    {/* Key findings */}
+                    {/* Key findings - moved up for prominence */}
                     <div className="bg-green-50 rounded-xl border border-green-200 p-6">
                         <h3 className="font-semibold text-green-900 mb-4">Key Findings for Your Community</h3>
                         <div className="grid md:grid-cols-2 gap-4">
@@ -681,11 +700,15 @@ export default function CalculatorPage() {
                                 utility={utility}
                                 tariff={selectedUtilityProfile?.tariff}
                                 dcCapacityMW={dataCenter.capacityMW}
-                                loadFactor={dataCenter.firmLoadFactor || 0.8}
-                                peakCoincidence={dataCenter.firmPeakCoincidence || 1.0}
+                                loadFactor={dataCenter.flexLoadFactor || 0.95}
+                                peakCoincidence={dataCenter.flexPeakCoincidence || 0.75}
+                                scenarioLabel="optimized"
                             />
                         </div>
                     </div>
+
+                    {/* Summary stats - compact view */}
+                    <SummaryCards compact={true} />
                 </div>
             </div>
 
