@@ -42,7 +42,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="text-xl text-slate-300 mb-8 leading-relaxed max-w-3xl">
-              New data centers are reshaping our energy landscape. With the right policies, this
+              New data centers are reshaping our energy landscape. Research shows that with the right policies, this
               growth can mean lower bills, a more reliable grid, and breakthroughs in science and
               medicine. Explore the data and help shape better outcomes for your community.
             </p>
@@ -189,52 +189,85 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Cost Impact Range Message */}
+          {/* What Research Shows */}
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-8 border border-slate-200">
             <h3 className="text-xl font-bold text-slate-800 mb-4 text-center">
-              The Impact on Your Bill Varies Widely
+              What Research Shows About Data Center Impacts
             </h3>
             <p className="text-slate-600 text-center max-w-3xl mx-auto mb-6">
-              The impact of data center growth on your electricity costs depends on where you live and how your utility manages new large loads.
+              A growing body of research — including studies from E3, LBNL, MIT, and GridCARE — shows that
+              well-structured data center growth can put <strong className="text-slate-800">downward pressure on residential rates</strong>.
             </p>
 
-            {/* Range Visualization */}
+            {/* Two Key Findings Cards */}
             <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mb-6">
-              {/* Best Case */}
-              <div className="flex-1 max-w-sm p-6 bg-green-50 rounded-xl border border-green-200 text-center">
+              {/* Tariff Protection */}
+              <div className="flex-1 max-w-sm p-6 bg-green-50 rounded-xl border border-green-200">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3 border border-green-200">
                   <svg className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 12l2 2 4-4" />
-                    <circle cx="12" cy="12" r="9" />
+                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-green-700 mb-2">Well-Managed Growth</p>
-                <p className="text-3xl font-bold text-green-700 mb-2">-$5 to $0</p>
-                <p className="text-xs text-slate-600">per month change</p>
-                <p className="text-xs text-slate-500 mt-3 italic">
-                  When data centers pay their fair share and operate flexibly, they add revenue to the grid — which can reduce costs for households
+                <p className="text-sm font-medium text-green-700 mb-2">Utilities Are Protecting Ratepayers</p>
+                <p className="text-sm text-slate-600">
+                  Major utilities across PJM, MISO, and ERCOT are implementing tariffs that require
+                  data centers to pay their fair share of infrastructure costs through demand charges,
+                  CIAC requirements, and separate rate classes.
                 </p>
               </div>
 
-              {/* Worst Case */}
-              <div className="flex-1 max-w-sm p-6 bg-red-50 rounded-xl border border-red-200 text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-3 border border-red-200">
-                  <svg className="w-6 h-6 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              {/* Revenue Adequacy */}
+              <div className="flex-1 max-w-sm p-6 bg-blue-50 rounded-xl border border-blue-200">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3 border border-blue-200">
+                  <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-red-700 mb-2">Poorly Managed Growth</p>
-                <p className="text-3xl font-bold text-red-700 mb-2">+$20 to $35</p>
-                <p className="text-xs text-slate-600">per month increase</p>
-                <p className="text-xs text-slate-500 mt-3 italic">
-                  Rapid growth without proper cost allocation or operational requirements
+                <p className="text-sm font-medium text-blue-700 mb-2">Revenue Adequacy Shows Downward Pressure</p>
+                <p className="text-sm text-slate-600">
+                  Our analysis using E3's revenue adequacy framework shows that data centers paying
+                  standard industrial tariffs typically cover their marginal cost-to-serve — contributing
+                  surplus revenue that benefits all ratepayers.
                 </p>
               </div>
             </div>
 
+            {/* Research Highlights Grid */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-xs text-slate-500 mb-1">E3 / Amazon Study (2025)</p>
+                <p className="text-sm text-slate-700">
+                  "$3.4-6.1M surplus revenue per 100MW facility; PG&E customers could see 1-2% bill reduction per GW"
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-xs text-slate-500 mb-1">LBNL / Brattle (2025)</p>
+                <p className="text-sm text-slate-700">
+                  "Fixed cost spreading over more kWh reduces per-unit costs; states with demand growth saw falling rates"
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-xs text-slate-500 mb-1">GridCARE (2025)</p>
+                <p className="text-sm text-slate-700">
+                  "1 GW flexible DC could reduce costs 5% across all customer classes"
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-xs text-slate-500 mb-1">MIT Sloan / CEEPR (2025)</p>
+                <p className="text-sm text-slate-700">
+                  "Flexibility to shift workload always reduces costs"
+                </p>
+              </div>
+            </div>
+
+            {/* Key Research Link */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
               <p className="text-sm text-slate-700">
-                <strong className="text-amber-800">The difference between these outcomes comes down to policy and operational design</strong> — and communities have a voice in both.
+                <strong className="text-amber-800">Explore the research</strong> — Our{' '}
+                <Link href="/methodology#literature-review" className="text-amber-700 underline hover:text-amber-800">
+                  literature review
+                </Link>{' '}
+                analyzes 12+ peer-reviewed studies on data center rate impacts.
               </p>
             </div>
           </div>
