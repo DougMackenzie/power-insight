@@ -122,7 +122,7 @@ const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, p
         return `$${val.toFixed(0)}`;
     };
 
-    const { surplusOrDeficitPerMW, revenueAdequacyRatio, contributesSurplus } = revenueAdequacy;
+    const { surplusOrDeficit, surplusOrDeficitPerMW, revenueAdequacyRatio, contributesSurplus } = revenueAdequacy;
 
     // Format assumption values
     const ciacPercent = ((utility?.interconnection?.ciacRecoveryFraction || 0.60) * 100).toFixed(0);
@@ -132,6 +132,12 @@ const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, p
     const isPassThrough = tariffEnergyCost < wholesaleCost * 1.5;
     const netPeakDemandMW = Math.max(0, dcCapacityMW * peakCoincidence - onsiteGenerationMW);
 
+    // Format total as millions
+    const totalMillions = Math.abs(surplusOrDeficit) / 1000000;
+    const totalDisplay = totalMillions >= 1
+        ? `${surplusOrDeficit >= 0 ? '+' : '-'}$${totalMillions.toFixed(1)}M`
+        : `${surplusOrDeficit >= 0 ? '+' : '-'}$${(Math.abs(surplusOrDeficit) / 1000).toFixed(0)}k`;
+
     return (
         <div className="bg-white p-4 rounded-lg">
             <p className="text-sm text-gray-600 mb-1">Revenue Adequacy <span className="text-xs text-gray-400">({scenarioLabel})</span></p>
@@ -140,6 +146,9 @@ const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, p
             </p>
             <p className="text-xs text-gray-500">
                 {contributesSurplus ? 'surplus' : 'deficit'} per MW ({(revenueAdequacyRatio * 100).toFixed(0)}% coverage)
+            </p>
+            <p className={`text-sm font-medium mt-1 ${contributesSurplus ? 'text-green-600' : 'text-amber-600'}`}>
+                Total: {totalDisplay}/year for {(dcCapacityMW/1000).toFixed(1)} GW
             </p>
             <details className="mt-2">
                 <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600">

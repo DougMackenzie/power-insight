@@ -74,7 +74,8 @@ interface CarbonData {
 }
 
 export default function MethodologyPage() {
-    const [expandedSection, setExpandedSection] = useState<string | null>('model-overview');
+    // Default to 'data-sources' so Revenue Adequacy section is visible
+    const [expandedSection, setExpandedSection] = useState<string | null>('data-sources');
     const [carbonData, setCarbonData] = useState<CarbonData | null>(null);
 
     useEffect(() => {

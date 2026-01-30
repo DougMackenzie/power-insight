@@ -263,6 +263,7 @@ export interface RevenueAdequacyResult {
     totalMarginalCost: number;
 
     // Revenue adequacy metrics
+    surplusOrDeficit: number;         // Total Revenue - Total Cost (absolute)
     surplusOrDeficitPerMW: number;    // (Revenue - Cost) / MW
     revenueAdequacyRatio: number;     // Revenue / Cost (>1.0 = surplus)
     contributesSurplus: boolean;      // true if ratio > 1.0
@@ -399,9 +400,22 @@ export function calculateRevenueAdequacy(
     // REVENUE ADEQUACY METRICS
     // ============================================
 
-    const surplusOrDeficit = totalRevenue - totalMarginalCost;
+    // Apply market-specific flow-through rates to align with calculateNetResidentialImpact()
+    // This ensures Revenue Adequacy direction matches Bill Forecast direction
+    let effectiveRevenue = totalRevenue;
+
+    if (utility?.marketType === 'ercot') {
+        // ERCOT competitive market: not all tariff revenue flows to ratepayer benefit
+        // Apply same flow-through rates as calculateNetResidentialImpact() (lines 925-932)
+        // Demand: 70%, Energy: 65%
+        const effectiveDemandRevenue = demandChargeRevenue * 0.70;
+        const effectiveEnergyRevenue = energyChargeRevenue * 0.65;
+        effectiveRevenue = effectiveDemandRevenue + effectiveEnergyRevenue + customerChargeRevenue;
+    }
+
+    const surplusOrDeficit = effectiveRevenue - totalMarginalCost;
     const surplusOrDeficitPerMW = surplusOrDeficit / dcCapacityMW;
-    const revenueAdequacyRatio = totalMarginalCost > 0 ? totalRevenue / totalMarginalCost : 1.0;
+    const revenueAdequacyRatio = totalMarginalCost > 0 ? effectiveRevenue / totalMarginalCost : 1.0;
     const contributesSurplus = revenueAdequacyRatio > 1.0;
 
     return {
@@ -413,6 +427,7 @@ export function calculateRevenueAdequacy(
         marginalEnergyCost,
         networkUpgradeCost,
         totalMarginalCost,
+        surplusOrDeficit,
         surplusOrDeficitPerMW,
         revenueAdequacyRatio,
         contributesSurplus,
