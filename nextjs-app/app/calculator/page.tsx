@@ -97,6 +97,7 @@ const ReserveMarginIndicator = ({ utility, dcCapacityMW, peakCoincidence }: Rese
 
 // Revenue Adequacy Indicator - Shows if DC revenue covers cost-to-serve
 interface RevenueAdequacyIndicatorProps {
+    revenueAdequacy: ReturnType<typeof calculateRevenueAdequacy>;
     utility: Parameters<typeof calculateRevenueAdequacy>[4];
     tariff: TariffStructure | undefined;
     dcCapacityMW: number;
@@ -106,15 +107,9 @@ interface RevenueAdequacyIndicatorProps {
     scenarioLabel?: string;
 }
 
-const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, peakCoincidence, onsiteGenerationMW, scenarioLabel = "optimized" }: RevenueAdequacyIndicatorProps) => {
-    const revenueAdequacy = calculateRevenueAdequacy(
-        dcCapacityMW,
-        loadFactor,
-        peakCoincidence,
-        tariff,
-        utility,
-        onsiteGenerationMW
-    );
+const RevenueAdequacyIndicator = ({ revenueAdequacy, utility, tariff, dcCapacityMW, loadFactor, peakCoincidence, onsiteGenerationMW, scenarioLabel = "optimized" }: RevenueAdequacyIndicatorProps) => {
+    // Revenue adequacy is now calculated centrally in useCalculator hook
+    // This ensures consistency with other calculations and proper reactivity
 
     const formatCurrencyShort = (val: number) => {
         if (Math.abs(val) >= 1e6) return `$${(val / 1e6).toFixed(1)}M`;
@@ -316,6 +311,7 @@ export default function CalculatorPage() {
         setProjectionYears,
         resetToDefaults,
         summary,
+        revenueAdequacy,
         selectedUtilityId,
         selectedUtilityProfile,
         selectUtilityProfile,
@@ -765,7 +761,7 @@ export default function CalculatorPage() {
                                 <p className="text-xs text-gray-500">optimized vs firm load, all households</p>
                             </div>
                             <RevenueAdequacyIndicator
-                                key={`ra-${dataCenter.capacityMW}-${dataCenter.onsiteGenerationMW}-${selectedUtilityId}`}
+                                revenueAdequacy={revenueAdequacy}
                                 utility={utility}
                                 tariff={selectedUtilityProfile?.tariff}
                                 dcCapacityMW={dataCenter.capacityMW}

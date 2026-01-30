@@ -10,9 +10,11 @@ import {
     generateAllTrajectories,
     formatTrajectoriesForChart,
     calculateSummaryStats,
+    calculateRevenueAdequacy,
     type SummaryStats,
     type TrajectoryPoint,
     type EscalationConfig,
+    type RevenueAdequacyResult,
 } from '@/lib/calculations';
 import { UTILITY_PROFILES, getUtilityById, getUtilitiesSortedByState, type UtilityProfile } from '@/lib/utilityData';
 import { MARKET_FORECASTS, calculateUtilityMarketShare, type ForecastScenario } from '@/lib/marketForecasts';
@@ -32,6 +34,7 @@ interface CalculatorContextType {
     };
     chartData: any[];
     summary: SummaryStats;
+    revenueAdequacy: RevenueAdequacyResult;
     // Escalation controls
     inflationEnabled: boolean;
     inflationRate: number;
@@ -139,6 +142,20 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
     const summary = useMemo(() => {
         return calculateSummaryStats(trajectories, utility);
     }, [trajectories, utility]);
+
+    // Centralized Revenue Adequacy calculation
+    // Uses flexible scenario parameters (optimized DC operation)
+    const revenueAdequacy = useMemo(() => {
+        return calculateRevenueAdequacy(
+            dataCenter.capacityMW,
+            dataCenter.flexLoadFactor || 0.95,
+            dataCenter.flexPeakCoincidence || 0.75,
+            selectedUtilityProfile?.tariff,
+            utility,
+            dataCenter.onsiteGenerationMW || 0
+        );
+    }, [dataCenter.capacityMW, dataCenter.flexLoadFactor, dataCenter.flexPeakCoincidence,
+        dataCenter.onsiteGenerationMW, selectedUtilityProfile?.tariff, utility]);
 
     const updateUtility = useCallback((updates: Partial<Utility>) => {
         setUtility((prev) => ({ ...prev, ...updates }));
@@ -261,6 +278,7 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
         trajectories,
         chartData,
         summary,
+        revenueAdequacy,
         // Escalation controls
         inflationEnabled,
         inflationRate,

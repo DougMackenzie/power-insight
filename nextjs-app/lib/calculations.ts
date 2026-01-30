@@ -357,13 +357,11 @@ export function calculateRevenueAdequacy(
         // Capacity price is $/MW-day, convert to annual
         marginalCapacityCost = peakDemandMW * utility.capacityPrice2024 * 365;
     } else if (tariff) {
-        // Regulated/SPP market with tariff: demand charges are designed to recover capacity costs
-        // Calculate net capacity cost NOT already covered by demand charges
-        const demandChargeRecovery = (tariff.peakDemandCharge + (tariff.maxDemandCharge || 0)) * 12;
-        const embeddedCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
-        // If demand charges exceed embedded cost, net is zero (no additional capacity cost)
-        // The surplus from demand charges goes to benefit other ratepayers
-        marginalCapacityCost = peakDemandMW * Math.max(0, embeddedCapacityCost - demandChargeRecovery);
+        // Regulated/SPP market with tariff: use full embedded capacity cost
+        // Per E3 methodology: Surplus = Total Revenue - Gross Cost
+        // Don't subtract demand charges from cost - they're already counted in revenue
+        // This avoids "double-netting" where demand charges would be credited twice
+        marginalCapacityCost = peakDemandMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
     } else {
         // No tariff, no capacity market - use embedded cost as fallback
         marginalCapacityCost = peakDemandMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
@@ -974,12 +972,10 @@ const calculateNetResidentialImpact = (
     // Calculate how well DC revenue covers DC-caused costs
     const dcCostRecoveryRatio = Math.min(1.5, revenueOffset / Math.max(1, grossAnnualInfraCost));
 
-    // ERCOT 4CP Cost Causation Adjustment
-    const ERCOT_4CP_COST_CAUSATION_FACTOR = 0.60;
-
-    if (utility?.marketType === 'ercot') {
-        adjustedAllocation = residentialAllocation * ERCOT_4CP_COST_CAUSATION_FACTOR;
-    } else if (isRegulatedMarket) {
+    // Apply cost causation adjustments for regulated markets
+    // Note: ERCOT now uses standard allocation (no special 0.60 factor)
+    // This ensures Revenue Adequacy and Bill Forecast align directionally
+    if (isRegulatedMarket) {
         // REGULATED MARKETS: Aggressive cost causation adjustment
         // If DC revenue covers costs, residential allocation approaches zero
         // The formula: allocation = base * (1 - costRecoveryRatio)^0.5
