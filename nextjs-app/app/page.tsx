@@ -256,9 +256,9 @@ export default function HomePage() {
                 </div>
                 <p className="text-sm font-medium text-blue-700 mb-2">More Customers Can Mean Lower Costs</p>
                 <p className="text-sm text-slate-600">
-                  When big customers like data centers join the grid, they help pay for
-                  shared infrastructure. That means the cost per household can go down —
-                  like splitting a pizza with more people.
+                  When large customers like data centers join the grid, they help pay for
+                  shared infrastructure. This spreads fixed costs across more users,
+                  which can reduce the cost per household.
                 </p>
               </div>
             </div>
