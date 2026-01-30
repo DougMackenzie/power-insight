@@ -425,7 +425,7 @@ export default function MethodologyPage() {
                             <li><strong>Cost causation adjustment:</strong> In regulated markets, allocation reduced based on DC cost recovery ratio (formula: Base × √(1 - Cost Recovery))</li>
                             <li><strong>Rate spreading benefit:</strong> High load factor (≥80%) industrial loads spread fixed costs over more kWh, benefiting all ratepayers</li>
                             <li><strong>Regulatory lag:</strong> Changes phase in over ~5 years through rate case proceedings</li>
-                            <li><strong>Market multipliers:</strong> ERCOT applies 0.60x (4CP transmission costs); capacity markets use endogenous pricing model</li>
+                            <li><strong>Market multipliers:</strong> ERCOT uses dynamic allocation based on DC penetration; capacity markets use endogenous pricing model</li>
                         </ul>
 
                         <p className="mt-4 text-sm text-gray-500">
@@ -902,9 +902,9 @@ $1,120 | *  Emergency
                                         <td className="text-right font-medium">$140,000/MW</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
-                                        <td className="py-2">PJM (congested areas)</td>
-                                        <td className="text-right font-medium">50%</td>
-                                        <td className="text-right font-medium">$175,000/MW</td>
+                                        <td className="py-2">PJM (Dominion, AEP Ohio)</td>
+                                        <td className="text-right font-medium">95%</td>
+                                        <td className="text-right font-medium">$250,000/MW</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">ERCOT (4CP allocation)</td>
@@ -933,13 +933,36 @@ $1,120 | *  Emergency
                                 <p className="text-xs font-mono text-gray-700">
                                     Revenue Adequacy Ratio = Total DC Revenue / Marginal Cost to Serve
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs font-mono text-gray-700 mt-2">
+                                    Surplus (or Deficit) = Total DC Revenue − Marginal Cost to Serve
+                                </p>
+                                <p className="text-xs text-gray-500 mt-2">
                                     Where: Revenue = Demand Charges + Energy Charges + Customer Charges
                                 </p>
                                 <p className="text-xs text-gray-500">
                                     Cost = Marginal Capacity + Marginal Energy + Network Upgrades (annualized)
                                 </p>
                             </div>
+
+                            {/* Fuel Rider Revenue Treatment */}
+                            <h5 className="font-medium text-gray-800 mt-4 mb-2">Fuel Rider Revenue Treatment</h5>
+                            <p className="text-xs text-gray-600 mb-2">
+                                Some utility tariffs (like PSO&apos;s LPL) use a &quot;fuel rider&quot; structure where the base
+                                energy rate is low and wholesale energy costs are passed through separately:
+                            </p>
+                            <div className="bg-white p-3 rounded border border-gray-200 mb-3">
+                                <p className="text-xs font-mono text-gray-700">
+                                    Total Energy Revenue = Base Tariff Rate + Fuel Rider (≈ Wholesale Cost)
+                                </p>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Detection: If tariff energy charge &lt; 80% of wholesale cost → fuel rider structure
+                                </p>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-3">
+                                For fuel rider tariffs, both the fuel rider revenue collection AND the wholesale energy cost
+                                are included in the Revenue Adequacy calculation. This ensures the model correctly captures
+                                that fuel costs are a straight pass-through with no margin impact.
+                            </p>
 
                             {/* Market-Specific Capacity Cost Treatment */}
                             <h5 className="font-medium text-gray-800 mt-4 mb-2">Capacity Cost by Market Structure</h5>
@@ -1010,9 +1033,9 @@ $1,120 | *  Emergency
                                         <td className="text-xs text-gray-500">Moderate queue, mix of direct assignment and socialization</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
-                                        <td className="py-2">PJM / NYISO</td>
-                                        <td className="text-xs font-medium text-blue-600">50-55%</td>
-                                        <td className="text-xs text-gray-500">Large interconnection queues, significant network upgrades socialized to load</td>
+                                        <td className="py-2">PJM (Dominion, AEP Ohio)</td>
+                                        <td className="text-xs font-medium text-green-600">95%</td>
+                                        <td className="text-xs text-gray-500">DCs pay for own substations; &quot;Deep Grid&quot; transmission upgrades ($250k/MW)</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1538,7 +1561,7 @@ $1,120 | *  Emergency
                                         <tr className="border-b border-gray-100">
                                             <td className="py-2 font-medium">GS-5 Rate Class</td>
                                             <td className="py-2">Virginia (Dominion)</td>
-                                            <td className="py-2">85% minimum demand charges for T&D; dedicated large load rate schedule</td>
+                                            <td className="py-2">95% CIAC recovery; dedicated large load rate schedule with &quot;Deep Grid&quot; transmission upgrades</td>
                                             <td className="pl-4 text-xs">
                                                 <a href="https://eta-publications.lbl.gov/sites/default/files/2025-01/electricity_rate_designs_for_large_loads_evolving_practices_and_opportunities_final.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                                     DOE/LBNL Brief
@@ -2209,7 +2232,7 @@ $1,120 | *  Emergency
                                 <p className="text-gray-500 text-xs mt-3">Where Market Multiplier:</p>
                                 <ul className="text-xs text-gray-500 mt-1 space-y-1">
                                     <li>- Regulated/SPP/PJM/NYISO/MISO: 1.0 (no adjustment)</li>
-                                    <li>- ERCOT: 0.70 (large loads face 4CP transmission costs directly)</li>
+                                    <li>- ERCOT: Dynamic (scales from 30% to 15% as DC capacity grows from 0 to 45 GW)</li>
                                 </ul>
                                 <p className="text-xs text-gray-500 mt-3">
                                     <strong>Note:</strong> For capacity markets (PJM/NYISO/MISO), socialized capacity costs are calculated
@@ -2222,6 +2245,56 @@ $1,120 | *  Emergency
                                 <a href="https://www.raponline.org/knowledge-center/electric-cost-allocation-new-era/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                     RAP: Electric Cost Allocation for a New Era
                                 </a>.
+                            </p>
+                        </div>
+
+                        {/* ERCOT Dynamic Allocation */}
+                        <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                            <h4 className="font-semibold text-amber-900 mb-3">ERCOT Dynamic Residential Allocation</h4>
+                            <p className="text-sm text-gray-600 mb-3">
+                                For ERCOT, residential allocation scales dynamically based on data center penetration
+                                as a percentage of total ERCOT system capacity (~90 GW). As DC capacity grows, the
+                                residential share of system load decreases proportionally.
+                            </p>
+                            <div className="bg-white p-3 rounded border border-gray-200 mb-3">
+                                <p className="text-xs font-mono text-gray-700">DC Penetration = DC Capacity / 90,000 MW</p>
+                                <p className="text-xs font-mono text-gray-700 mt-1">Scale Factor = 1 − (Penetration × 0.3)</p>
+                                <p className="text-xs font-mono text-gray-700 mt-1">Allocation = Base × max(0.5, Scale Factor)</p>
+                            </div>
+                            <table className="w-full text-sm mt-3">
+                                <thead>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-2 font-medium">DC Capacity</th>
+                                        <th className="text-left py-2 font-medium">Penetration</th>
+                                        <th className="text-left py-2 font-medium">Residential Allocation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">0 GW</td>
+                                        <td className="text-xs">0%</td>
+                                        <td className="text-xs">30% (base)</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">9 GW</td>
+                                        <td className="text-xs">10%</td>
+                                        <td className="text-xs">~27%</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">25 GW</td>
+                                        <td className="text-xs">~28%</td>
+                                        <td className="text-xs">~22%</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">45 GW</td>
+                                        <td className="text-xs">50%</td>
+                                        <td className="text-xs">~15% (floor at 50% of base)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className="text-xs text-gray-500 mt-2">
+                                This reflects that as data centers become a larger portion of total system load,
+                                they bear more of the infrastructure costs, reducing the residential allocation.
                             </p>
                         </div>
                     </div>

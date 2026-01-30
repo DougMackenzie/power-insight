@@ -155,7 +155,7 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
             dataCenter.onsiteGenerationMW || 0
         );
     }, [dataCenter.capacityMW, dataCenter.flexLoadFactor, dataCenter.flexPeakCoincidence,
-        dataCenter.onsiteGenerationMW, selectedUtilityProfile?.tariff, utility]);
+        dataCenter.onsiteGenerationMW, selectedUtilityProfile, utility]);
 
     const updateUtility = useCallback((updates: Partial<Utility>) => {
         setUtility((prev) => ({ ...prev, ...updates }));
