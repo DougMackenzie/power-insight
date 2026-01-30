@@ -336,13 +336,22 @@ export function calculateRevenueAdequacy(
     // Note: Fuel costs are pass-through and net out in margin calculation
     // ============================================
 
-    // Capacity cost
+    // Capacity cost - in regulated markets, demand charges ARE the capacity recovery mechanism
+    // We should not double-count by applying both demand charge revenue AND capacity cost
     let marginalCapacityCost: number;
     if (utility?.hasCapacityMarket && utility?.capacityPrice2024) {
-        // Use capacity market price
+        // Capacity market (PJM, NYISO): use market price since retail rates may not fully reflect
         marginalCapacityCost = peakDemandMW * utility.capacityPrice2024 * 365;
+    } else if (tariff) {
+        // Regulated market with tariff: demand charges are designed to recover capacity costs
+        // Calculate net capacity cost NOT already covered by demand charges
+        const demandChargeRecovery = (tariff.peakDemandCharge + (tariff.maxDemandCharge || 0)) * 12;
+        const embeddedCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
+        // If demand charges exceed embedded cost, net is zero (no additional capacity cost)
+        // The surplus from demand charges goes to benefit other ratepayers
+        marginalCapacityCost = peakDemandMW * Math.max(0, embeddedCapacityCost - demandChargeRecovery);
     } else {
-        // Use embedded capacity cost
+        // No tariff, no capacity market - use embedded cost as fallback
         marginalCapacityCost = peakDemandMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
     }
 

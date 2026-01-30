@@ -900,6 +900,12 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...SPP_MARKET },
     tariff: { ...PSO_TARIFF },
+    // PSO's CIAC policy ensures full local infrastructure cost recovery via demand charges within 30-36 months
+    // Network upgrades covered by large load queue (6+ GW), protecting homeowners
+    interconnection: {
+      ciacRecoveryFraction: 0.95, // Near-full upfront recovery of local infrastructure costs
+      networkUpgradeCostPerMW: 100000, // Lower due to large load queue sharing network costs
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Multiple large data center proposals; PSO facing 31% power deficit by 2031. Large load queue exceeds 6 GW including hyperscale AI facilities.',
     defaultDataCenterMW: 6000,

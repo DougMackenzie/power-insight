@@ -82,6 +82,42 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
         return getUtilityById(selectedUtilityId);
     }, [selectedUtilityId]);
 
+    // Initialize from selected utility on mount
+    useEffect(() => {
+        const profile = getUtilityById(selectedUtilityId);
+        if (profile) {
+            // Set utility values
+            setUtility({
+                ...DEFAULT_UTILITY,
+                residentialCustomers: profile.residentialCustomers,
+                averageMonthlyBill: profile.averageMonthlyBill,
+                averageMonthlyUsage: profile.averageMonthlyUsageKWh,
+                systemPeakMW: profile.systemPeakMW,
+                baseResidentialAllocation: profile.market.baseResidentialAllocation,
+                marketType: profile.market.type,
+                hasCapacityMarket: profile.market.hasCapacityMarket,
+                capacityCostPassThrough: profile.market.capacityCostPassThrough,
+                capacityPrice2024: profile.market.capacityPrice2024,
+                totalGenerationCapacityMW: profile.totalGenerationCapacityMW,
+                currentReserveMargin: profile.currentReserveMargin,
+                interconnection: profile.interconnection,
+                marginalEnergyCost: profile.market.marginalEnergyCost,
+            });
+
+            // Set data center capacity from utility's default
+            const defaultCapacityMW = profile.defaultDataCenterMW && profile.defaultDataCenterMW > 0
+                ? profile.defaultDataCenterMW
+                : 1000;
+
+            setDataCenter((prev) => ({
+                ...prev,
+                capacityMW: defaultCapacityMW,
+                onsiteGenerationMW: Math.round(defaultCapacityMW * 0.2),
+            }));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only run on mount
+
     // Build escalation config from state
     const escalationConfig: EscalationConfig = useMemo(() => ({
         inflationEnabled,
