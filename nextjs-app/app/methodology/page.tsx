@@ -856,6 +856,117 @@ $1,120 | *  Emergency
                             </table>
                         </div>
 
+                        {/* Interconnection Cost Treatment */}
+                        <div className="border border-blue-200 bg-blue-50 rounded-lg p-4">
+                            <h4 className="font-semibold text-blue-900 mb-2">
+                                Interconnection Cost Treatment (CIAC vs Network Upgrades)
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-3">
+                                Based on E3's "Tailored for Scale" methodology: costs for infrastructure exclusive to the data center
+                                facility that are paid upfront via CIAC (Contribution in Aid of Construction) are excluded from
+                                ratepayer impact calculations, as these are "simply passed through and would not have a ratepayer impact."
+                            </p>
+                            <div className="grid md:grid-cols-2 gap-4 mb-3">
+                                <div className="bg-white p-3 rounded border border-gray-200">
+                                    <p className="text-xs font-semibold text-gray-700 mb-1">CIAC-Recovered (DC Pays Upfront)</p>
+                                    <ul className="text-xs text-gray-600 space-y-0.5">
+                                        <li>• Dedicated distribution substations</li>
+                                        <li>• Interconnection lines to facility</li>
+                                        <li>• Metering and protection equipment</li>
+                                        <li>• Local transformer upgrades</li>
+                                    </ul>
+                                </div>
+                                <div className="bg-white p-3 rounded border border-gray-200">
+                                    <p className="text-xs font-semibold text-gray-700 mb-1">Network Upgrades (Potentially Socialized)</p>
+                                    <ul className="text-xs text-gray-600 space-y-0.5">
+                                        <li>• Transmission system reinforcement</li>
+                                        <li>• Generation interconnection facilities</li>
+                                        <li>• Regional grid upgrades</li>
+                                        <li>• Congestion-driven improvements</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-2 font-medium">Market Type</th>
+                                        <th className="text-right py-2 font-medium">CIAC Recovery</th>
+                                        <th className="text-right py-2 font-medium">Network Cost/MW</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">Regulated (traditional)</td>
+                                        <td className="text-right font-medium">60%</td>
+                                        <td className="text-right font-medium">$140,000/MW</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">PJM (congested areas)</td>
+                                        <td className="text-right font-medium">50%</td>
+                                        <td className="text-right font-medium">$175,000/MW</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">ERCOT (4CP allocation)</td>
+                                        <td className="text-right font-medium">70%</td>
+                                        <td className="text-right font-medium">$105,000/MW</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className="text-xs text-gray-500 mt-2">
+                                Source: E3 "Tailored for Scale" (Dec 2025), utility tariff analysis. CIAC recovery fractions
+                                vary by utility policy and interconnection agreement terms.
+                            </p>
+                        </div>
+
+                        {/* Revenue Adequacy */}
+                        <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+                            <h4 className="font-semibold text-green-900 mb-2">
+                                Revenue Adequacy Calculation
+                            </h4>
+                            <p className="text-sm text-gray-600 mb-3">
+                                Following E3 methodology, we calculate whether data center revenue (what they pay through tariffs)
+                                covers their marginal cost-to-serve. A ratio above 1.0 indicates surplus revenue that can
+                                benefit other ratepayers.
+                            </p>
+                            <div className="bg-white p-3 rounded border border-gray-200 mb-3">
+                                <p className="text-xs font-mono text-gray-700">
+                                    Revenue Adequacy Ratio = Total DC Revenue / Marginal Cost to Serve
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Where: Revenue = Demand Charges + Energy Charges + Customer Charges
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    Cost = Marginal Capacity + Marginal Energy + Network Upgrades (annualized)
+                                </p>
+                            </div>
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-2 font-medium">Cost Component</th>
+                                        <th className="text-left py-2 font-medium">Source</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">Marginal Capacity Cost</td>
+                                        <td className="text-xs text-gray-600">Capacity market price (PJM, NYISO) or embedded cost (regulated)</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">Marginal Energy Cost</td>
+                                        <td className="text-xs text-gray-600">Wholesale LMP (ERCOT $45, PJM $42, MISO $35, TVA $32/MWh)</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">Network Upgrade Cost</td>
+                                        <td className="text-xs text-gray-600">Annualized over 20-year recovery period</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className="text-xs text-gray-500 mt-2">
+                                E3's analysis found typical data centers generate $33,500-$60,650/MW annual surplus when paying
+                                standard industrial tariffs.
+                            </p>
+                        </div>
+
                         {/* Cost Allocation */}
                         <div className="border border-gray-200 rounded-lg p-4">
                             <h4 className="font-semibold text-gray-900 mb-2">

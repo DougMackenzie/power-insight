@@ -6,8 +6,8 @@ import TrajectoryChart from '@/components/TrajectoryChart';
 import SummaryCards from '@/components/SummaryCards';
 import { useCalculator } from '@/hooks/useCalculator';
 import { formatCurrency, formatMW, SUPPLY_CURVE } from '@/lib/constants';
-import { getUtilitiesGroupedByState } from '@/lib/utilityData';
-import { calculateDynamicCapacityPrice, type CapacityPriceResult } from '@/lib/calculations';
+import { getUtilitiesGroupedByState, type TariffStructure } from '@/lib/utilityData';
+import { calculateDynamicCapacityPrice, calculateRevenueAdequacy, type CapacityPriceResult } from '@/lib/calculations';
 import { MARKET_FORECASTS } from '@/lib/marketForecasts';
 
 // Reserve Margin Indicator - Shows capacity scarcity warning
@@ -91,6 +91,45 @@ const ReserveMarginIndicator = ({ utility, dcCapacityMW, peakCoincidence }: Rese
                     )}
                 </div>
             </div>
+        </div>
+    );
+};
+
+// Revenue Adequacy Indicator - Shows if DC revenue covers cost-to-serve
+interface RevenueAdequacyIndicatorProps {
+    utility: Parameters<typeof calculateRevenueAdequacy>[4];
+    tariff: TariffStructure | undefined;
+    dcCapacityMW: number;
+    loadFactor: number;
+    peakCoincidence: number;
+}
+
+const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, peakCoincidence }: RevenueAdequacyIndicatorProps) => {
+    const revenueAdequacy = calculateRevenueAdequacy(
+        dcCapacityMW,
+        loadFactor,
+        peakCoincidence,
+        tariff,
+        utility
+    );
+
+    const formatCurrencyShort = (val: number) => {
+        if (Math.abs(val) >= 1e6) return `$${(val / 1e6).toFixed(1)}M`;
+        if (Math.abs(val) >= 1e3) return `$${(val / 1e3).toFixed(0)}k`;
+        return `$${val.toFixed(0)}`;
+    };
+
+    const { surplusOrDeficitPerMW, revenueAdequacyRatio, contributesSurplus } = revenueAdequacy;
+
+    return (
+        <div className="bg-white p-4 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Revenue Adequacy</p>
+            <p className={`text-2xl font-bold ${contributesSurplus ? 'text-green-600' : 'text-amber-600'}`}>
+                {contributesSurplus ? '+' : ''}{formatCurrencyShort(surplusOrDeficitPerMW)}/MW
+            </p>
+            <p className="text-xs text-gray-500">
+                {contributesSurplus ? 'surplus' : 'deficit'} per MW ({(revenueAdequacyRatio * 100).toFixed(0)}% coverage)
+            </p>
         </div>
     );
 };
@@ -604,16 +643,13 @@ export default function CalculatorPage() {
                                 </p>
                                 <p className="text-xs text-gray-500">optimized vs firm load, all households</p>
                             </div>
-                            <div className="bg-white p-4 rounded-lg">
-                                <p className="text-sm text-gray-600 mb-1">Lifetime Benefit</p>
-                                <p className="text-2xl font-bold text-gray-900">
-                                    {formatCurrency(
-                                        summary.cumulativeHouseholdCosts.unoptimized -
-                                        summary.cumulativeHouseholdCosts.dispatchable
-                                    )}
-                                </p>
-                                <p className="text-xs text-gray-500">per household over {projectionYears} years</p>
-                            </div>
+                            <RevenueAdequacyIndicator
+                                utility={utility}
+                                tariff={selectedUtilityProfile?.tariff}
+                                dcCapacityMW={dataCenter.capacityMW}
+                                loadFactor={dataCenter.firmLoadFactor || 0.8}
+                                peakCoincidence={dataCenter.firmPeakCoincidence || 1.0}
+                            />
                         </div>
                     </div>
                 </div>

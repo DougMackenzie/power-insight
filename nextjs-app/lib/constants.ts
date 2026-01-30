@@ -18,6 +18,17 @@ export interface ScenarioParams {
 
 export type MarketType = 'regulated' | 'pjm' | 'ercot' | 'miso' | 'caiso' | 'spp' | 'nyiso' | 'tva';
 
+/**
+ * Interconnection cost structure for calculations
+ * Separates CIAC-recovered costs from network upgrade costs
+ */
+export interface InterconnectionCosts {
+    // Portion of transmission cost covered by CIAC (0-1)
+    ciacRecoveryFraction: number;
+    // Network upgrade cost per MW that may be socialized ($/MW)
+    networkUpgradeCostPerMW: number;
+}
+
 export interface Utility {
     name: string;
     residentialCustomers: number;
@@ -40,6 +51,10 @@ export interface Utility {
     totalGenerationCapacityMW?: number;
     // Current reserve margin before DC addition ((capacity - peak) / peak)
     currentReserveMargin?: number;
+    // Interconnection cost structure (CIAC vs network upgrades)
+    interconnection?: InterconnectionCosts;
+    // Wholesale energy cost ($/MWh) for margin calculations
+    marginalEnergyCost?: number;
 }
 
 export interface DataCenter {
@@ -144,6 +159,13 @@ export const DEFAULT_UTILITY: Utility = {
     // Capacity for endogenous pricing - 15% reserve margin by default
     totalGenerationCapacityMW: 4600, // 4000 MW peak * 1.15 reserve
     currentReserveMargin: 0.15,
+    // Default interconnection: 60% CIAC recovery (regulated market standard)
+    interconnection: {
+        ciacRecoveryFraction: 0.60,
+        networkUpgradeCostPerMW: 140000, // $140k/MW network upgrades
+    },
+    // Default wholesale energy cost
+    marginalEnergyCost: 38, // $/MWh
 };
 
 export const DC_RATE_STRUCTURE = {

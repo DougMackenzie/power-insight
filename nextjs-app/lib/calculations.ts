@@ -15,6 +15,7 @@ import {
     calculateDCRevenueOffset,
     type Utility,
     type DataCenter,
+    type InterconnectionCosts,
 } from './constants';
 
 // ============================================
@@ -239,6 +240,129 @@ export function calculateDynamicCapacityPrice(
             newSystemPeakMW,
             conePrice: SUPPLY_CURVE.costOfNewEntry,
         },
+    };
+}
+
+// ============================================
+// REVENUE ADEQUACY CALCULATION
+// Based on E3 "Tailored for Scale" methodology
+// Compares DC revenue to marginal cost-to-serve
+// ============================================
+
+export interface RevenueAdequacyResult {
+    // Revenue components (what DC pays through tariff)
+    demandChargeRevenue: number;      // CP + NCP demand charges
+    energyChargeRevenue: number;      // Energy charges
+    customerChargeRevenue: number;    // Fixed monthly charges (estimated)
+    totalRevenue: number;
+
+    // Cost components (marginal cost to serve)
+    marginalCapacityCost: number;     // Capacity market or embedded
+    marginalEnergyCost: number;       // Wholesale energy costs
+    networkUpgradeCost: number;       // Only network upgrades (not CIAC)
+    totalMarginalCost: number;
+
+    // Revenue adequacy metrics
+    surplusOrDeficitPerMW: number;    // (Revenue - Cost) / MW
+    revenueAdequacyRatio: number;     // Revenue / Cost (>1.0 = surplus)
+    contributesSurplus: boolean;      // true if ratio > 1.0
+}
+
+/**
+ * Calculate revenue adequacy following E3 methodology
+ *
+ * E3 Framework (from "Tailored for Scale" pages 26-28):
+ * - Revenue Adequacy = Utility Revenue / Marginal Cost to Serve
+ * - If > 1.0: Surplus revenue that can benefit other ratepayers
+ * - If = 1.0: Neutral impact
+ * - If < 1.0: Cost subsidy from other ratepayers
+ *
+ * @param dcCapacityMW - Data center interconnection capacity
+ * @param loadFactor - Average load factor (0-1)
+ * @param peakCoincidence - Peak coincidence factor (0-1)
+ * @param tariff - Utility-specific tariff structure
+ * @param utility - Utility parameters
+ * @returns Revenue adequacy result with surplus/deficit per MW
+ */
+export function calculateRevenueAdequacy(
+    dcCapacityMW: number,
+    loadFactor: number,
+    peakCoincidence: number,
+    tariff: TariffStructure | undefined,
+    utility: Utility | undefined
+): RevenueAdequacyResult {
+    const annualMWh = dcCapacityMW * loadFactor * 8760;
+
+    // ============================================
+    // REVENUE CALCULATION (what DC pays)
+    // ============================================
+
+    // Demand charges (CP + NCP)
+    const peakDemandMW = dcCapacityMW * peakCoincidence;
+    const peakDemandCharge = tariff?.peakDemandCharge ?? DC_RATE_STRUCTURE.coincidentPeakChargePerMWMonth;
+    const maxDemandCharge = tariff?.maxDemandCharge ?? DC_RATE_STRUCTURE.nonCoincidentPeakChargePerMWMonth;
+
+    const demandChargeRevenue = (peakDemandMW * peakDemandCharge * 12) +
+                                (dcCapacityMW * maxDemandCharge * 12);
+
+    // Energy charges
+    const energyRate = tariff?.energyCharge ?? 30; // $/MWh
+    const energyChargeRevenue = annualMWh * energyRate;
+
+    // Customer charges (estimated as ~$500/month for large power)
+    const customerChargeRevenue = 500 * 12;
+
+    const totalRevenue = demandChargeRevenue + energyChargeRevenue + customerChargeRevenue;
+
+    // ============================================
+    // COST CALCULATION (marginal cost to serve)
+    // ============================================
+
+    // Capacity cost
+    let marginalCapacityCost: number;
+    if (utility?.hasCapacityMarket && utility?.capacityPrice2024) {
+        // Use capacity market price
+        marginalCapacityCost = peakDemandMW * utility.capacityPrice2024 * 365;
+    } else {
+        // Use embedded capacity cost
+        marginalCapacityCost = peakDemandMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
+    }
+
+    // Energy cost (wholesale)
+    const wholesaleEnergyCost = utility?.marginalEnergyCost ?? 38; // $/MWh
+    const marginalEnergyCost = annualMWh * wholesaleEnergyCost;
+
+    // Network upgrade cost (only socialized portion, not CIAC)
+    const interconnection = utility?.interconnection ?? {
+        ciacRecoveryFraction: 0.60,
+        networkUpgradeCostPerMW: 140000,
+    };
+    // Annualize over 20-year recovery period
+    const networkUpgradeCost = (peakDemandMW * interconnection.networkUpgradeCostPerMW) / 20;
+
+    const totalMarginalCost = marginalCapacityCost + marginalEnergyCost + networkUpgradeCost;
+
+    // ============================================
+    // REVENUE ADEQUACY METRICS
+    // ============================================
+
+    const surplusOrDeficit = totalRevenue - totalMarginalCost;
+    const surplusOrDeficitPerMW = surplusOrDeficit / dcCapacityMW;
+    const revenueAdequacyRatio = totalMarginalCost > 0 ? totalRevenue / totalMarginalCost : 1.0;
+    const contributesSurplus = revenueAdequacyRatio > 1.0;
+
+    return {
+        demandChargeRevenue,
+        energyChargeRevenue,
+        customerChargeRevenue,
+        totalRevenue,
+        marginalCapacityCost,
+        marginalEnergyCost,
+        networkUpgradeCost,
+        totalMarginalCost,
+        surplusOrDeficitPerMW,
+        revenueAdequacyRatio,
+        contributesSurplus,
     };
 }
 
@@ -543,9 +667,17 @@ const calculateNetResidentialImpact = (
     const effectivePeakMW = dcCapacityMW * peakCoincidence - onsiteGenMW;
 
     // ============================================
-    // TRANSMISSION COSTS - Market-specific allocation
+    // TRANSMISSION COSTS - CIAC vs Network Upgrade Split
+    // Based on E3 methodology: exclude "infrastructure exclusive to the
+    // Amazon facility that Amazon pays for upfront"
     // ============================================
     let transmissionCost: number;
+
+    // Get interconnection cost structure (CIAC recovery vs network upgrades)
+    const interconnection = utility?.interconnection ?? {
+        ciacRecoveryFraction: 0.60, // Default: 60% CIAC recovery
+        networkUpgradeCostPerMW: 140000, // Default: $140k/MW network upgrades
+    };
 
     if (utility?.marketType === 'ercot') {
         // ERCOT uses 4CP (four coincident peak) methodology
@@ -559,13 +691,15 @@ const calculateNetResidentialImpact = (
         const ercot4CPRate = DC_RATE_STRUCTURE.ercot4CPTransmissionRate || 5.50; // $/kW-month
         const annualTransmissionCost = Math.max(0, fourCPContributionMW) * 1000 * ercot4CPRate * 12;
 
-        // Also include some base transmission cost that doesn't depend on 4CP
-        // (interconnection facilities, local upgrades)
-        const baseTransmissionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.transmissionCostPerMW * 0.3;
-        transmissionCost = annualTransmissionCost + (baseTransmissionCost / 20);
+        // Network upgrade portion (not covered by CIAC) - ERCOT has higher CIAC recovery
+        const networkUpgradeCost = Math.max(0, effectivePeakMW) * interconnection.networkUpgradeCostPerMW;
+        transmissionCost = annualTransmissionCost + (networkUpgradeCost / 20);
     } else {
-        // Traditional embedded cost allocation for regulated/PJM/other markets
-        transmissionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.transmissionCostPerMW;
+        // Traditional markets: Only network upgrade costs are socialized
+        // CIAC-covered costs (direct facility costs) are excluded per E3 methodology
+        // DC pays upfront for dedicated substations, interconnection lines, etc.
+        const networkUpgradeCost = Math.max(0, effectivePeakMW) * interconnection.networkUpgradeCostPerMW;
+        transmissionCost = networkUpgradeCost;
     }
 
     // ============================================
@@ -824,6 +958,15 @@ const calculateNetResidentialImpact = (
 
     const perCustomerMonthly = residentialImpact / residentialCustomers / 12;
 
+    // Calculate revenue adequacy (E3 methodology)
+    const revenueAdequacy = calculateRevenueAdequacy(
+        dcCapacityMW,
+        loadFactor,
+        peakCoincidence,
+        tariff,
+        utility
+    );
+
     return {
         perCustomerMonthly,
         annualResidentialImpact: residentialImpact,
@@ -833,6 +976,8 @@ const calculateNetResidentialImpact = (
         // Endogenous capacity pricing results
         capacityPriceResult: capacityPriceResult ?? undefined,
         socializedCapacityCost,
+        // Revenue adequacy (E3 methodology)
+        revenueAdequacy,
         metrics: {
             effectivePeakMW: Math.max(0, effectivePeakMW),
             transmissionCost: annualizedTransmissionCost,
@@ -856,6 +1001,13 @@ const calculateNetResidentialImpact = (
             isScarcity: capacityPriceResult?.isScarcity ?? false,
             isCritical: capacityPriceResult?.isCritical ?? false,
             socializedCapacityCost,
+            // Revenue adequacy metrics
+            revenueAdequacyRatio: revenueAdequacy.revenueAdequacyRatio,
+            surplusPerMW: revenueAdequacy.surplusOrDeficitPerMW,
+            contributesSurplus: revenueAdequacy.contributesSurplus,
+            // Interconnection cost breakdown
+            ciacRecoveryFraction: interconnection.ciacRecoveryFraction,
+            networkUpgradeCostPerMW: interconnection.networkUpgradeCostPerMW,
         },
     };
 };

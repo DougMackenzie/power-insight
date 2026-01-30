@@ -81,8 +81,26 @@ export interface MarketStructure {
   utilityOwnsGeneration: boolean;
   // 2024 capacity price if applicable ($/MW-day)
   capacityPrice2024?: number;
+  // Wholesale energy cost ($/MWh) - marginal generation cost
+  // Used for calculating energy margin (retail rate - wholesale cost)
+  marginalEnergyCost: number;
   // Notes on market-specific considerations
   notes: string;
+}
+
+/**
+ * Interconnection cost structure
+ * Separates CIAC-recovered costs (DC pays upfront) from network upgrade costs (socialized)
+ * Based on E3 methodology: "The model excluded costs for infrastructure exclusive to the
+ * Amazon facility that Amazon pays for upfront"
+ */
+export interface InterconnectionCosts {
+  // Portion of transmission cost covered by CIAC (0-1)
+  // E.g., 0.70 means 70% is direct facility cost paid upfront by DC
+  ciacRecoveryFraction: number;
+  // Network upgrade cost per MW that may be socialized ($/MW)
+  // Varies by utility, congestion, and available headroom
+  networkUpgradeCostPerMW: number;
 }
 
 export interface UtilityProfile {
@@ -108,6 +126,8 @@ export interface UtilityProfile {
   market: MarketStructure;
   // Tariff structure for large power customers
   tariff: TariffStructure;
+  // Interconnection cost structure (CIAC vs network upgrades)
+  interconnection?: InterconnectionCosts;
   // Data center context
   hasDataCenterActivity: boolean;
   dataCenterNotes?: string;
@@ -125,6 +145,7 @@ const REGULATED_MARKET: MarketStructure = {
   capacityCostPassThrough: 0.40, // Through rate base
   transmissionAllocation: 0.35,
   utilityOwnsGeneration: true,
+  marginalEnergyCost: 38, // $/MWh - embedded fuel + O&M costs
   notes: 'Vertically integrated utility. Infrastructure costs allocated through traditional rate base. State PUC sets rates based on cost of service study.'
 };
 
@@ -136,6 +157,7 @@ const PJM_MARKET: MarketStructure = {
   transmissionAllocation: 0.35,
   utilityOwnsGeneration: false,
   capacityPrice2024: 269.92, // $/MW-day from July 2024 auction
+  marginalEnergyCost: 42, // $/MWh - LMP-based, moderate congestion
   notes: 'PJM capacity market. 2024 auction cleared at $269.92/MW-day (10x increase). Data centers attributed to 63% of price increase. Capacity costs flow through retail suppliers to customers.'
 };
 
@@ -146,6 +168,7 @@ const ERCOT_MARKET: MarketStructure = {
   capacityCostPassThrough: 0.25, // Lower - energy-only market
   transmissionAllocation: 0.35,
   utilityOwnsGeneration: false,
+  marginalEnergyCost: 45, // $/MWh - volatile, scarcity pricing, 2024 average
   notes: 'Energy-only market with no capacity payments. Price signals drive investment. $5,000/MWh cap. Lower baseline costs but more volatile. Transmission costs still allocated to ratepayers.'
 };
 
@@ -157,6 +180,7 @@ const MISO_MARKET: MarketStructure = {
   transmissionAllocation: 0.35,
   utilityOwnsGeneration: true, // Many vertically integrated utilities in MISO
   capacityPrice2024: 30.00, // Lower than PJM
+  marginalEnergyCost: 35, // $/MWh - lower congestion, coal/gas mix
   notes: 'MISO capacity market with lower clearing prices than PJM. Many vertically integrated utilities still operate within MISO footprint.'
 };
 
@@ -167,6 +191,7 @@ const SPP_MARKET: MarketStructure = {
   capacityCostPassThrough: 0.40,
   transmissionAllocation: 0.35,
   utilityOwnsGeneration: true,
+  marginalEnergyCost: 28, // $/MWh - wind-heavy, low wholesale prices
   notes: 'Southwest Power Pool. Energy market but no mandatory capacity market. Many vertically integrated utilities. Resource adequacy through bilateral contracts.'
 };
 
@@ -178,6 +203,7 @@ const NYISO_MARKET: MarketStructure = {
   transmissionAllocation: 0.38,
   utilityOwnsGeneration: false,
   capacityPrice2024: 180.00, // $/MW-day approximate for NYISO
+  marginalEnergyCost: 55, // $/MWh - constrained zones, higher congestion
   notes: 'New York ISO with capacity market. High capacity and transmission costs. Transmission constraints in downstate areas. Data center growth concentrated upstate.'
 };
 
@@ -188,6 +214,7 @@ const TVA_MARKET: MarketStructure = {
   capacityCostPassThrough: 0.35,
   transmissionAllocation: 0.40,
   utilityOwnsGeneration: true,
+  marginalEnergyCost: 32, // $/MWh - low-cost hydro/nuclear baseload
   notes: 'Tennessee Valley Authority provides wholesale power to 153 local power companies. Costs flow through to retail rates. Federal power agency with low-cost hydro and nuclear.'
 };
 
@@ -623,6 +650,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1150,
     market: { ...REGULATED_MARKET },
     tariff: { ...GEORGIA_POWER_TARIFF },
+    // Georgia Power regulated market with standard CIAC
+    interconnection: {
+      ciacRecoveryFraction: 0.60, // 60% via CIAC - regulated market standard
+      networkUpgradeCostPerMW: 140000, // Moderate network upgrade costs
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Projecting 8,200 MW of load growth by 2030. 51 GW in Georgia queue. Aggressive scenario: 6-8 GW DC growth by 2035.',
     defaultDataCenterMW: 8000,
@@ -843,6 +875,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'AEP Ohio operates in PJM. Ohio is a deregulated retail market but AEP still owns transmission. 2024 PJM capacity price surge significantly impacts costs.'
     },
     tariff: { ...AEP_OHIO_TARIFF },
+    // AEP Ohio with 85% minimum demand for 12 years - strong CIAC recovery
+    interconnection: {
+      ciacRecoveryFraction: 0.55, // 55% via CIAC (85% min demand tariff)
+      networkUpgradeCostPerMW: 157500, // Moderate network upgrade needs
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Ohio seeing significant data center growth; AEP proposed new rate class for data centers to PUCO. PJM share: ~2.4 GW by 2035.',
     defaultDataCenterMW: 2400,
@@ -925,6 +962,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'Energy-only market with no capacity payments. 46% of projected load growth from data centers. Lower baseline capacity costs but transmission costs still flow to ratepayers. Retail choice allows competitive pricing.'
     },
     tariff: { ...ERCOT_TARIFF },
+    // ERCOT has strong CIAC recovery with 4CP-based transmission allocation
+    interconnection: {
+      ciacRecoveryFraction: 0.70, // 70% via CIAC - strong upfront recovery
+      networkUpgradeCostPerMW: 105000, // Lower network costs, less congestion outside major metros
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Data centers account for 46% of projected load growth; 200+ GW in large load queue. Aggressive scenario: 15-25 GW DC growth by 2035.',
     defaultDataCenterMW: 25000,
@@ -975,6 +1017,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'Dominion operates in PJM but Virginia remains traditionally regulated. Data center capital of the world - 9GW DC peak forecast in 10 years. PJM capacity costs flow through but state regulates retail rates.'
     },
     tariff: { ...DOMINION_TARIFF },
+    // Dominion has significant network upgrade requirements due to congestion in NoVA
+    interconnection: {
+      ciacRecoveryFraction: 0.50, // 50% direct facility costs via CIAC
+      networkUpgradeCostPerMW: 175000, // Higher due to NoVA congestion
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Data center capital of the world; 933MW connected in 2023, forecasting 9-12 GW DC growth by 2035. NoVA hosts 70% of global internet traffic.',
     defaultDataCenterMW: 12000,

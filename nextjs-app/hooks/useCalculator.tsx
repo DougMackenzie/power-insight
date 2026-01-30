@@ -142,6 +142,10 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
                 // Endogenous capacity pricing fields
                 totalGenerationCapacityMW: profile.totalGenerationCapacityMW,
                 currentReserveMargin: profile.currentReserveMargin,
+                // Interconnection cost structure (CIAC vs network upgrades)
+                interconnection: profile.interconnection,
+                // Wholesale energy cost for margin calculations
+                marginalEnergyCost: profile.market.marginalEnergyCost,
             });
 
             // Calculate DC capacity - prefer utility-specific default, fall back to market share
