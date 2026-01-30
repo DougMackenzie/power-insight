@@ -148,45 +148,76 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* How Costs Flow - Simplified */}
+          {/* How Costs Flow - With Revenue Recovery */}
           <div className="mb-12">
             <h3 className="text-xl font-bold text-slate-800 mb-6 text-center">How Costs Flow to Your Bill</h3>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2">
-                  <svg className="w-8 h-8 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4">
+              {/* Step 1: Data Center Needs Power */}
+              <div className="flex flex-col items-center text-center max-w-[100px]">
+                <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2">
+                  <svg className="w-7 h-7 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="4" y="4" width="16" height="16" rx="2" />
                     <line x1="4" y1="9" x2="20" y2="9" />
                     <line x1="4" y1="14" x2="20" y2="14" />
                   </svg>
                 </div>
-                <span className="text-sm text-slate-700">Data Center Needs Power</span>
+                <span className="text-xs text-slate-700 leading-tight">Data Center Connects</span>
               </div>
-              <svg className="w-6 h-6 text-slate-400 rotate-90 md:rotate-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <svg className="w-5 h-5 text-slate-400 rotate-90 md:rotate-0 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mb-2">
-                  <svg className="w-8 h-8 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {/* Step 2: Utility Builds */}
+              <div className="flex flex-col items-center text-center max-w-[100px]">
+                <div className="w-14 h-14 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mb-2">
+                  <svg className="w-7 h-7 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                   </svg>
                 </div>
-                <span className="text-sm text-slate-700">Utility Builds Infrastructure</span>
+                <span className="text-xs text-slate-700 leading-tight">Utility Builds Infrastructure</span>
               </div>
-              <svg className="w-6 h-6 text-slate-400 rotate-90 md:rotate-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <svg className="w-5 h-5 text-slate-400 rotate-90 md:rotate-0 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2">
-                  <svg className="w-8 h-8 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {/* Step 3: Data Center Pays */}
+              <div className="flex flex-col items-center text-center max-w-[100px]">
+                <div className="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mb-2">
+                  <svg className="w-7 h-7 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                  </svg>
+                </div>
+                <span className="text-xs text-slate-700 leading-tight">Data Center Pays Utility</span>
+              </div>
+              <svg className="w-5 h-5 text-slate-400 rotate-90 md:rotate-0 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+              {/* Step 4: Costs Shared */}
+              <div className="flex flex-col items-center text-center max-w-[100px]">
+                <div className="w-14 h-14 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center mb-2">
+                  <svg className="w-7 h-7 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 12h8M12 8v8" />
+                  </svg>
+                </div>
+                <span className="text-xs text-slate-700 leading-tight">Revenue Offsets Costs</span>
+              </div>
+              <svg className="w-5 h-5 text-slate-400 rotate-90 md:rotate-0 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+              {/* Step 5: Your Bill */}
+              <div className="flex flex-col items-center text-center max-w-[100px]">
+                <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2">
+                  <svg className="w-7 h-7 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="5" y="4" width="14" height="17" rx="2" />
                     <line x1="9" y1="9" x2="15" y2="9" />
                     <line x1="9" y1="13" x2="15" y2="13" />
                   </svg>
                 </div>
-                <span className="text-sm text-slate-700">Your Bill Changes</span>
+                <span className="text-xs text-slate-700 leading-tight">Your Bill Reflects Net</span>
               </div>
             </div>
+            <p className="text-xs text-slate-500 text-center mt-4 max-w-2xl mx-auto">
+              When data centers pay their fair share through electricity rates, that revenue helps cover infrastructure costs — potentially lowering what you pay.
+            </p>
           </div>
 
           {/* What Research Shows */}
@@ -195,8 +226,8 @@ export default function HomePage() {
               What Research Shows About Data Center Impacts
             </h3>
             <p className="text-slate-600 text-center max-w-3xl mx-auto mb-6">
-              A growing body of research — including studies from E3, LBNL, MIT, and GridCARE — shows that
-              well-structured data center growth can put <strong className="text-slate-800">downward pressure on residential rates</strong>.
+              Independent studies show that when data centers pay fair rates, they can actually help
+              <strong className="text-slate-800"> lower bills for everyone</strong> by bringing new revenue to the grid.
             </p>
 
             {/* Two Key Findings Cards */}
@@ -208,11 +239,11 @@ export default function HomePage() {
                     <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-green-700 mb-2">Utilities Are Protecting Ratepayers</p>
+                <p className="text-sm font-medium text-green-700 mb-2">Utilities Are Protecting You</p>
                 <p className="text-sm text-slate-600">
-                  Major utilities across PJM, MISO, and ERCOT are implementing tariffs that require
-                  data centers to pay their fair share of infrastructure costs through demand charges,
-                  CIAC requirements, and separate rate classes.
+                  Electric companies are creating special rates for data centers that make them pay
+                  their fair share — so homeowners don't get stuck with the bill for new power lines
+                  and equipment.
                 </p>
               </div>
 
@@ -223,51 +254,91 @@ export default function HomePage() {
                     <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-blue-700 mb-2">Revenue Adequacy Shows Downward Pressure</p>
+                <p className="text-sm font-medium text-blue-700 mb-2">More Customers Can Mean Lower Costs</p>
                 <p className="text-sm text-slate-600">
-                  Our analysis using E3's revenue adequacy framework shows that data centers paying
-                  standard industrial tariffs typically cover their marginal cost-to-serve — contributing
-                  surplus revenue that benefits all ratepayers.
+                  When big customers like data centers join the grid, they help pay for
+                  shared infrastructure. That means the cost per household can go down —
+                  like splitting a pizza with more people.
                 </p>
               </div>
             </div>
 
             {/* Research Highlights Grid */}
             <div className="grid md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-white rounded-lg p-4 border border-slate-200">
-                <p className="text-xs text-slate-500 mb-1">E3 / Amazon Study (2025)</p>
-                <p className="text-sm text-slate-700">
-                  "$3.4-6.1M surplus revenue per 100MW facility; PG&E customers could see 1-2% bill reduction per GW"
+              <a
+                href="https://www.ethree.com/ratepayer-study/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
+              >
+                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                  E3 Study (2025)
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
                 </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-slate-200">
-                <p className="text-xs text-slate-500 mb-1">LBNL / Brattle (2025)</p>
                 <p className="text-sm text-slate-700">
-                  "Fixed cost spreading over more kWh reduces per-unit costs; states with demand growth saw falling rates"
+                  A single data center can bring millions in extra revenue — enough to lower bills for nearby customers by 1-2%.
                 </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-slate-200">
-                <p className="text-xs text-slate-500 mb-1">GridCARE (2025)</p>
+              </a>
+              <a
+                href="https://www.pbs.org/newshour/show/how-data-center-power-demand-could-help-lower-electricity-prices"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
+              >
+                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                  LBNL / Brattle (2025)
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </p>
                 <p className="text-sm text-slate-700">
-                  "1 GW flexible DC could reduce costs 5% across all customer classes"
+                  States with growing electricity demand actually saw rates go down — more customers means lower costs per person.
                 </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 border border-slate-200">
-                <p className="text-xs text-slate-500 mb-1">MIT Sloan / CEEPR (2025)</p>
+              </a>
+              <a
+                href="https://www.utilitydive.com/news/grid-operators-ratepayers-shouldnt-fear-flexible-data-centers-gridcare/808032/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
+              >
+                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                  GridCARE (2025)
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </p>
                 <p className="text-sm text-slate-700">
-                  "Flexibility to shift workload always reduces costs"
+                  Data centers that can reduce power during peak hours could cut costs by 5% for all customers.
                 </p>
-              </div>
+              </a>
+              <a
+                href="https://mitsloan.mit.edu/ideas-made-to-matter/flexible-data-centers-can-reduce-costs-if-not-emissions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
+              >
+                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                  MIT Sloan (2025)
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </p>
+                <p className="text-sm text-slate-700">
+                  When data centers shift their work to off-peak times, it always saves money for the whole grid.
+                </p>
+              </a>
             </div>
 
             {/* Key Research Link */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
               <p className="text-sm text-slate-700">
-                <strong className="text-amber-800">Explore the research</strong> — Our{' '}
+                <strong className="text-amber-800">Want to dive deeper?</strong> Our{' '}
                 <Link href="/methodology#literature-review" className="text-amber-700 underline hover:text-amber-800">
-                  literature review
+                  research summary
                 </Link>{' '}
-                analyzes 12+ peer-reviewed studies on data center rate impacts.
+                covers 12+ studies — including ones that show potential risks.
               </p>
             </div>
           </div>
