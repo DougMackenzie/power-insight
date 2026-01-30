@@ -1029,6 +1029,428 @@ $1,120 | *  Emergency
                     </div>
                 </Section>
 
+                {/* RESEARCH LITERATURE REVIEW */}
+                <Section
+                    id="research-literature"
+                    title="Research Literature Review"
+                    expandedSection={expandedSection}
+                    toggleSection={toggleSection}
+                    badge="2024-2025 Studies"
+                    badgeColor="bg-purple-100 text-purple-800"
+                >
+                    <div className="space-y-6 text-gray-600">
+                        {/* Introduction */}
+                        <p>
+                            The question of whether large data center loads benefit or harm existing ratepayers
+                            is actively debated in academic and policy circles. Below we summarize key research
+                            from <strong>2024-2025</strong>, presenting both supporting and contradicting evidence.
+                        </p>
+
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm font-semibold text-blue-900 mb-2">
+                                How to Read This Section
+                            </p>
+                            <p className="text-sm text-gray-700">
+                                This research review <strong>does not change our calculator&apos;s model</strong>—it provides
+                                context for the assumptions we&apos;ve made. Studies are organized by conclusion
+                                (supporting vs. contradicting the premise that flexible data centers benefit ratepayers).
+                                We note methodology differences and acknowledge that this is an evolving area of research.
+                            </p>
+                        </div>
+
+                        {/* Balanced Evidence Summary - Side by Side */}
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {/* Supporting Evidence Summary */}
+                            <div className="border-2 border-green-200 rounded-lg p-5 bg-green-50">
+                                <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Supporting Evidence
+                                </h4>
+                                <p className="text-sm text-gray-700 mb-3">
+                                    Multiple studies find that <strong>flexible, high-load-factor</strong> data centers
+                                    can reduce costs for existing ratepayers through:
+                                </p>
+                                <ul className="space-y-2 text-sm text-gray-700">
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-green-600 font-bold">1.</span>
+                                        <span>Fixed cost spreading over more kWh</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-green-600 font-bold">2.</span>
+                                        <span>Demand response reducing capacity needs</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-green-600 font-bold">3.</span>
+                                        <span>Accelerated renewable deployment</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {/* Contradicting Evidence Summary */}
+                            <div className="border-2 border-amber-200 rounded-lg p-5 bg-amber-50">
+                                <h4 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    Contradicting Evidence
+                                </h4>
+                                <p className="text-sm text-gray-700 mb-3">
+                                    Other studies raise concerns about cost-shifting, particularly for
+                                    <strong> firm loads in constrained regions</strong>:
+                                </p>
+                                <ul className="space-y-2 text-sm text-gray-700">
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-amber-600 font-bold">1.</span>
+                                        <span>Capacity market price spikes (PJM 10x)</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-amber-600 font-bold">2.</span>
+                                        <span>Regional bill impacts up to 25%</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-amber-600 font-bold">3.</span>
+                                        <span>Infrastructure cost socialization</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Supporting Evidence Table */}
+                        <div className="border border-green-200 rounded-lg p-4 bg-green-50/30">
+                            <h4 className="font-semibold text-gray-900 mb-3">
+                                Studies Supporting Flexible Load Benefits
+                            </h4>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-green-200">
+                                            <th className="text-left py-2 font-medium">Study</th>
+                                            <th className="text-left py-2 font-medium">Key Finding</th>
+                                            <th className="text-left py-2 pl-4 font-medium">Source</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="border-b border-green-100">
+                                            <td className="py-2 font-medium">E3/Amazon (Dec 2025)</td>
+                                            <td className="py-2">$3.4M-$6.1M surplus revenue per 100MW facility; PG&E customers could see 1-2% bill reduction per GW</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.ethree.com/ratepayer-study/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    E3 Ratepayer Study
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-green-100">
+                                            <td className="py-2 font-medium">LBNL/Brattle (Oct 2025)</td>
+                                            <td className="py-2">Fixed cost spreading over more kWh reduces per-unit costs; states with demand growth saw falling rates</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.pbs.org/newshour/show/how-data-center-power-demand-could-help-lower-electricity-prices" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    PBS NewsHour
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-green-100">
+                                            <td className="py-2 font-medium">GridCARE (Dec 2025)</td>
+                                            <td className="py-2">1 GW flexible DC could reduce costs 5% across all customer classes or unlock $1.35B in capital</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.utilitydive.com/news/grid-operators-ratepayers-shouldnt-fear-flexible-data-centers-gridcare/808032/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Utility Dive
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-green-100">
+                                            <td className="py-2 font-medium">Camus/Princeton/ZERO Lab</td>
+                                            <td className="py-2">500MW flexible DC connects 3-5 years sooner than inflexible; nearly eliminates incremental supply costs</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.utilitydive.com/news/grid-operators-ratepayers-shouldnt-fear-flexible-data-centers-gridcare/808032/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Utility Dive
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-green-100">
+                                            <td className="py-2 font-medium">MIT Sloan/CEEPR (Oct 2025)</td>
+                                            <td className="py-2">Flexibility to shift workload always reduces costs; can encourage renewable investment</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://mitsloan.mit.edu/ideas-made-to-matter/flexible-data-centers-can-reduce-costs-if-not-emissions" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    MIT Sloan
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-green-100">
+                                            <td className="py-2 font-medium">RMI (Jul 2025)</td>
+                                            <td className="py-2">DC operators ready to invest in flexible, low-cost sources that mitigate stranded asset risks</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://rmi.org/fast-flexible-solutions-for-data-centers/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    RMI
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-green-100">
+                                            <td className="py-2 font-medium">Power Policy (Jul 2025)</td>
+                                            <td className="py-2">PJM could accommodate 13 GW without new capacity if loads are flexible 0.25% of uptime</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.powerpolicy.net/p/data-centers-could-make-or-break" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Power Policy
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Contradicting Evidence Table */}
+                        <div className="border border-amber-200 rounded-lg p-4 bg-amber-50/30">
+                            <h4 className="font-semibold text-gray-900 mb-3">
+                                Studies Raising Cost-Shift Concerns
+                            </h4>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-amber-200">
+                                            <th className="text-left py-2 font-medium">Study</th>
+                                            <th className="text-left py-2 font-medium">Key Finding</th>
+                                            <th className="text-left py-2 pl-4 font-medium">Source</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="border-b border-amber-100">
+                                            <td className="py-2 font-medium">Harvard ELI (Mar 2025)</td>
+                                            <td className="py-2">Concerns about utilities passing infrastructure costs to general ratepayers; regulatory capture risks</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://eelp.law.harvard.edu/wp-content/uploads/2025/03/Harvard-ELI-Extracting-Profits-from-the-Public.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Harvard Law
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-amber-100">
+                                            <td className="py-2 font-medium">Carnegie Mellon (Jul 2025)</td>
+                                            <td className="py-2">DC growth could increase bills 8% nationally and up to 25% in some regional markets</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.law.georgetown.edu/environmental-law-review/blog/consumers-end-up-paying-for-the-energy-demands-of-data-centers-how-can-regulators-fight-back/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Georgetown Law Review
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-amber-100">
+                                            <td className="py-2 font-medium">Virginia JLARC (2024)</td>
+                                            <td className="py-2">Unconstrained growth could increase bills $14-37/month by 2040 (independent of inflation)</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.datacenterdynamics.com/en/news/some-amazon-data-centers-are-driving-down-utility-costs-amazon-commissioned-report-finds/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    DCD Coverage
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-amber-100">
+                                            <td className="py-2 font-medium">IEEFA/PJM Analysis (2025)</td>
+                                            <td className="py-2">Projected DC growth spurs PJM capacity prices by factor of 10 (from $28 to $270/MW-day)</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://ieefa.org/resources/projected-data-center-growth-spurs-pjm-capacity-prices-factor-10" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    IEEFA
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-amber-100">
+                                            <td className="py-2 font-medium">Brattle Load Growth (Apr 2025)</td>
+                                            <td className="py-2">Peak loads to increase 175 GW by 2030 (24%); risk of over-forecasting leading to stranded costs</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.brattle.com/wp-content/uploads/2025/04/Meeting-Unprecedented-Load-Growth-Challenges-Opportunities.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Brattle Group
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Historical Context: Aluminum Smelter Case */}
+                        <div className="border border-gray-200 rounded-lg p-5">
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Historical Context: The Aluminum Smelter Case
+                            </h4>
+                            <p className="text-sm text-gray-700 mb-3">
+                                Post-1977 electricity deregulation led to the decline of the U.S. aluminum smelting
+                                industry, offering lessons for data center policy. In 1980, the U.S. had 33 operating
+                                smelters relying on cheap hydropower. After deregulation:
+                            </p>
+                            <ul className="space-y-2 text-sm text-gray-700 mb-4">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">-</span>
+                                    <span>Plant closures when electricity prices rose above contractual rates</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">-</span>
+                                    <span>Stranded infrastructure costs borne by remaining ratepayers</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-gray-400">-</span>
+                                    <span>Today, smelters compete with data centers that can pay up to $115/MWh vs smelter viability of ~$40/MWh</span>
+                                </li>
+                            </ul>
+                            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <p className="text-sm text-blue-900">
+                                    <strong>Lesson for Data Centers:</strong> Long-term rate structures should account
+                                    for both parties&apos; exit risks and include mechanisms for cost recovery if loads
+                                    depart before infrastructure is depreciated.
+                                </p>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-3">
+                                Sources:{' '}
+                                <a href="https://www.canarymedia.com/articles/clean-aluminum/us-manufacturing-power-challenges" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    Canary Media
+                                </a>
+                                {', '}
+                                <a href="https://www.fastmarkets.com/insights/us-aluminium-smelting-and-energy-costs-3-key-growth-factors/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                    Fastmarkets
+                                </a>
+                            </p>
+                        </div>
+
+                        {/* Policy Mechanisms Table */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-2">
+                                Emerging Policy Mechanisms for Large Load Management
+                            </h4>
+                            <p className="text-sm text-gray-500 mb-3">
+                                Several states and utilities have developed specialized frameworks to address cost allocation:
+                            </p>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-gray-200">
+                                            <th className="text-left py-2 font-medium">Mechanism</th>
+                                            <th className="text-left py-2 font-medium">Jurisdiction</th>
+                                            <th className="text-left py-2 font-medium">Key Feature</th>
+                                            <th className="text-left py-2 pl-4 font-medium">Source</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-2 font-medium">GS-5 Rate Class</td>
+                                            <td className="py-2">Virginia (Dominion)</td>
+                                            <td className="py-2">85% minimum demand charges for T&D; dedicated large load rate schedule</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://eta-publications.lbl.gov/sites/default/files/2025-01/electricity_rate_designs_for_large_loads_evolving_practices_and_opportunities_final.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    DOE/LBNL Brief
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-2 font-medium">SB6</td>
+                                            <td className="py-2">Texas</td>
+                                            <td className="py-2">Large load interconnection study requirements; grid emergency curtailment</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://www.utilitydive.com/news/data-center-load-growth-markets-ratepayer/749715/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Utility Dive
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-2 font-medium">Industrial Power Tariff</td>
+                                            <td className="py-2">Indiana Michigan Power</td>
+                                            <td className="py-2">12-year minimum contract term after load ramp; protects against stranded costs</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://indianacapitalchronicle.com/2024/11/26/ratepayer-advocates-hail-landmark-settlement-with-data-centers-utility-company/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    IN Capital Chronicle
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr className="border-b border-gray-100">
+                                            <td className="py-2 font-medium">Large Customer Tariff</td>
+                                            <td className="py-2">AEP Ohio</td>
+                                            <td className="py-2">Proposed 90% of max demand for 10 years; includes transmission cost recovery</td>
+                                            <td className="pl-4 text-xs">
+                                                <a href="https://eelp.law.harvard.edu/wp-content/uploads/2025/03/Harvard-ELI-Extracting-Profits-from-the-Public.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                    Harvard ELI
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Synthesis Callout */}
+                        <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                            <h4 className="font-semibold text-purple-900 mb-2">
+                                How This Research Informs Our Model
+                            </h4>
+                            <p className="text-sm text-gray-700 mb-3">
+                                Our calculator&apos;s assumptions align with the research consensus that:
+                            </p>
+                            <ul className="space-y-2 text-sm text-gray-700">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-purple-600">✓</span>
+                                    <span>
+                                        <strong>Flexibility matters:</strong> The difference between firm and flexible
+                                        load is significant (supporting E3, LBNL, GridCARE findings). Our model uses
+                                        25% curtailment based on EPRI DCFlex field validation—see the{' '}
+                                        <button
+                                            onClick={() => toggleSection('flexibility')}
+                                            className="text-blue-600 hover:underline font-medium"
+                                        >
+                                            Workload Flexibility Model
+                                        </button>
+                                        {' '}section.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-purple-600">✓</span>
+                                    <span>
+                                        <strong>Capacity markets amplify impacts:</strong> PJM price spikes validate
+                                        our endogenous capacity pricing model—see the{' '}
+                                        <button
+                                            onClick={() => toggleSection('socialized-scarcity')}
+                                            className="text-blue-600 hover:underline font-medium"
+                                        >
+                                            Capacity Cost Spillovers
+                                        </button>
+                                        {' '}section.
+                                    </span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-purple-600">✓</span>
+                                    <span>
+                                        <strong>Regional variation is significant:</strong> Virginia JLARC and regional
+                                        studies inform our market-specific allocation factors in the{' '}
+                                        <button
+                                            onClick={() => toggleSection('market-structures')}
+                                            className="text-blue-600 hover:underline font-medium"
+                                        >
+                                            Market Structures
+                                        </button>
+                                        {' '}section.
+                                    </span>
+                                </li>
+                            </ul>
+                            <p className="text-sm text-purple-800 mt-3 font-medium">
+                                Bottom Line: The research supports the <em>possibility</em> of rate decreases under optimal
+                                conditions, but demonstrates the downside risks are equally real. Our model helps users
+                                explore both scenarios.
+                            </p>
+                        </div>
+
+                        {/* Model Assumptions callout */}
+                        <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                            <h4 className="font-semibold text-amber-900 mb-2">
+                                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-medium text-xs mr-2">Research Notes</span>
+                                Limitations of Available Evidence
+                            </h4>
+                            <ul className="list-disc list-inside text-sm text-amber-800 space-y-1">
+                                <li><strong>Industry funding:</strong> E3 study was commissioned by Amazon (though E3 stated analysis was independent)</li>
+                                <li><strong>Facility vs. system-level:</strong> Most supporting studies analyze individual facility costs, not system-wide effects</li>
+                                <li><strong>Forward-looking projections:</strong> Few retrospective case studies exist showing actual rate decreases after large load additions</li>
+                                <li><strong>Contested methodology:</strong> Studies use different assumptions about load flexibility, timeline, and cost allocation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </Section>
+
                 {/* REGIONAL DEMAND FORECASTS */}
                 <Section
                     id="demand-forecasts"
