@@ -270,6 +270,11 @@ export default function MethodologyPage() {
                                 In regulated markets, PUC-approved tariffs are designed to recover the utility's cost of serving each customer class.
                                 When a data center pays its industrial tariff rates, those costs are considered "recovered"—not shifted to residential customers.
                             </p>
+                            <p className="text-xs text-gray-500 mt-2">
+                                Note: These flow-through rates determine how DC tariff revenue offsets infrastructure costs.
+                                This is separate from the residential allocation percentage (30-42% by market),
+                                which determines what share of remaining net costs residential customers bear.
+                            </p>
                         </div>
 
                         <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
@@ -1036,8 +1041,8 @@ $1,120 | *  Emergency
                                 <tbody>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2 text-amber-700 font-medium">ERCOT</td>
-                                        <td className="text-xs text-gray-600">50% of embedded capacity cost</td>
-                                        <td className="text-xs text-gray-500">Energy-only market - generators recover capacity through energy margins, not separate payments</td>
+                                        <td className="text-xs text-gray-600">50% of embedded capacity cost (scarcity pricing risk premiums)</td>
+                                        <td className="text-xs text-gray-500">Energy-only market - scarcity pricing and risk premiums flow through to ratepayers via retail providers</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2 text-blue-700 font-medium">PJM / NYISO</td>
@@ -2295,7 +2300,7 @@ $1,120 | *  Emergency
                                         <br/>Capacity cost spillovers captured via endogenous pricing model
                                     </li>
                                     <li><strong>ERCOT (energy-only):</strong> Dynamic penetration-based scaling
-                                        <br/>Scales from 30% → 15% as DC grows from 0 → 45 GW
+                                        <br/>Scales from 30% → ~26% as DC grows from 0 → 45 GW
                                     </li>
                                 </ul>
                                 <p className="text-xs text-gray-500 mt-3">
@@ -2352,13 +2357,14 @@ $1,120 | *  Emergency
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">45 GW</td>
                                         <td className="text-xs">50%</td>
-                                        <td className="text-xs">~15% (floor at 50% of base)</td>
+                                        <td className="text-xs">~26%</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <p className="text-xs text-gray-500 mt-2">
                                 This reflects that as data centers become a larger portion of total system load,
                                 they bear more of the infrastructure costs, reducing the residential allocation.
+                                The floor (50% of base = 15%) only applies at theoretical penetration levels above 167%.
                             </p>
                         </div>
                     </div>
