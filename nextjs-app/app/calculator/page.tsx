@@ -102,16 +102,18 @@ interface RevenueAdequacyIndicatorProps {
     dcCapacityMW: number;
     loadFactor: number;
     peakCoincidence: number;
+    onsiteGenerationMW: number;
     scenarioLabel?: string;
 }
 
-const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, peakCoincidence, scenarioLabel = "optimized" }: RevenueAdequacyIndicatorProps) => {
+const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, peakCoincidence, onsiteGenerationMW, scenarioLabel = "optimized" }: RevenueAdequacyIndicatorProps) => {
     const revenueAdequacy = calculateRevenueAdequacy(
         dcCapacityMW,
         loadFactor,
         peakCoincidence,
         tariff,
-        utility
+        utility,
+        onsiteGenerationMW
     );
 
     const formatCurrencyShort = (val: number) => {
@@ -126,6 +128,9 @@ const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, p
     const ciacPercent = ((utility?.interconnection?.ciacRecoveryFraction || 0.60) * 100).toFixed(0);
     const networkCost = ((utility?.interconnection?.networkUpgradeCostPerMW || 140000) / 1000).toFixed(0);
     const wholesaleCost = utility?.marginalEnergyCost || 38;
+    const tariffEnergyCost = tariff?.energyCharge || 0;
+    const isPassThrough = tariffEnergyCost < wholesaleCost * 1.5;
+    const netPeakDemandMW = Math.max(0, dcCapacityMW * peakCoincidence - onsiteGenerationMW);
 
     return (
         <div className="bg-white p-4 rounded-lg">
@@ -138,18 +143,54 @@ const RevenueAdequacyIndicator = ({ utility, tariff, dcCapacityMW, loadFactor, p
             </p>
             <details className="mt-2">
                 <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600">
-                    View assumptions
+                    View calculation assumptions
                 </summary>
-                <div className="mt-1 text-xs text-gray-500 space-y-0.5 pl-2 border-l-2 border-gray-200">
-                    <p>• Peak Coincidence: {(peakCoincidence * 100).toFixed(0)}%</p>
-                    <p>• Load Factor: {(loadFactor * 100).toFixed(0)}%</p>
+                <div className="mt-1 text-xs text-gray-500 space-y-1 pl-2 border-l-2 border-gray-200">
+                    {/* Scenario Parameters */}
+                    <div className="font-medium text-gray-600 pt-1">Scenario Parameters:</div>
+                    <p>• Peak Coincidence: {(peakCoincidence * 100).toFixed(0)}%
+                       <span className="text-gray-400 ml-1">(% of capacity at system peaks)</span></p>
+                    <p>• Load Factor: {(loadFactor * 100).toFixed(0)}%
+                       <span className="text-gray-400 ml-1">(average utilization)</span></p>
+                    <p>• Onsite Generation: {onsiteGenerationMW.toLocaleString()} MW
+                       <span className="text-gray-400 ml-1">(reduces grid peak to {netPeakDemandMW.toLocaleString()} MW)</span></p>
+
+                    {/* Market & Tariff */}
+                    <div className="font-medium text-gray-600 pt-2">Market & Tariff:</div>
                     <p>• Market: {utility?.marketType?.toUpperCase() || 'REGULATED'}</p>
+                    {tariff && (
+                        <>
+                            <p>• Peak Demand Charge: ${(tariff.peakDemandCharge / 1000).toFixed(2)}k/MW-mo
+                               <span className="text-gray-400 ml-1">(recovers capacity costs)</span></p>
+                            {tariff.maxDemandCharge && (
+                                <p>• Max Demand Charge: ${(tariff.maxDemandCharge / 1000).toFixed(2)}k/MW-mo</p>
+                            )}
+                        </>
+                    )}
+
+                    {/* Energy Costs */}
+                    <div className="font-medium text-gray-600 pt-2">Energy Costs:</div>
                     <p>• Wholesale Energy: ${wholesaleCost}/MWh</p>
-                    <p>• CIAC Recovery: {ciacPercent}%</p>
-                    <p>• Network Upgrades: ${networkCost}k/MW</p>
+                    <p>• Tariff Energy: ${tariffEnergyCost.toFixed(2)}/MWh</p>
+                    {isPassThrough && (
+                        <p className="text-green-600">• Energy spread nets to zero (wholesale pass-through)</p>
+                    )}
+
+                    {/* Infrastructure */}
+                    <div className="font-medium text-gray-600 pt-2">Infrastructure Costs:</div>
+                    <p>• CIAC Recovery: {ciacPercent}%
+                       <span className="text-gray-400 ml-1">(DC pays upfront)</span></p>
+                    <p>• Network Upgrades: ${networkCost}k/MW
+                       <span className="text-gray-400 ml-1">(socialized portion)</span></p>
                     {utility?.hasCapacityMarket && (
                         <p>• Capacity Price: ${utility.capacityPrice2024?.toFixed(0) || 'N/A'}/MW-day</p>
                     )}
+
+                    {/* Methodology Link */}
+                    <a href="/methodology#revenue-adequacy"
+                       className="text-blue-600 hover:underline block pt-2">
+                        → See detailed methodology
+                    </a>
                 </div>
             </details>
         </div>
@@ -702,6 +743,7 @@ export default function CalculatorPage() {
                                 dcCapacityMW={dataCenter.capacityMW}
                                 loadFactor={dataCenter.flexLoadFactor || 0.95}
                                 peakCoincidence={dataCenter.flexPeakCoincidence || 0.75}
+                                onsiteGenerationMW={dataCenter.onsiteGenerationMW || 0}
                                 scenarioLabel="optimized"
                             />
                         </div>

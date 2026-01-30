@@ -294,10 +294,12 @@ export function calculateRevenueAdequacy(
     loadFactor: number,
     peakCoincidence: number,
     tariff: TariffStructure | undefined,
-    utility: Utility | undefined
+    utility: Utility | undefined,
+    onsiteGenerationMW: number = 0  // Onsite generation reduces grid peak demand
 ): RevenueAdequacyResult {
     const annualMWh = dcCapacityMW * loadFactor * 8760;
-    const peakDemandMW = dcCapacityMW * peakCoincidence;
+    // Subtract onsite generation from peak demand (matches calculateNetResidentialImpact logic)
+    const peakDemandMW = Math.max(0, dcCapacityMW * peakCoincidence - onsiteGenerationMW);
 
     // ============================================
     // REVENUE CALCULATION (what DC pays)
@@ -1004,7 +1006,8 @@ const calculateNetResidentialImpact = (
         loadFactor,
         peakCoincidence,
         tariff,
-        utility
+        utility,
+        onsiteGenMW  // Pass onsite generation to reduce grid peak demand
     );
 
     return {

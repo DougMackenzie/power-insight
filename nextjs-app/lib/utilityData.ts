@@ -590,6 +590,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...MISO_MARKET, notes: 'Entergy operates in MISO. Formula Rate Plan allows annual rate adjustments through AR PSC.' },
     tariff: { ...ENTERGY_ARKANSAS_TARIFF },
+    // MISO regulated utility - moderate CIAC recovery and network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.60,
+      networkUpgradeCostPerMW: 140000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Data center development opportunities with competitive MISO rates',
     defaultDataCenterMW: 500,
@@ -683,6 +688,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'I&M operates in PJM but remains vertically integrated with owned generation including Cook Nuclear Plant. Hybrid market structure.'
     },
     tariff: { ...AEP_OHIO_TARIFF },
+    // PJM market with hybrid utility structure
+    interconnection: {
+      ciacRecoveryFraction: 0.55,
+      networkUpgradeCostPerMW: 155000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Northeast Indiana and Fort Wayne area seeing industrial and data center growth',
     defaultDataCenterMW: 500,
@@ -726,6 +736,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...MISO_MARKET, notes: 'Entergy operates in MISO. AWS data center development announced in Mississippi.' },
     tariff: { ...ENTERGY_MISSISSIPPI_TARIFF },
+    // MISO regulated utility - moderate CIAC recovery and network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.60,
+      networkUpgradeCostPerMW: 140000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'AWS data center projects announced; Entergy CEO cites DC benefits for ratepayers',
     defaultDataCenterMW: 600,
@@ -772,6 +787,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     hasDataCenterActivity: false,
     dataCenterNotes: 'Limited NYC data center growth due to high costs and space constraints; some edge facilities',
     defaultDataCenterMW: 200,
+    // NYISO - NYC has highest transmission constraints and network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.55,
+      networkUpgradeCostPerMW: 200000,  // Highest - NYC transmission constraints
+    },
     sources: ['ConEd PSC No. 10 Electricity', 'NYISO capacity data', 'NY PSC rate orders Dec 2023']
   },
   {
@@ -790,6 +810,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 650,
     market: { ...NYISO_MARKET },
     tariff: { ...NATIONAL_GRID_NY_TARIFF },
+    // NYISO Upstate - moderate network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.55,
+      networkUpgradeCostPerMW: 165000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Upstate NY data center development; Buffalo and Syracuse areas seeing growth',
     defaultDataCenterMW: 400,
@@ -811,6 +836,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 700,
     market: { ...NYISO_MARKET },
     tariff: { ...NYSEG_TARIFF },
+    // NYISO Central NY - moderate network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.55,
+      networkUpgradeCostPerMW: 165000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Central NY and Southern Tier data center opportunities; competitive land costs',
     defaultDataCenterMW: 300,
@@ -1054,6 +1084,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'APCo Virginia operates in PJM. Virginia SCC regulates retail rates. Data center interest as NoVA capacity constrained.'
     },
     tariff: { ...AEP_OHIO_TARIFF },
+    // PJM market - proximity to NoVA gives higher network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.55,
+      networkUpgradeCostPerMW: 165000,  // Higher - proximity to NoVA
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Virginia portion seeing data center interest as Northern Virginia capacity constrained',
     defaultDataCenterMW: 400,
@@ -1082,6 +1117,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'APCo WV operates in PJM but WV remains traditionally regulated. 2024-2025 rate case pending with ~14% commercial increase proposed.'
     },
     tariff: { ...APCO_WV_TARIFF },
+    // PJM market - standard network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.55,
+      networkUpgradeCostPerMW: 155000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Growing interest in WV for data centers due to lower costs than NoVA; securitization proposal pending',
     defaultDataCenterMW: 500,
@@ -1107,6 +1147,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'FirstEnergy utilities in WV operate in PJM. 2024 rate case approved 6.4% base rate increase with 12% commercial impact.'
     },
     tariff: { ...MON_POWER_TARIFF },
+    // PJM market - standard network costs
+    interconnection: {
+      ciacRecoveryFraction: 0.55,
+      networkUpgradeCostPerMW: 155000,
+    },
     hasDataCenterActivity: false,
     dataCenterNotes: 'Limited data center activity; industrial base focused on traditional manufacturing',
     defaultDataCenterMW: 300,

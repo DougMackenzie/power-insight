@@ -919,7 +919,7 @@ $1,120 | *  Emergency
                         </div>
 
                         {/* Revenue Adequacy */}
-                        <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+                        <div id="revenue-adequacy" className="border border-green-200 bg-green-50 rounded-lg p-4 scroll-mt-20">
                             <h4 className="font-semibold text-green-900 mb-2">
                                 Revenue Adequacy Calculation
                             </h4>
