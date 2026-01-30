@@ -347,13 +347,17 @@ export function calculateRevenueAdequacy(
     let demandChargeRevenue: number;
     let energyChargeRevenue: number;
 
+    // Get wholesale energy cost for margin calculation
+    const wholesaleEnergyCostForMargin = utility?.marginalEnergyCost ?? 38;
+
     if (tariff) {
-        // Use the comprehensive tariff-based calculation
+        // Use the comprehensive tariff-based calculation with dynamic energy margin
         const tariffRevenue = calculateTariffBasedDemandCharges(
             dcCapacityMW,
             loadFactor,
             peakCoincidence,
-            tariff
+            tariff,
+            wholesaleEnergyCostForMargin
         );
         demandChargeRevenue = tariffRevenue.totalDemandRevenue;
         energyChargeRevenue = tariffRevenue.energyRevenue;
@@ -363,7 +367,10 @@ export function calculateRevenueAdequacy(
         const maxDemandCharge = DC_RATE_STRUCTURE.nonCoincidentPeakChargePerMWMonth;
         demandChargeRevenue = (peakDemandMW * peakDemandCharge * 12) +
                               (dcCapacityMW * maxDemandCharge * 12);
-        energyChargeRevenue = annualMWh * 30; // Default $30/MWh
+        // Use dynamic margin calculation: generic rate ($35/MWh) - wholesale cost
+        const genericRetailRate = 35; // $/MWh
+        const energyMarginPerMWh = Math.max(0, genericRetailRate - wholesaleEnergyCostForMargin);
+        energyChargeRevenue = annualMWh * energyMarginPerMWh;
     }
 
     // Customer charges (estimated as ~$500/month for large power)
@@ -487,22 +494,29 @@ export function calculateRevenueAdequacy(
  * - CP_4: ERCOT style - 4 coincident peaks determine transmission costs
  * - ROLLING_RATCHET: Georgia Power style - 12-month rolling maximum
  *
+ * Energy margin is now calculated dynamically as:
+ *   (tariff.energyCharge - utility.marginalEnergyCost) * annualMWh
+ * This represents the utility's wholesale-to-retail spread that contributes
+ * to fixed cost recovery beyond just fuel pass-through.
+ *
  * @param dcCapacityMW - Data center interconnection capacity
  * @param loadFactor - Average load factor (0-1)
  * @param peakCoincidence - Fraction of capacity during system peaks (0-1)
  * @param tariff - Utility-specific tariff structure
+ * @param marginalEnergyCost - Wholesale energy cost ($/MWh), defaults to $38/MWh
  * @returns Demand charge revenue and breakdown
  */
 export function calculateTariffBasedDemandCharges(
     dcCapacityMW: number,
     loadFactor: number,
     peakCoincidence: number,
-    tariff: TariffStructure
+    tariff: TariffStructure,
+    marginalEnergyCost: number = 38 // Default wholesale cost if not provided
 ): {
     peakDemandRevenue: number;
     maxDemandRevenue: number;
     totalDemandRevenue: number;
-    energyRevenue: number;
+    energyRevenue: number;  // Now represents energy MARGIN, not gross revenue
     totalRevenue: number;
     flexibilityBenefit: number; // How much a flexible DC saves vs firm on demand charges
     breakdown: {
@@ -510,6 +524,7 @@ export function calculateTariffBasedDemandCharges(
         maxDemandMW: number;
         annualMWh: number;
         tariffType: DemandChargeStructure;
+        energyMarginPerMWh: number; // Calculated margin rate
     };
 } {
     const isFlexible = peakCoincidence < 1.0;
@@ -586,7 +601,14 @@ export function calculateTariffBasedDemandCharges(
     const peakDemandRevenue = peakDemandMW * tariff.peakDemandCharge * 12;
     const maxDemandRevenue = maxDemandMW * tariff.maxDemandCharge * 12;
     const totalDemandRevenue = peakDemandRevenue + maxDemandRevenue;
-    const energyRevenue = annualMWh * tariff.energyCharge;
+
+    // Calculate energy MARGIN dynamically (retail rate - wholesale cost)
+    // This represents the utility's wholesale-to-retail spread that contributes
+    // to fixed cost recovery. Some tariffs have very low energy rates (e.g., PSO's LPL
+    // at $1.708/MWh) which are essentially wholesale pass-through - in those cases
+    // the margin may be negative (fuel rider tariff), handled in calculateRevenueAdequacy.
+    const energyMarginPerMWh = Math.max(0, tariff.energyCharge - marginalEnergyCost);
+    const energyRevenue = annualMWh * energyMarginPerMWh;
     const totalRevenue = totalDemandRevenue + energyRevenue;
 
     // Calculate flexibility benefit (savings vs firm load)
@@ -608,6 +630,7 @@ export function calculateTariffBasedDemandCharges(
             maxDemandMW,
             annualMWh,
             tariffType: tariff.demandChargeType,
+            energyMarginPerMWh, // Dynamic margin rate for transparency
         },
     };
 }
@@ -890,12 +913,15 @@ const calculateNetResidentialImpact = (
     let flexibilityBenefitFromTariff = 0;
 
     if (tariff) {
-        // Use utility-specific tariff calculations
+        // Use utility-specific tariff calculations with dynamic energy margin
+        // Pass the utility's marginal energy cost for proper margin calculation
+        const marginalEnergyCost = utility?.marginalEnergyCost ?? 38;
         tariffBasedRevenue = calculateTariffBasedDemandCharges(
             dcCapacityMW,
             loadFactor,
             peakCoincidence,
-            tariff
+            tariff,
+            marginalEnergyCost
         );
         flexibilityBenefitFromTariff = tariffBasedRevenue.flexibilityBenefit;
 
@@ -916,10 +942,11 @@ const calculateNetResidentialImpact = (
             },
         };
     } else {
-        // Use generic split demand charge calculation
+        // Use generic split demand charge calculation with market-specific wholesale costs
         dcRevenue = calculateDCRevenueOffset(dcCapacityMW, loadFactor, peakCoincidence, 1, {
             effectiveCapacityMW: dcCapacityMW,
             marketType: utility?.marketType,
+            marginalEnergyCost: utility?.marginalEnergyCost,
         });
     }
 

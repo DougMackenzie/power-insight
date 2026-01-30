@@ -375,7 +375,8 @@ export default function MethodologyPage() {
                             <div>
                                 <span className="font-semibold text-gray-900">1. Energy Revenue (Volume x Margin)</span>
                                 <p className="mt-1">
-                                    Utilities earn margin on each MWh sold: ${DC_RATE_STRUCTURE.energyMarginPerMWh}/MWh wholesale-to-retail spread.
+                                    Utilities earn margin on each MWh sold, calculated dynamically as <code className="text-xs bg-gray-200 px-1 rounded">tariff energy rate - wholesale cost</code>.
+                                    Wholesale costs vary by market: ERCOT $45, PJM $42, MISO $35, TVA $32, SPP $28, NYISO $55, Regulated $38/MWh.
                                     This margin contributes to the utility's revenue requirement, which is then allocated across all customers.
                                 </p>
                                 <div className="mt-2 pl-4 border-l-2 border-blue-300">
@@ -1193,10 +1194,13 @@ $1,120 | *  Emergency
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">Energy margin (utility spread)</td>
-                                        <td className="text-right font-medium">${DC_RATE_STRUCTURE.energyMarginPerMWh}/MWh</td>
+                                        <td className="text-right font-medium">Calculated</td>
                                         <td className="pl-4 text-xs">
-                                            <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-medium">Model Assumption</span>
-                                            <span className="block text-gray-400 mt-1">Utility's wholesale-to-retail spread on energy sales. Industry typical range $3-8/MWh.</span>
+                                            <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-medium">Dynamic</span>
+                                            <span className="block text-gray-400 mt-1">
+                                                Formula: <code className="bg-gray-200 px-1 rounded">tariff energy rate - wholesale cost</code>.
+                                                Wholesale costs by market: ERCOT $45, PJM $42, MISO $35, TVA $32, SPP $28, NYISO $55, Regulated $38/MWh.
+                                            </span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -2143,7 +2147,8 @@ $1,120 | *  Emergency
                                 <strong>Allocation Method:</strong> PJM's Reliability Pricing Model (RPM) capacity auction cleared at
                                 $269.92/MW-day for 2025/26. Our model uses <em>Endogenous Capacity Pricing</em> to calculate the
                                 "socialized cost" impact when large loads consume reserve margin and trigger capacity price spikes.
-                                This cost applies with a <strong>3-year auction lag</strong>.
+                                Due to recent auction timeline compression (auctions now clear 11-18 months ahead rather than 3 years),
+                                this cost applies <strong>immediately</strong> when data centers connect—current prices already reflect demand growth.
                             </p>
                         </div>
 

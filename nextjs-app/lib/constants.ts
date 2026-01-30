@@ -412,6 +412,10 @@ export const calculateAggregateFlexibility = (workloadTypes = WORKLOAD_TYPES): n
  * 2. Non-Coincident Peak (NCP): Based on customer's own monthly peak
  *    - If flexible DCs install MORE capacity, they pay MORE on NCP charges
  *
+ * Energy margin is now calculated dynamically based on market type:
+ *   margin = genericEnergyRate - marketWholesaleCost
+ * This replaces the previous fixed $4.88/MWh value with market-specific calculations.
+ *
  * For accurate comparison of "same MW" vs "33% more MW" scenarios,
  * use the effectiveCapacityMW parameter to model increased capacity.
  */
@@ -423,15 +427,41 @@ export const calculateDCRevenueOffset = (
     options?: {
         // For flexible DCs that install more capacity (e.g., 1.33x for 75% coincidence)
         effectiveCapacityMW?: number;
-        // Market type affects how demand charges are structured
+        // Market type affects how demand charges are structured and energy margin
         marketType?: MarketType;
+        // Custom wholesale energy cost ($/MWh) - overrides market-based default
+        marginalEnergyCost?: number;
     }
 ) => {
     const {
         coincidentPeakChargePerMWMonth,
         nonCoincidentPeakChargePerMWMonth,
-        energyMarginPerMWh,
     } = DC_RATE_STRUCTURE;
+
+    // Market-specific wholesale energy costs ($/MWh)
+    // These are the same values from utilityData.ts market structures
+    const MARKET_WHOLESALE_COSTS: Record<string, number> = {
+        regulated: 38,  // Embedded fuel + O&M costs
+        pjm: 42,        // LMP-based, moderate congestion
+        ercot: 45,      // Volatile, scarcity pricing, 2024 average
+        miso: 35,       // Lower congestion, coal/gas mix
+        spp: 28,        // Wind-heavy, low wholesale prices
+        nyiso: 55,      // Constrained zones, higher congestion
+        tva: 32,        // Low-cost hydro/nuclear baseload
+        caiso: 50,      // California ISO
+    };
+
+    // Generic retail energy rate assumption for fallback calculation
+    // This represents a typical large power tariff energy component
+    const GENERIC_RETAIL_ENERGY_RATE = 35; // $/MWh - approximate for large power
+
+    // Get wholesale cost for this market (or use provided value)
+    const marketType = options?.marketType ?? 'regulated';
+    const wholesaleCost = options?.marginalEnergyCost ?? MARKET_WHOLESALE_COSTS[marketType] ?? 38;
+
+    // Calculate dynamic energy margin (retail - wholesale)
+    // Ensures margin is non-negative (in fuel rider tariffs, margin comes from demand charges)
+    const energyMarginPerMWh = Math.max(0, GENERIC_RETAIL_ENERGY_RATE - wholesaleCost);
 
     // Effective capacity for NCP charges (may be higher than grid-facing capacity for flexible DCs)
     const effectiveCapacity = options?.effectiveCapacityMW ?? dcCapacityMW;
