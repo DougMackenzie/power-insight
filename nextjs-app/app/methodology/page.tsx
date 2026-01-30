@@ -2233,11 +2233,20 @@ $1,120 | *  Emergency
                         <div className="mt-6 p-4 bg-gray-100 rounded-lg">
                             <h4 className="font-semibold text-gray-900 mb-3">Market-Adjusted Allocation Formula</h4>
                             <div className="bg-white p-4 rounded font-mono text-sm overflow-x-auto">
-                                <p className="mb-2">Adjusted Allocation = Base Allocation x Market Multiplier</p>
-                                <p className="text-gray-500 text-xs mt-3">Where Market Multiplier:</p>
-                                <ul className="text-xs text-gray-500 mt-1 space-y-1">
-                                    <li>- Regulated/SPP/PJM/NYISO/MISO: 1.0 (no adjustment)</li>
-                                    <li>- ERCOT: Dynamic (scales from 30% to 15% as DC capacity grows from 0 to 45 GW)</li>
+                                <p className="mb-2">Adjusted Allocation = Base Allocation × Market Adjustment</p>
+                                <p className="text-gray-500 text-xs mt-3">Market-specific adjustments:</p>
+                                <ul className="text-xs text-gray-500 mt-1 space-y-2">
+                                    <li><strong>Regulated/SPP/TVA (cost-of-service):</strong> Cost Causation Adjustment
+                                        <br/>Formula: Base × √(1 − Cost Recovery Ratio) × Load Factor Benefit
+                                        <br/>At 100% cost recovery → allocation approaches 5% of base
+                                        <br/>High load factor (≥80%) provides additional 5-10% reduction
+                                    </li>
+                                    <li><strong>PJM/NYISO/MISO (capacity markets):</strong> 1.0 (no allocation adjustment)
+                                        <br/>Capacity cost spillovers captured via endogenous pricing model
+                                    </li>
+                                    <li><strong>ERCOT (energy-only):</strong> Dynamic penetration-based scaling
+                                        <br/>Scales from 30% → 15% as DC grows from 0 → 45 GW
+                                    </li>
                                 </ul>
                                 <p className="text-xs text-gray-500 mt-3">
                                     <strong>Note:</strong> For capacity markets (PJM/NYISO/MISO), socialized capacity costs are calculated
@@ -2246,7 +2255,7 @@ $1,120 | *  Emergency
                                 </p>
                             </div>
                             <p className="mt-3 text-sm text-gray-600">
-                                Final allocation clamped to 20-55% range to maintain reasonable bounds. See{' '}
+                                Final allocation clamped to 5-50% range to maintain reasonable bounds. See{' '}
                                 <a href="https://www.raponline.org/knowledge-center/electric-cost-allocation-new-era/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                     RAP: Electric Cost Allocation for a New Era
                                 </a>.
