@@ -74,7 +74,7 @@ export default function CommunityGuidePage() {
           /* Header */
           .print-header {
             padding-bottom: 0.12in !important;
-            border-bottom: 3px solid #1d4ed8 !important;
+            border-bottom: 3px solid #b45309 !important;
             margin-bottom: 0.15in !important;
           }
 
@@ -115,7 +115,7 @@ export default function CommunityGuidePage() {
           .print-stat-number {
             font-size: 18pt !important;
             font-weight: 700 !important;
-            color: #1d4ed8 !important;
+            color: #334155 !important;
             line-height: 1.1 !important;
             margin-bottom: 2pt !important;
           }
@@ -152,7 +152,7 @@ export default function CommunityGuidePage() {
             font-size: 10pt !important;
             font-weight: 600 !important;
             margin: 0 0 3pt 0 !important;
-            color: #1d4ed8 !important;
+            color: #334155 !important;
           }
 
           .print-faq-detail {
@@ -189,6 +189,7 @@ export default function CommunityGuidePage() {
             font-size: 10pt !important;
             font-weight: 700 !important;
             margin: 0 0 4pt 0 !important;
+            color: #b45309 !important;
           }
 
           .print-checklist-item {
@@ -212,10 +213,10 @@ export default function CommunityGuidePage() {
 
           /* Why This Matters */
           .print-why-section {
-            border: 2px solid #2563eb !important;
+            border: 2px solid #b45309 !important;
             border-radius: 6px !important;
             padding: 0.12in !important;
-            background: #eff6ff !important;
+            background: #fafaf9 !important;
             flex: 1 !important;
           }
 
@@ -224,14 +225,14 @@ export default function CommunityGuidePage() {
             font-weight: 700 !important;
             text-align: center !important;
             margin: 0 0 0.06in 0 !important;
-            color: #1e3a8a !important;
+            color: #1e293b !important;
           }
 
           .print-why-quote {
             font-size: 10pt !important;
             font-style: italic !important;
             text-align: center !important;
-            color: #1e40af !important;
+            color: #334155 !important;
             margin: 0 0 0.08in 0 !important;
             padding: 0 0.2in !important;
             line-height: 1.3 !important;
@@ -253,7 +254,7 @@ export default function CommunityGuidePage() {
           }
 
           .print-why-check {
-            color: #2563eb !important;
+            color: #b45309 !important;
             font-size: 11pt !important;
             font-weight: bold !important;
             flex-shrink: 0 !important;
@@ -335,7 +336,7 @@ export default function CommunityGuidePage() {
         {/* Printable page - exactly 8.5 x 11 inches */}
         <div className="print-page bg-white p-6 md:p-8">
           {/* Header */}
-          <div className="print-header pb-3 border-b-[3px] border-blue-700 mb-4">
+          <div className="print-header pb-3 border-b-[3px] border-amber-700 mb-4">
             <div className="flex items-center justify-between mb-1">
               <span className="print-brand text-sm font-bold text-slate-500 uppercase tracking-wide">POWER INSIGHT</span>
               <span className="text-sm text-slate-400">power-insight.org</span>
@@ -351,15 +352,15 @@ export default function CommunityGuidePage() {
           {/* Stats Banner */}
           <div className="print-stats-banner flex gap-4 mb-4 p-4 bg-slate-100 border border-slate-300 rounded-lg">
             <div className="print-stat flex-1 text-center">
-              <div className="print-stat-number text-2xl font-bold text-blue-700">4% → 9%</div>
+              <div className="print-stat-number text-2xl font-bold text-slate-700">4% → 9%</div>
               <div className="print-stat-label text-xs text-slate-600">Share of U.S. electricity demand from data centers by 2030</div>
             </div>
             <div className="print-stat flex-1 text-center border-l border-slate-300 pl-4">
-              <div className="print-stat-number text-2xl font-bold text-blue-700">~50-60 GW+</div>
+              <div className="print-stat-number text-2xl font-bold text-slate-700">~50-60 GW+</div>
               <div className="print-stat-label text-xs text-slate-600">New data center capacity expected by 2030</div>
             </div>
             <div className="print-stat flex-1 text-center border-l border-slate-300 pl-4">
-              <div className="print-stat-number text-2xl font-bold text-blue-700">~1-5%+</div>
+              <div className="print-stat-number text-2xl font-bold text-slate-700">~1-5%+</div>
               <div className="print-stat-label text-xs text-slate-600">Potential bill reduction with responsible development</div>
             </div>
           </div>
@@ -371,7 +372,7 @@ export default function CommunityGuidePage() {
               <p className="print-faq-q text-sm font-bold text-slate-800 mb-1">
                 &quot;Will my electric bill go up?&quot;
               </p>
-              <p className="print-faq-a text-sm font-semibold text-blue-700 mb-1">
+              <p className="print-faq-a text-sm font-semibold text-slate-700 mb-1">
                 With the right policy, data centers apply downward pressure on rates.
               </p>
               <p className="print-faq-detail text-sm text-slate-500 leading-snug">
@@ -384,7 +385,7 @@ export default function CommunityGuidePage() {
               <p className="print-faq-q text-sm font-bold text-slate-800 mb-1">
                 &quot;Who pays for all the new infrastructure?&quot;
               </p>
-              <p className="print-faq-a text-sm font-semibold text-blue-700 mb-1">
+              <p className="print-faq-a text-sm font-semibold text-slate-700 mb-1">
                 Industrial tariffs ensure data centers pay their full cost of service.
               </p>
               <p className="print-faq-detail text-sm text-slate-500 leading-snug">
@@ -397,7 +398,7 @@ export default function CommunityGuidePage() {
               <p className="print-faq-q text-sm font-bold text-slate-800 mb-1">
                 &quot;What happens if the data center leaves?&quot;
               </p>
-              <p className="print-faq-a text-sm font-semibold text-blue-700 mb-1">
+              <p className="print-faq-a text-sm font-semibold text-slate-700 mb-1">
                 Tariff structures include minimum contract terms for full cost recovery.
               </p>
               <p className="print-faq-detail text-sm text-slate-500 leading-snug">
@@ -410,7 +411,7 @@ export default function CommunityGuidePage() {
               <p className="print-faq-q text-sm font-bold text-slate-800 mb-1">
                 &quot;Will I have power outages?&quot;
               </p>
-              <p className="print-faq-a text-sm font-semibold text-blue-700 mb-1">
+              <p className="print-faq-a text-sm font-semibold text-slate-700 mb-1">
                 Modern data centers actually help stabilize the grid.
               </p>
               <p className="print-faq-detail text-sm text-slate-500 leading-snug">
@@ -428,7 +429,7 @@ export default function CommunityGuidePage() {
             <div className="print-checklist-grid grid grid-cols-3 gap-5">
               {/* Cost Allocation */}
               <div>
-                <h4 className="print-checklist-category text-sm font-bold text-blue-700 mb-2">Cost Allocation</h4>
+                <h4 className="print-checklist-category text-sm font-bold text-amber-700 mb-2">Cost Allocation</h4>
                 <div className="space-y-1.5">
                   <div className="print-checklist-item flex items-start gap-2 text-sm text-slate-600">
                     <span className="print-checkbox w-3.5 h-3.5 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
@@ -447,7 +448,7 @@ export default function CommunityGuidePage() {
 
               {/* Grid Reliability */}
               <div>
-                <h4 className="print-checklist-category text-sm font-bold text-blue-700 mb-2">Grid Reliability</h4>
+                <h4 className="print-checklist-category text-sm font-bold text-amber-700 mb-2">Grid Reliability</h4>
                 <div className="space-y-1.5">
                   <div className="print-checklist-item flex items-start gap-2 text-sm text-slate-600">
                     <span className="print-checkbox w-3.5 h-3.5 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
@@ -466,7 +467,7 @@ export default function CommunityGuidePage() {
 
               {/* Risk Protection */}
               <div>
-                <h4 className="print-checklist-category text-sm font-bold text-blue-700 mb-2">Risk Protection</h4>
+                <h4 className="print-checklist-category text-sm font-bold text-amber-700 mb-2">Risk Protection</h4>
                 <div className="space-y-1.5">
                   <div className="print-checklist-item flex items-start gap-2 text-sm text-slate-600">
                     <span className="print-checkbox w-3.5 h-3.5 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
@@ -486,24 +487,24 @@ export default function CommunityGuidePage() {
           </div>
 
           {/* Why This Matters */}
-          <div className="print-why-section rounded-lg bg-blue-50 p-4 border-2 border-blue-600 flex-1">
-            <h2 className="print-why-title text-lg font-bold text-blue-900 text-center mb-2">
+          <div className="print-why-section rounded-lg bg-stone-50 p-4 border-2 border-amber-700 flex-1">
+            <h2 className="print-why-title text-lg font-bold text-slate-800 text-center mb-2">
               Why This Matters
             </h2>
-            <p className="print-why-quote text-sm italic text-blue-800 text-center mb-3 px-4">
+            <p className="print-why-quote text-sm italic text-slate-700 text-center mb-3 px-4">
               The question isn&apos;t whether to build — it&apos;s how to build responsibly so that communities benefit and household bills stay affordable.
             </p>
             <div className="print-why-grid grid grid-cols-3 gap-4">
               <div className="print-why-item flex items-start gap-2 text-sm text-slate-600">
-                <span className="print-why-check text-blue-600 text-lg font-bold">✓</span>
+                <span className="print-why-check text-amber-700 text-lg font-bold">✓</span>
                 <span><strong>Energy growth drives progress</strong> — from electrification to the internet, expanding energy has powered human advancement.</span>
               </div>
               <div className="print-why-item flex items-start gap-2 text-sm text-slate-600">
-                <span className="print-why-check text-blue-600 text-lg font-bold">✓</span>
+                <span className="print-why-check text-amber-700 text-lg font-bold">✓</span>
                 <span><strong>AI accelerates breakthroughs</strong> — data centers power research in medicine, materials science, and clean energy.</span>
               </div>
               <div className="print-why-item flex items-start gap-2 text-sm text-slate-600">
-                <span className="print-why-check text-blue-600 text-lg font-bold">✓</span>
+                <span className="print-why-check text-amber-700 text-lg font-bold">✓</span>
                 <span><strong>Smart policy protects ratepayers</strong> — with the right tariffs, large customers can lower bills for everyone.</span>
               </div>
             </div>
