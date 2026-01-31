@@ -8,260 +8,321 @@ export default function CommunityGuidePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Print-friendly styles */}
+      {/* Print-optimized styles for 1-page output */}
       <style jsx global>{`
         @media print {
-          .no-print {
-            display: none !important;
+          @page {
+            size: letter;
+            margin: 0.4in;
           }
-          .print-break {
-            page-break-before: always;
-          }
-          body {
+
+          html, body {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
+
+          .no-print {
+            display: none !important;
+          }
+
+          .print-only {
+            display: block !important;
+          }
+
+          /* Compact everything for 1 page */
+          .print-container {
+            font-size: 9pt;
+          }
+
+          .print-title {
+            font-size: 16pt !important;
+            margin-bottom: 2pt !important;
+          }
+
+          .print-subtitle {
+            font-size: 10pt !important;
+            margin-bottom: 8pt !important;
+          }
+
+          .print-section-title {
+            font-size: 11pt !important;
+            margin-bottom: 4pt !important;
+          }
+
+          .print-faq-grid {
+            gap: 6pt !important;
+          }
+
+          .print-faq-card {
+            padding: 6pt !important;
+            border: 1pt solid #e2e8f0 !important;
+          }
+
+          .print-faq-question {
+            font-size: 9pt !important;
+            margin-bottom: 1pt !important;
+          }
+
+          .print-faq-answer {
+            font-size: 8pt !important;
+            margin-bottom: 2pt !important;
+          }
+
+          .print-faq-detail {
+            font-size: 7pt !important;
+            line-height: 1.2 !important;
+          }
+
+          .print-checklist {
+            padding: 6pt !important;
+          }
+
+          .print-checklist-title {
+            font-size: 10pt !important;
+            margin-bottom: 4pt !important;
+          }
+
+          .print-checklist-category {
+            font-size: 8pt !important;
+          }
+
+          .print-checklist-item {
+            font-size: 7pt !important;
+            line-height: 1.3 !important;
+          }
+
+          .print-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex !important;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 0.4in;
+          }
+
+          .print-qr {
+            width: 60px !important;
+            height: 60px !important;
+          }
+        }
+
+        /* Hide print-only elements on screen */
+        .print-only {
+          display: none;
         }
       `}</style>
 
-      {/* Header */}
-      <header className="bg-slate-800 text-white py-6 no-print">
-        <div className="max-w-4xl mx-auto px-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 bg-amber-400 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <span className="font-bold text-xl">Power Insight</span>
+      {/* Web Header - simple breadcrumb, no duplicate banner */}
+      <header className="bg-slate-50 border-b border-slate-200 py-4 no-print">
+        <div className="max-w-4xl mx-auto px-4">
+          <Link href="/" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 text-sm">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Power Insight
           </Link>
-          <a
-            href={siteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-amber-300 hover:text-amber-200 text-sm"
-          >
-            power-insight.org
-          </a>
         </div>
       </header>
 
-      {/* Printable Header */}
-      <div className="hidden print:block py-4 border-b-2 border-slate-200 mb-6">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-slate-800 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-sm">PI</span>
-            </div>
-            <span className="font-bold text-lg text-slate-800">Power Insight</span>
-            <span className="text-slate-500 text-sm ml-auto">power-insight.org</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-4 py-6 print-container">
         {/* Title */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-2 mb-2 print-only">
+            <span className="font-bold text-slate-800">POWER INSIGHT</span>
+            <span className="text-slate-400">|</span>
+            <span className="text-slate-500 text-sm">power-insight.org</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2 print-title">
             What Communities Are Asking About Data Centers
           </h1>
-          <p className="text-lg text-slate-600">
+          <p className="text-slate-600 print-subtitle">
             Evidence-based answers to common questions
           </p>
         </div>
 
-        {/* FAQ Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-10">
+        {/* FAQ Cards - 2x2 Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-6 print-faq-grid">
           {/* Question 1 */}
-          <div className="rounded-xl bg-slate-50 p-6 border border-slate-200">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-800 mb-1">&quot;Will my electric bill go up?&quot;</h3>
-                <p className="text-sm text-amber-600 font-medium mb-2">With the right policy, data centers apply downward pressure on rates.</p>
-                <p className="text-sm text-slate-600">
-                  Large customers bring new revenue that helps cover shared infrastructure costs.
-                  The E3 study found data centers can lower nearby bills by 1-2%.
-                </p>
-              </div>
-            </div>
+          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
+            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
+              &quot;Will my electric bill go up?&quot;
+            </h3>
+            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
+              With the right policy, data centers apply downward pressure on rates.
+            </p>
+            <p className="text-xs text-slate-500 print-faq-detail">
+              Large customers bring new revenue that helps cover shared infrastructure costs.
+              The E3 study found data centers can lower nearby bills by 1-2%.
+            </p>
           </div>
 
           {/* Question 2 */}
-          <div className="rounded-xl bg-slate-50 p-6 border border-slate-200">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-800 mb-1">&quot;Who pays for all the new infrastructure?&quot;</h3>
-                <p className="text-sm text-amber-600 font-medium mb-2">Industrial tariffs ensure data centers pay their full cost of service.</p>
-                <p className="text-sm text-slate-600">
-                  Utilities are creating dedicated rate classes with demand charges that recover transmission and
-                  distribution costs directly from large loads.
-                </p>
-              </div>
-            </div>
+          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
+            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
+              &quot;Who pays for all the new infrastructure?&quot;
+            </h3>
+            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
+              Industrial tariffs ensure data centers pay their full cost of service.
+            </p>
+            <p className="text-xs text-slate-500 print-faq-detail">
+              Utilities are creating dedicated rate classes with demand charges that recover
+              transmission and distribution costs directly from large loads.
+            </p>
           </div>
 
           {/* Question 3 */}
-          <div className="rounded-xl bg-slate-50 p-6 border border-slate-200">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-800 mb-1">&quot;What happens if the data center leaves?&quot;</h3>
-                <p className="text-sm text-amber-600 font-medium mb-2">Tariff structures include minimum contract terms to ensure full cost recovery.</p>
-                <p className="text-sm text-slate-600">
-                  Policies like AEP Ohio&apos;s 12-year minimum demand requirements and exit fees protect
-                  ratepayers from stranded asset risk.
-                </p>
-              </div>
-            </div>
+          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
+            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
+              &quot;What happens if the data center leaves?&quot;
+            </h3>
+            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
+              Tariff structures include minimum contract terms for cost recovery.
+            </p>
+            <p className="text-xs text-slate-500 print-faq-detail">
+              Policies like AEP Ohio&apos;s 12-year minimum demand requirements and exit fees
+              protect ratepayers from stranded asset risk.
+            </p>
           </div>
 
           {/* Question 4 */}
-          <div className="rounded-xl bg-slate-50 p-6 border border-slate-200">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-800 mb-1">&quot;Will I have power outages?&quot;</h3>
-                <p className="text-sm text-amber-600 font-medium mb-2">Modern data centers actually help stabilize the grid during emergencies.</p>
-                <p className="text-sm text-slate-600">
-                  Data centers can reduce operations and activate on-site generators during peak demand,
-                  helping prevent brownouts and blackouts. Many include battery storage that acts as grid backup.
-                </p>
-              </div>
-            </div>
+          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
+            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
+              &quot;Will I have power outages?&quot;
+            </h3>
+            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
+              Modern data centers actually help stabilize the grid.
+            </p>
+            <p className="text-xs text-slate-500 print-faq-detail">
+              Data centers can reduce operations and activate on-site generators during peak demand,
+              helping prevent brownouts. Many include battery storage for grid backup.
+            </p>
           </div>
         </div>
 
         {/* Checklist */}
-        <div className="rounded-xl bg-slate-100 p-8 mb-10 border border-slate-200">
-          <h2 className="text-xl font-bold text-slate-800 mb-2 text-center">Questions to Ask About Any Proposal</h2>
-          <p className="text-slate-500 text-sm text-center mb-6">Use this checklist when evaluating data center proposals in your community.</p>
+        <div className="rounded-lg bg-slate-100 p-5 mb-6 border border-slate-200 print-checklist">
+          <h2 className="text-base font-bold text-slate-800 mb-3 text-center print-checklist-title">
+            Questions to Ask About Any Proposal
+          </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 gap-4">
             {/* Cost Allocation */}
             <div>
-              <h4 className="text-sm font-semibold text-amber-600 mb-3">Cost Allocation</h4>
-              <ul className="space-y-3 text-sm text-slate-700">
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  What rate schedule will the data center be on?
+              <h4 className="text-xs font-semibold text-amber-600 mb-2 print-checklist-category">Cost Allocation</h4>
+              <ul className="space-y-1">
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  What rate schedule will they be on?
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Does the rate cover full cost-of-service including demand charges?
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  Full cost-of-service w/ demand charges?
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Who pays for grid upgrades needed to serve the facility?
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  Who pays for grid upgrades?
                 </li>
               </ul>
             </div>
 
             {/* Grid Reliability */}
             <div>
-              <h4 className="text-sm font-semibold text-green-600 mb-3">Grid Reliability</h4>
-              <ul className="space-y-3 text-sm text-slate-700">
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+              <h4 className="text-xs font-semibold text-green-600 mb-2 print-checklist-category">Grid Reliability</h4>
+              <ul className="space-y-1">
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
                   Is any of the load flexible?
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Can operations be curtailed during grid emergencies?
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  Curtailable during grid emergencies?
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Is on-site generation or battery storage included?
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  On-site generation or batteries?
                 </li>
               </ul>
             </div>
 
             {/* Risk Protection */}
             <div>
-              <h4 className="text-sm font-semibold text-amber-600 mb-3">Risk Protection</h4>
-              <ul className="space-y-3 text-sm text-slate-700">
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Are there minimum purchase requirements?
+              <h4 className="text-xs font-semibold text-amber-600 mb-2 print-checklist-category">Risk Protection</h4>
+              <ul className="space-y-1">
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  Minimum purchase requirements?
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  What happens if the data center closes or reduces load?
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  What if they close or reduce load?
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-4 h-4 border-2 border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Who bears the risk of stranded assets?
+                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
+                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                  Who bears stranded asset risk?
                 </li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* QR Code Section */}
-        <div className="text-center mb-8">
-          <div className="inline-block bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        {/* Web Footer with QR and actions */}
+        <div className="flex items-end justify-between no-print">
+          <div>
+            <p className="text-sm text-slate-500 mb-2">
+              Generated from{' '}
+              <a href={siteUrl} className="text-amber-600 hover:underline font-medium">
+                Power Insight
+              </a>
+              {' '}&mdash; Open Data for Smarter Energy Decisions
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Print this Guide
+              </button>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-400 text-slate-900 text-sm font-medium rounded-lg hover:bg-amber-300 transition-colors"
+              >
+                Visit Full Site
+              </Link>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-sm inline-block">
+              <QRCodeSVG
+                value={siteUrl}
+                size={80}
+                level="M"
+                includeMargin={false}
+              />
+            </div>
+            <p className="text-xs text-slate-400 mt-1">Scan to visit</p>
+          </div>
+        </div>
+
+        {/* Print-only Footer */}
+        <div className="print-footer print-only">
+          <div>
+            <p className="text-xs text-slate-600 font-medium">power-insight.org</p>
+            <p className="text-xs text-slate-400">Open Data for Smarter Energy Decisions</p>
+          </div>
+          <div className="print-qr">
             <QRCodeSVG
               value={siteUrl}
-              size={150}
+              size={60}
               level="M"
               includeMargin={false}
             />
           </div>
-          <p className="text-sm text-slate-500 mt-3">
-            Scan to visit Power Insight
-          </p>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center border-t border-slate-200 pt-6">
-          <p className="text-sm text-slate-500">
-            Generated from{' '}
-            <a href={siteUrl} className="text-amber-600 hover:underline font-medium no-print">
-              Power Insight
-            </a>
-            <span className="hidden print:inline font-medium">Power Insight</span>
-            {' '}&mdash; Open Data for Smarter Energy Decisions
-          </p>
-        </div>
-
-        {/* Action Buttons - No Print */}
-        <div className="flex justify-center gap-4 mt-8 no-print">
-          <button
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-white font-medium rounded-full hover:bg-slate-700 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Print this Guide
-          </button>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-400 text-slate-900 font-medium rounded-full hover:bg-amber-300 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            Visit Full Site
-          </Link>
         </div>
       </main>
     </div>

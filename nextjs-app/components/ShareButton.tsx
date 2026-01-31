@@ -7,28 +7,43 @@ export default function ShareButton() {
   const [copied, setCopied] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const shareUrl = 'https://power-insight.org/share/community-guide';
+  const shareUrl = 'https://power-insight.org';
 
   const emailSubject = 'Data Center Community Guide - Power Insight';
-  const emailBody = `I wanted to share this helpful resource about data centers and community energy planning.
+  const emailBody = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+POWER INSIGHT - Community Energy Guide
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-View the full guide with all details here:
+I wanted to share this helpful resource about data centers and community energy planning.
+
+🔗 EXPLORE THE FULL GUIDE:
 ${shareUrl}
 
-Quick summary of what communities are asking:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT COMMUNITIES ARE ASKING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-• "Will my electric bill go up?" - With the right policy, data centers apply downward pressure on rates.
+💰 "Will my electric bill go up?"
+→ With the right policy, data centers apply downward pressure on rates.
 
-• "Who pays for all the new infrastructure?" - Industrial tariffs ensure data centers pay their full cost of service.
+⚡ "Who pays for all the new infrastructure?"
+→ Industrial tariffs ensure data centers pay their full cost of service.
 
-• "What happens if the data center leaves?" - Tariff structures include minimum contract terms.
+🛡️ "What happens if the data center leaves?"
+→ Tariff structures include minimum contract terms.
 
-• "Will I have power outages?" - Modern data centers help stabilize the grid during emergencies.
+🔌 "Will I have power outages?"
+→ Modern data centers help stabilize the grid during emergencies.
 
-The link above includes a printable checklist and QR code for sharing.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
----
-Powered by Power Insight - Open Data for Smarter Energy Decisions
+Visit power-insight.org to:
+✓ Use our cost calculator
+✓ Download a printable checklist
+✓ Explore the full methodology
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Power Insight - Open Data for Smarter Energy Decisions
 https://power-insight.org`;
 
   // Close dropdown when clicking outside
