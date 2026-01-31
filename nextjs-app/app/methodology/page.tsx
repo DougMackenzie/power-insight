@@ -1135,78 +1135,6 @@ $1,120 | *  Emergency
                             </p>
                         </div>
 
-                        {/* Cost Allocation */}
-                        <div className="border border-gray-200 rounded-lg p-4">
-                            <h4 className="font-semibold text-gray-900 mb-2">
-                                Residential Cost Allocation Methodology
-                            </h4>
-                            <p className="text-sm text-gray-500 mb-3">Based on standard ratemaking principles and utility tariff structures</p>
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b border-gray-200">
-                                        <th className="text-left py-2 font-medium">Data Point</th>
-                                        <th className="text-right py-2 font-medium">Value</th>
-                                        <th className="text-left py-2 pl-4 font-medium">Source</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr className="border-b border-gray-100">
-                                        <td className="py-2">Base residential allocation</td>
-                                        <td className="text-right font-medium">{(DEFAULT_UTILITY.baseResidentialAllocation * 100).toFixed(0)}%</td>
-                                        <td className="pl-4 text-xs">
-                                            <a href="https://www.raponline.org/wp-content/uploads/2023/09/rap-lazar-chernick-marcus-lebel-electric-cost-allocation-new-era-2020-january.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                RAP: Electric Cost Allocation for a New Era (2020)
-                                            </a>
-                                            <span className="block text-gray-400">Typical residential class allocation: 35-45% of revenue requirement</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="border-b border-gray-100">
-                                        <td className="py-2">Allocation weighting method</td>
-                                        <td className="text-right font-medium">40/40/20</td>
-                                        <td className="pl-4 text-xs">
-                                            <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-medium">Model Assumption</span>
-                                            <span className="block text-gray-400 mt-1">Simplified blend: 40% volumetric, 40% demand, 20% customer count. Actual utility methods vary.</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="border-b border-gray-100">
-                                        <td className="py-2">Total demand charge rate</td>
-                                        <td className="text-right font-medium">${DC_RATE_STRUCTURE.demandChargePerMWMonth.toLocaleString()}/MW-mo</td>
-                                        <td className="pl-4 text-xs">
-                                            <a href="https://www.psoklahoma.com/company/about/rates/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                PSO Rate Schedules - Large Power & Light (LPL) Tariff
-                                            </a>
-                                            <span className="block text-gray-400"><span className="px-1 bg-amber-100 text-amber-800 rounded">Representative value</span> derived from PSO peak ($7.05/kW) + max ($2.47/kW) demand charges</span>
-                                        </td>
-                                    </tr>
-                                    <tr className="border-b border-gray-100">
-                                        <td className="py-2">- Coincident peak portion</td>
-                                        <td className="text-right font-medium">${DC_RATE_STRUCTURE.coincidentPeakChargePerMWMonth.toLocaleString()}/MW-mo</td>
-                                        <td className="pl-4 text-xs text-gray-500">
-                                            ~60% of total - based on usage during system peak hours
-                                        </td>
-                                    </tr>
-                                    <tr className="border-b border-gray-100">
-                                        <td className="py-2">- Non-coincident peak portion</td>
-                                        <td className="text-right font-medium">${DC_RATE_STRUCTURE.nonCoincidentPeakChargePerMWMonth.toLocaleString()}/MW-mo</td>
-                                        <td className="pl-4 text-xs text-gray-500">
-                                            ~40% of total - based on customer's own monthly peak
-                                        </td>
-                                    </tr>
-                                    <tr className="border-b border-gray-100">
-                                        <td className="py-2">Energy margin (utility spread)</td>
-                                        <td className="text-right font-medium">Calculated</td>
-                                        <td className="pl-4 text-xs">
-                                            <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-medium">Dynamic</span>
-                                            <span className="block text-gray-400 mt-1">
-                                                Formula: <code className="bg-gray-200 px-1 rounded">tariff energy rate - wholesale cost</code>.
-                                                Wholesale costs by market: ERCOT $45, PJM $42, MISO $35, TVA $32, SPP $28, NYISO $55, Regulated $38/MWh.
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
                         {/* Data Center Specific */}
                         <div className="border border-gray-200 rounded-lg p-4">
                             <h4 className="font-semibold text-gray-900 mb-2">
@@ -2196,13 +2124,6 @@ $1,120 | *  Emergency
                                         </td>
                                     </tr>
                                     <tr className="border-b border-green-100">
-                                        <td className="py-2 font-medium">Allocation Adjustment</td>
-                                        <td className="text-right">x 0.70</td>
-                                        <td className="pl-4 text-xs text-gray-500">
-                                            4CP methodology: large loads pay for transmission based on peak usage
-                                        </td>
-                                    </tr>
-                                    <tr className="border-b border-green-100">
                                         <td className="py-2 font-medium">4CP Transmission Rate</td>
                                         <td className="text-right font-bold text-green-700">~${DC_RATE_STRUCTURE.ercot4CPTransmissionRate}/kW-mo</td>
                                         <td className="pl-4 text-xs">
@@ -2293,7 +2214,14 @@ $1,120 | *  Emergency
                         <div className="mt-6 p-4 bg-gray-100 rounded-lg">
                             <h4 className="font-semibold text-gray-900 mb-3">Market-Adjusted Allocation Formula</h4>
                             <div className="bg-white p-4 rounded font-mono text-sm overflow-x-auto">
+                                <p className="mb-2">Base Allocation = Volumetric × 0.40 + Demand × 0.40 + Customer × 0.20</p>
                                 <p className="mb-2">Adjusted Allocation = Base Allocation × Market Adjustment</p>
+                                <p className="text-gray-500 text-xs mt-1 font-sans">
+                                    <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-medium">Model Assumption</span>{' '}
+                                    The 40/40/20 weighting blends volumetric (energy share), demand (peak share), and customer count factors.
+                                    This method is applied uniformly across all markets. See{' '}
+                                    <a href="https://www.raponline.org/wp-content/uploads/2023/09/rap-lazar-chernick-marcus-lebel-electric-cost-allocation-new-era-2020-january.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">RAP: Electric Cost Allocation for a New Era (2020)</a>.
+                                </p>
                                 <p className="text-gray-500 text-xs mt-3">Market-specific adjustments:</p>
                                 <ul className="text-xs text-gray-500 mt-1 space-y-2">
                                     <li><strong>Regulated/SPP/TVA (cost-of-service):</strong> Cost Causation Adjustment
