@@ -4,10 +4,10 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function ShareButton() {
   const [showOptions, setShowOptions] = useState(false);
-  const [copied, setCopied] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const shareUrl = 'https://power-insight.org';
+  const homeUrl = 'https://power-insight.org';
+  const printUrl = 'https://power-insight.org/share/community-guide';
 
   const emailSubject = 'Data Center Community Guide - Power Insight';
   const emailBody = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -16,8 +16,11 @@ POWER INSIGHT - Community Energy Guide
 
 I wanted to share this helpful resource about data centers and community energy planning.
 
-🔗 EXPLORE THE FULL GUIDE:
-${shareUrl}
+🔗 EXPLORE THE FULL SITE:
+${homeUrl}
+
+🖨️ PRINTABLE 1-PAGE GUIDE:
+${printUrl}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 WHAT COMMUNITIES ARE ASKING
@@ -44,7 +47,7 @@ Visit power-insight.org to:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Power Insight - Open Data for Smarter Energy Decisions
-https://power-insight.org`;
+${homeUrl}`;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -57,28 +60,10 @@ https://power-insight.org`;
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-        setShowOptions(false);
-      }, 1500);
-    } catch {
-      // Fallback for browsers without clipboard API
-      const textArea = document.createElement('textarea');
-      textArea.value = shareUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-        setShowOptions(false);
-      }, 1500);
-    }
+  const handlePrint = () => {
+    // Open the printable page in a new tab
+    window.open('/share/community-guide', '_blank');
+    setShowOptions(false);
   };
 
   const handleEmail = () => {
@@ -102,24 +87,13 @@ https://power-insight.org`;
       {showOptions && (
         <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-slate-800 rounded-lg shadow-xl border border-slate-600 overflow-hidden z-50">
           <button
-            onClick={handleCopyLink}
+            onClick={handlePrint}
             className="w-full px-4 py-3 text-left text-sm text-white hover:bg-slate-700 transition-colors flex items-center gap-3"
           >
-            {copied ? (
-              <>
-                <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-green-400">Link Copied!</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                <span>Copy Link</span>
-              </>
-            )}
+            <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>Print</span>
           </button>
           <button
             onClick={handleEmail}

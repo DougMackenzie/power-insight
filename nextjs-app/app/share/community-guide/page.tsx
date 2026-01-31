@@ -2,329 +2,378 @@
 
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
+import { useEffect } from 'react';
 
 export default function CommunityGuidePage() {
   const siteUrl = 'https://power-insight.org';
 
+  // Auto-trigger print dialog when page loads (optional - can be removed)
+  useEffect(() => {
+    // Small delay to ensure page is fully rendered
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('print') === 'true') {
+      setTimeout(() => window.print(), 500);
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Print-optimized styles for 1-page output */}
+    <>
+      {/* Print-optimized styles for exact 1-page output */}
       <style jsx global>{`
         @media print {
           @page {
             size: letter;
-            margin: 0.4in;
+            margin: 0;
           }
 
           html, body {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
 
           .no-print {
             display: none !important;
           }
 
-          .print-only {
-            display: block !important;
+          .print-page {
+            width: 8.5in !important;
+            height: 11in !important;
+            padding: 0.35in !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
           }
 
-          /* Compact everything for 1 page */
-          .print-container {
-            font-size: 9pt;
+          .print-header {
+            padding-bottom: 0.15in !important;
+            border-bottom: 2px solid #1e293b !important;
+            margin-bottom: 0.15in !important;
           }
 
           .print-title {
-            font-size: 16pt !important;
-            margin-bottom: 2pt !important;
+            font-size: 20pt !important;
+            line-height: 1.1 !important;
+            margin: 0 !important;
           }
 
           .print-subtitle {
             font-size: 10pt !important;
-            margin-bottom: 8pt !important;
-          }
-
-          .print-section-title {
-            font-size: 11pt !important;
-            margin-bottom: 4pt !important;
+            margin: 0 !important;
           }
 
           .print-faq-grid {
-            gap: 6pt !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.12in !important;
+            margin-bottom: 0.15in !important;
           }
 
           .print-faq-card {
-            padding: 6pt !important;
-            border: 1pt solid #e2e8f0 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 4px !important;
+            padding: 0.1in !important;
+            background: #f8fafc !important;
           }
 
-          .print-faq-question {
-            font-size: 9pt !important;
-            margin-bottom: 1pt !important;
+          .print-faq-q {
+            font-size: 10pt !important;
+            font-weight: 600 !important;
+            margin: 0 0 2pt 0 !important;
+            color: #1e293b !important;
           }
 
-          .print-faq-answer {
-            font-size: 8pt !important;
-            margin-bottom: 2pt !important;
+          .print-faq-a {
+            font-size: 8.5pt !important;
+            font-weight: 500 !important;
+            margin: 0 0 2pt 0 !important;
+            color: #d97706 !important;
           }
 
           .print-faq-detail {
-            font-size: 7pt !important;
-            line-height: 1.2 !important;
+            font-size: 7.5pt !important;
+            line-height: 1.25 !important;
+            margin: 0 !important;
+            color: #475569 !important;
           }
 
           .print-checklist {
-            padding: 6pt !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 4px !important;
+            padding: 0.12in !important;
+            background: #f1f5f9 !important;
+            flex: 1 !important;
           }
 
           .print-checklist-title {
-            font-size: 10pt !important;
-            margin-bottom: 4pt !important;
+            font-size: 11pt !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            margin: 0 0 0.08in 0 !important;
+            color: #1e293b !important;
+          }
+
+          .print-checklist-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr 1fr !important;
+            gap: 0.15in !important;
           }
 
           .print-checklist-category {
             font-size: 8pt !important;
+            font-weight: 600 !important;
+            margin: 0 0 4pt 0 !important;
           }
 
           .print-checklist-item {
             font-size: 7pt !important;
-            line-height: 1.3 !important;
+            line-height: 1.35 !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 4pt !important;
+            margin-bottom: 3pt !important;
+            color: #334155 !important;
+          }
+
+          .print-checkbox {
+            width: 8pt !important;
+            height: 8pt !important;
+            border: 1px solid #64748b !important;
+            border-radius: 2px !important;
+            flex-shrink: 0 !important;
+            margin-top: 1pt !important;
           }
 
           .print-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
             display: flex !important;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 0 0.4in;
+            justify-content: space-between !important;
+            align-items: flex-end !important;
+            padding-top: 0.1in !important;
+            border-top: 1px solid #e2e8f0 !important;
+            margin-top: 0.1in !important;
+          }
+
+          .print-footer-text {
+            font-size: 8pt !important;
+            color: #64748b !important;
+            margin: 0 !important;
+          }
+
+          .print-footer-url {
+            font-size: 10pt !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            margin: 0 !important;
           }
 
           .print-qr {
-            width: 60px !important;
-            height: 60px !important;
+            width: 0.7in !important;
+            height: 0.7in !important;
+          }
+
+          .print-qr svg {
+            width: 100% !important;
+            height: 100% !important;
           }
         }
 
-        /* Hide print-only elements on screen */
-        .print-only {
-          display: none;
+        /* Screen styles */
+        .print-page {
+          max-width: 8.5in;
+          margin: 0 auto;
+          background: white;
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        @media screen {
+          .screen-wrapper {
+            min-height: 100vh;
+            background: #f1f5f9;
+            padding: 1rem;
+          }
         }
       `}</style>
 
-      {/* Web Header - simple breadcrumb, no duplicate banner */}
-      <header className="bg-slate-50 border-b border-slate-200 py-4 no-print">
-        <div className="max-w-4xl mx-auto px-4">
+      {/* Screen wrapper with controls */}
+      <div className="screen-wrapper">
+        {/* Web controls - hidden on print */}
+        <div className="no-print max-w-[8.5in] mx-auto mb-4 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path d="M15 19l-7-7 7-7" />
             </svg>
             Back to Power Insight
           </Link>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-6 print-container">
-        {/* Title */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-2 mb-2 print-only">
-            <span className="font-bold text-slate-800">POWER INSIGHT</span>
-            <span className="text-slate-400">|</span>
-            <span className="text-slate-500 text-sm">power-insight.org</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2 print-title">
-            What Communities Are Asking About Data Centers
-          </h1>
-          <p className="text-slate-600 print-subtitle">
-            Evidence-based answers to common questions
-          </p>
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print / Save as PDF
+          </button>
         </div>
 
-        {/* FAQ Cards - 2x2 Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-6 print-faq-grid">
-          {/* Question 1 */}
-          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
-            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
-              &quot;Will my electric bill go up?&quot;
-            </h3>
-            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
-              With the right policy, data centers apply downward pressure on rates.
-            </p>
-            <p className="text-xs text-slate-500 print-faq-detail">
-              Large customers bring new revenue that helps cover shared infrastructure costs.
-              The E3 study found data centers can lower nearby bills by 1-2%.
-            </p>
-          </div>
-
-          {/* Question 2 */}
-          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
-            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
-              &quot;Who pays for all the new infrastructure?&quot;
-            </h3>
-            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
-              Industrial tariffs ensure data centers pay their full cost of service.
-            </p>
-            <p className="text-xs text-slate-500 print-faq-detail">
-              Utilities are creating dedicated rate classes with demand charges that recover
-              transmission and distribution costs directly from large loads.
+        {/* Printable page - exactly 8.5 x 11 inches */}
+        <div className="print-page bg-white p-6 md:p-8">
+          {/* Header */}
+          <div className="print-header pb-3 border-b-2 border-slate-800 mb-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">POWER INSIGHT</span>
+              <span className="text-xs text-slate-400">power-insight.org</span>
+            </div>
+            <h1 className="print-title text-2xl md:text-3xl font-bold text-slate-800 leading-tight">
+              What Communities Are Asking About Data Centers
+            </h1>
+            <p className="print-subtitle text-sm text-slate-500 mt-1">
+              Evidence-based answers to common questions
             </p>
           </div>
 
-          {/* Question 3 */}
-          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
-            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
-              &quot;What happens if the data center leaves?&quot;
-            </h3>
-            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
-              Tariff structures include minimum contract terms for cost recovery.
-            </p>
-            <p className="text-xs text-slate-500 print-faq-detail">
-              Policies like AEP Ohio&apos;s 12-year minimum demand requirements and exit fees
-              protect ratepayers from stranded asset risk.
-            </p>
+          {/* FAQ Cards - 2x2 Grid */}
+          <div className="print-faq-grid grid grid-cols-2 gap-3 mb-4">
+            {/* Question 1 */}
+            <div className="print-faq-card rounded-md bg-slate-50 p-3 border border-slate-200">
+              <p className="print-faq-q text-sm font-semibold text-slate-800 mb-0.5">
+                &quot;Will my electric bill go up?&quot;
+              </p>
+              <p className="print-faq-a text-xs font-medium text-amber-600 mb-1">
+                With the right policy, data centers apply downward pressure on rates.
+              </p>
+              <p className="print-faq-detail text-xs text-slate-500 leading-tight">
+                Large customers bring new revenue that helps cover shared infrastructure costs. The E3 study found data centers can lower nearby bills by 1-2%.
+              </p>
+            </div>
+
+            {/* Question 2 */}
+            <div className="print-faq-card rounded-md bg-slate-50 p-3 border border-slate-200">
+              <p className="print-faq-q text-sm font-semibold text-slate-800 mb-0.5">
+                &quot;Who pays for all the new infrastructure?&quot;
+              </p>
+              <p className="print-faq-a text-xs font-medium text-amber-600 mb-1">
+                Industrial tariffs ensure data centers pay their full cost of service.
+              </p>
+              <p className="print-faq-detail text-xs text-slate-500 leading-tight">
+                Utilities are creating dedicated rate classes with demand charges that recover transmission and distribution costs directly from large loads.
+              </p>
+            </div>
+
+            {/* Question 3 */}
+            <div className="print-faq-card rounded-md bg-slate-50 p-3 border border-slate-200">
+              <p className="print-faq-q text-sm font-semibold text-slate-800 mb-0.5">
+                &quot;What happens if the data center leaves?&quot;
+              </p>
+              <p className="print-faq-a text-xs font-medium text-amber-600 mb-1">
+                Tariff structures include minimum contract terms for full cost recovery.
+              </p>
+              <p className="print-faq-detail text-xs text-slate-500 leading-tight">
+                Policies like AEP Ohio&apos;s 12-year minimum demand requirements and exit fees protect ratepayers from stranded asset risk.
+              </p>
+            </div>
+
+            {/* Question 4 */}
+            <div className="print-faq-card rounded-md bg-slate-50 p-3 border border-slate-200">
+              <p className="print-faq-q text-sm font-semibold text-slate-800 mb-0.5">
+                &quot;Will I have power outages?&quot;
+              </p>
+              <p className="print-faq-a text-xs font-medium text-amber-600 mb-1">
+                Modern data centers actually help stabilize the grid.
+              </p>
+              <p className="print-faq-detail text-xs text-slate-500 leading-tight">
+                Data centers can reduce operations and activate on-site generators during peak demand, helping prevent brownouts. Many include battery storage for grid backup.
+              </p>
+            </div>
           </div>
 
-          {/* Question 4 */}
-          <div className="rounded-lg bg-slate-50 p-4 border border-slate-200 print-faq-card">
-            <h3 className="text-sm font-semibold text-slate-800 mb-1 print-faq-question">
-              &quot;Will I have power outages?&quot;
-            </h3>
-            <p className="text-xs text-amber-600 font-medium mb-1 print-faq-answer">
-              Modern data centers actually help stabilize the grid.
-            </p>
-            <p className="text-xs text-slate-500 print-faq-detail">
-              Data centers can reduce operations and activate on-site generators during peak demand,
-              helping prevent brownouts. Many include battery storage for grid backup.
-            </p>
+          {/* Checklist */}
+          <div className="print-checklist rounded-md bg-slate-100 p-4 border border-slate-200 flex-1">
+            <h2 className="print-checklist-title text-base font-bold text-slate-800 text-center mb-3">
+              Questions to Ask About Any Proposal
+            </h2>
+
+            <div className="print-checklist-grid grid grid-cols-3 gap-4">
+              {/* Cost Allocation */}
+              <div>
+                <h4 className="print-checklist-category text-xs font-semibold text-amber-600 mb-2">Cost Allocation</h4>
+                <div className="space-y-1.5">
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>What rate schedule will the data center be on?</span>
+                  </div>
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>Does the rate cover full cost-of-service including demand charges?</span>
+                  </div>
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>Who pays for grid upgrades needed to serve the facility?</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid Reliability */}
+              <div>
+                <h4 className="print-checklist-category text-xs font-semibold text-green-600 mb-2">Grid Reliability</h4>
+                <div className="space-y-1.5">
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>Is any of the load flexible?</span>
+                  </div>
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>Can operations be curtailed during grid emergencies?</span>
+                  </div>
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>Is on-site generation or battery storage included?</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Risk Protection */}
+              <div>
+                <h4 className="print-checklist-category text-xs font-semibold text-amber-600 mb-2">Risk Protection</h4>
+                <div className="space-y-1.5">
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>Are there minimum purchase requirements?</span>
+                  </div>
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>What happens if the data center closes or reduces load?</span>
+                  </div>
+                  <div className="print-checklist-item flex items-start gap-1.5 text-xs text-slate-600">
+                    <span className="print-checkbox w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
+                    <span>Who bears the risk of stranded assets?</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Checklist */}
-        <div className="rounded-lg bg-slate-100 p-5 mb-6 border border-slate-200 print-checklist">
-          <h2 className="text-base font-bold text-slate-800 mb-3 text-center print-checklist-title">
-            Questions to Ask About Any Proposal
-          </h2>
-
-          <div className="grid grid-cols-3 gap-4">
-            {/* Cost Allocation */}
+          {/* Footer */}
+          <div className="print-footer flex items-end justify-between pt-3 border-t border-slate-200 mt-4">
             <div>
-              <h4 className="text-xs font-semibold text-amber-600 mb-2 print-checklist-category">Cost Allocation</h4>
-              <ul className="space-y-1">
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  What rate schedule will they be on?
-                </li>
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Full cost-of-service w/ demand charges?
-                </li>
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Who pays for grid upgrades?
-                </li>
-              </ul>
+              <p className="print-footer-url text-sm font-semibold text-slate-800">power-insight.org</p>
+              <p className="print-footer-text text-xs text-slate-500">Open Data for Smarter Energy Decisions</p>
             </div>
-
-            {/* Grid Reliability */}
-            <div>
-              <h4 className="text-xs font-semibold text-green-600 mb-2 print-checklist-category">Grid Reliability</h4>
-              <ul className="space-y-1">
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Is any of the load flexible?
-                </li>
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Curtailable during grid emergencies?
-                </li>
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  On-site generation or batteries?
-                </li>
-              </ul>
-            </div>
-
-            {/* Risk Protection */}
-            <div>
-              <h4 className="text-xs font-semibold text-amber-600 mb-2 print-checklist-category">Risk Protection</h4>
-              <ul className="space-y-1">
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Minimum purchase requirements?
-                </li>
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  What if they close or reduce load?
-                </li>
-                <li className="flex items-start gap-1.5 text-xs text-slate-600 print-checklist-item">
-                  <span className="w-3 h-3 border border-slate-400 rounded flex-shrink-0 mt-0.5"></span>
-                  Who bears stranded asset risk?
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Web Footer with QR and actions */}
-        <div className="flex items-end justify-between no-print">
-          <div>
-            <p className="text-sm text-slate-500 mb-2">
-              Generated from{' '}
-              <a href={siteUrl} className="text-amber-600 hover:underline font-medium">
-                Power Insight
-              </a>
-              {' '}&mdash; Open Data for Smarter Energy Decisions
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                Print this Guide
-              </button>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-400 text-slate-900 text-sm font-medium rounded-lg hover:bg-amber-300 transition-colors"
-              >
-                Visit Full Site
-              </Link>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-sm inline-block">
+            <div className="print-qr">
               <QRCodeSVG
                 value={siteUrl}
-                size={80}
+                size={70}
                 level="M"
                 includeMargin={false}
               />
             </div>
-            <p className="text-xs text-slate-400 mt-1">Scan to visit</p>
           </div>
         </div>
-
-        {/* Print-only Footer */}
-        <div className="print-footer print-only">
-          <div>
-            <p className="text-xs text-slate-600 font-medium">power-insight.org</p>
-            <p className="text-xs text-slate-400">Open Data for Smarter Energy Decisions</p>
-          </div>
-          <div className="print-qr">
-            <QRCodeSVG
-              value={siteUrl}
-              size={60}
-              level="M"
-              includeMargin={false}
-            />
-          </div>
-        </div>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }
