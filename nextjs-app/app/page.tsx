@@ -236,7 +236,7 @@ export default function HomePage() {
                     <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                <p className="text-sm font-medium text-green-700 mb-2">Utilities Are Protecting You</p>
+                <p className="text-sm font-medium text-green-700 mb-2">Utility Tariffs Can Protect You</p>
                 <p className="text-sm text-slate-600">
                   Electric companies are creating special rates for data centers that make them pay
                   their fair share — so homeowners don't get stuck with the bill for new power lines
@@ -274,82 +274,45 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Research Highlights Grid */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
-              <a
-                href="https://www.ethree.com/ratepayer-study/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
-              >
-                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
-                  E3 Study (2025)
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </p>
-                <p className="text-sm text-slate-700">
-                  A single data center can bring millions in extra revenue — enough to lower bills for nearby customers by 1-2%.
-                </p>
-              </a>
-              <a
-                href="https://www.pbs.org/newshour/show/how-data-center-power-demand-could-help-lower-electricity-prices"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
-              >
-                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
-                  LBNL / Brattle (2025)
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </p>
-                <p className="text-sm text-slate-700">
-                  States with growing electricity demand actually saw rates go down — more customers means lower costs per person.
-                </p>
-              </a>
-              <a
-                href="https://www.utilitydive.com/news/grid-operators-ratepayers-shouldnt-fear-flexible-data-centers-gridcare/808032/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
-              >
-                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
-                  GridCARE (2025)
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </p>
-                <p className="text-sm text-slate-700">
-                  Data centers that can reduce power during peak hours could cut costs by 5% for all customers.
-                </p>
-              </a>
-              <a
-                href="https://mitsloan.mit.edu/ideas-made-to-matter/flexible-data-centers-can-reduce-costs-if-not-emissions"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white rounded-lg p-4 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
-              >
-                <p className="text-xs text-slate-500 mb-1 flex items-center gap-1">
-                  MIT Sloan (2025)
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </p>
-                <p className="text-sm text-slate-700">
-                  When data centers shift their work to off-peak times, it always saves money for the whole grid.
-                </p>
-              </a>
-            </div>
-
-            {/* Key Research Link */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-              <p className="text-sm text-slate-700">
-                <strong className="text-amber-800">Want to dive deeper?</strong> Our{' '}
-                <Link href="/methodology#literature-review" className="text-amber-700 underline hover:text-amber-800">
-                  research summary
+            {/* Consolidated Research Box */}
+            <div className="bg-white border border-slate-200 rounded-lg p-5">
+              <p className="text-sm font-medium text-slate-700 mb-3">Key Research Findings:</p>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-400 mt-1">•</span>
+                  <span>
+                    <a href="https://www.ethree.com/ratepayer-study/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">E3 Study (2025)</a>
+                    {' '}— A single data center can bring millions in extra revenue, lowering nearby bills by 1-2%
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-400 mt-1">•</span>
+                  <span>
+                    <a href="https://www.pbs.org/newshour/show/how-data-center-power-demand-could-help-lower-electricity-prices" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">LBNL / Brattle (2025)</a>
+                    {' '}— States with growing demand actually saw rates go down
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-400 mt-1">•</span>
+                  <span>
+                    <a href="https://www.utilitydive.com/news/grid-operators-ratepayers-shouldnt-fear-flexible-data-centers-gridcare/808032/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">GridCARE (2025)</a>
+                    {' '}— Flexible data centers could cut costs by 5% for all customers
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-400 mt-1">•</span>
+                  <span>
+                    <a href="https://mitsloan.mit.edu/ideas-made-to-matter/flexible-data-centers-can-reduce-costs-if-not-emissions" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">MIT Sloan (2025)</a>
+                    {' '}— Shifting work to off-peak times saves money for the whole grid
+                  </span>
+                </li>
+              </ul>
+              <p className="text-sm text-slate-500 mt-4 pt-3 border-t border-slate-100">
+                <strong className="text-slate-600">Want to dive deeper?</strong>{' '}
+                <Link href="/methodology#literature-review" className="text-blue-600 hover:underline">
+                  View our full research summary
                 </Link>{' '}
-                covers 12+ studies — including ones that show potential risks.
+                — covering 12+ studies including ones that show potential risks.
               </p>
             </div>
           </div>
