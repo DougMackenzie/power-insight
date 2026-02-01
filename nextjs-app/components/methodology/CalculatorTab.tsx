@@ -368,7 +368,7 @@ export default function CalculatorTab({}: CalculatorTabProps = {}) {
                                 <optgroup key={group.iso} label={group.label}>
                                     {group.utilities.map((profile) => (
                                         <option key={profile.id} value={profile.id}>
-                                            {profile.shortName} {profile.state && `(${profile.state})`} - ${profile.tariff?.energyCharge?.toFixed(0) || '??'}/MWh
+                                            {profile.shortName} ({profile.state})
                                         </option>
                                     ))}
                                 </optgroup>

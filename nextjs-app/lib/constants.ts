@@ -219,9 +219,12 @@ export const DEFAULT_UTILITY: Utility = {
     // Capacity for endogenous pricing - 15% reserve margin by default
     totalGenerationCapacityMW: 4600, // 4000 MW peak * 1.15 reserve
     currentReserveMargin: 0.15,
-    // Default interconnection: 60% CIAC recovery (regulated market standard)
+    // Default interconnection: 80% CIAC recovery (standard for large load interconnection)
+    // Large DCs typically build dedicated substations and transmission taps
+    // Only shared network upgrades (20%) should be socialized
+    // See CIAC Recovery Guidelines in calculations.ts for detailed breakdown by utility type
     interconnection: {
-        ciacRecoveryFraction: 0.60,
+        ciacRecoveryFraction: 0.80,
         networkUpgradeCostPerMW: 140000, // $140k/MW network upgrades
     },
     // Default wholesale energy cost

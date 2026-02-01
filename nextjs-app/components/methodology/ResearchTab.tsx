@@ -963,19 +963,25 @@ $1,120 | *  Emergency
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">ERCOT (4CP allocation)</td>
-                                        <td className="text-right font-medium">70%</td>
+                                        <td className="text-right font-medium">85%</td>
                                         <td className="text-right font-medium">$105,000/MW</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">MISO / Other Regulated</td>
-                                        <td className="text-right font-medium">55-60%</td>
+                                        <td className="text-right font-medium">80-85%</td>
                                         <td className="text-right font-medium">$140,000-165,000/MW</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">NYISO (varies by zone)</td>
+                                        <td className="text-right font-medium">75-85%</td>
+                                        <td className="text-right font-medium">$165,000-200,000/MW</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <p className="text-xs text-gray-500 mt-2">
                                 Source: E3 "Tailored for Scale" (Dec 2025), utility tariff analysis. CIAC recovery fractions
-                                vary by utility policy and interconnection agreement terms.
+                                vary by utility policy and interconnection agreement terms. <strong>Updated Jan 2026</strong> based on
+                                E3 methodology review - large DC loads typically pay 75-95% of dedicated infrastructure costs upfront.
                             </p>
                         </div>
 
@@ -1001,6 +1007,17 @@ $1,120 | *  Emergency
                                 </p>
                                 <p className="text-xs text-gray-500">
                                     Cost = Marginal Capacity + Marginal Energy + Network Upgrades (annualized)
+                                </p>
+                            </div>
+
+                            {/* Methodology Alignment Note */}
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 my-3">
+                                <p className="text-xs text-blue-800">
+                                    <strong>⚡ Methodology Note (Jan 2026):</strong> Both Revenue Adequacy and Bill Forecast now use
+                                    a unified <code className="bg-blue-100 px-1 rounded">calculateMarginalCapacityCost()</code> function
+                                    for consistent capacity cost calculations. Revenue Adequacy compares full DC revenue to full marginal
+                                    cost-to-serve (no flow-through netting), while Bill Forecast applies market-specific flow-through rates
+                                    to allocate costs that spill over to residential ratepayers.
                                 </p>
                             </div>
 
@@ -1089,19 +1106,26 @@ $1,120 | *  Emergency
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">ERCOT</td>
-                                        <td className="text-xs font-medium text-amber-600">70%</td>
-                                        <td className="text-xs text-gray-500">Competitive market, moderate queue costs, some network upgrades socialized</td>
+                                        <td className="text-xs font-medium text-green-600">85%</td>
+                                        <td className="text-xs text-gray-500">4CP structure with dedicated interconnection facilities; DCs pay for own substations</td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">MISO / Traditional Regulated</td>
-                                        <td className="text-xs font-medium text-purple-600">55-60%</td>
-                                        <td className="text-xs text-gray-500">Moderate queue, mix of direct assignment and socialization; varies by utility policy</td>
+                                        <td className="text-xs font-medium text-green-600">80-85%</td>
+                                        <td className="text-xs text-gray-500">Standard large load interconnection; DCs typically pay for dedicated facilities</td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">NYISO (varies by zone)</td>
+                                        <td className="text-xs font-medium text-amber-600">75-85%</td>
+                                        <td className="text-xs text-gray-500">Varies by zone: NYC (75% - dense grid) to Upstate (85% - dedicated infrastructure)</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <p className="text-xs text-gray-500 mb-3">
                                 The remaining percentage (non-CIAC) represents network upgrades that benefit multiple users and are
-                                socialized across ratepayers over a 20-year recovery period.
+                                socialized across ratepayers over a 20-year recovery period. <strong>Note:</strong> CIAC values updated
+                                Jan 2026 to reflect E3 methodology - large DC loads (100MW+) typically build dedicated substations and
+                                pay 75-95% of interconnection costs upfront.
                             </p>
 
                             {/* Original Cost Components Table */}
@@ -1116,15 +1140,28 @@ $1,120 | *  Emergency
                                 <tbody>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">Marginal Capacity Cost</td>
-                                        <td className="text-xs text-gray-600">Market-specific (see table above)</td>
+                                        <td className="text-xs text-gray-600">
+                                            Market-specific (see table above) - <a href="https://www.pjm.com/markets-and-operations/rpm" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">PJM RPM</a>,{' '}
+                                            <a href="https://www.ercot.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">ERCOT</a>
+                                        </td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">Marginal Energy Cost</td>
-                                        <td className="text-xs text-gray-600">Wholesale LMP (ERCOT $45, PJM $42, MISO $35, TVA $32/MWh)</td>
+                                        <td className="text-xs text-gray-600">
+                                            Wholesale LMP - ERCOT $45/MWh <span className="text-amber-600">(Model Assumption)</span>, PJM $42/MWh <span className="text-amber-600">(Model Assumption)</span>, MISO $35/MWh <span className="text-amber-600">(Model Assumption)</span>, TVA $32/MWh <span className="text-amber-600">(Model Assumption)</span>
+                                        </td>
                                     </tr>
                                     <tr className="border-b border-gray-100">
                                         <td className="py-2">Network Upgrade Cost</td>
-                                        <td className="text-xs text-gray-600">Annualized over 20-year recovery period (non-CIAC portion only)</td>
+                                        <td className="text-xs text-gray-600">
+                                            Annualized over 20-year recovery period (non-CIAC portion only); $100k-250k/MW range <span className="text-amber-600">(Model Assumption)</span>
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-gray-100">
+                                        <td className="py-2">CIAC Recovery %</td>
+                                        <td className="text-xs text-gray-600">
+                                            75-95% by market type - based on E3 methodology; specific utility values <span className="text-amber-600">(Model Assumption)</span> where tariff analysis unavailable
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>

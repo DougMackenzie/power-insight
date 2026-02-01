@@ -281,6 +281,101 @@ export function calculateDynamicCapacityPrice(
 }
 
 // ============================================
+// UNIFIED CAPACITY COST CALCULATION
+// Ensures Revenue Adequacy and Bill Forecast use consistent methodology
+// ============================================
+
+/**
+ * CIAC Recovery Fraction Guidelines (per E3 methodology):
+ *
+ * 95%: DC builds dedicated substation + transmission tap (>100 MW)
+ *      - Dominion NoVA, AEP Ohio (have 85% minimum demand clauses)
+ *      - Nearly all local costs paid upfront
+ *
+ * 90%: Large DCs with dedicated facilities, greenfield sites
+ *      - Georgia Power, APS Arizona, NV Energy
+ *      - Most infrastructure purpose-built for DC
+ *
+ * 85%: Standard large load interconnection (25-100 MW)
+ *      - Duke utilities, Entergy, National Grid Upstate
+ *      - Mix of dedicated and shared upgrades
+ *
+ * 80%: Default / smaller large loads (10-25 MW)
+ *      - More reliance on existing infrastructure
+ *
+ * 75%: Constrained urban areas
+ *      - ConEd NYC - dense grid, more shared infrastructure
+ */
+
+export interface MarginalCapacityCostResult {
+    cost: number;
+    methodology: 'capacity_market' | 'ercot_embedded' | 'regulated_embedded';
+    pricePerMWYear: number;
+}
+
+/**
+ * Calculate marginal capacity cost using market-specific methodology
+ *
+ * This function provides a UNIFIED capacity cost calculation for both
+ * Revenue Adequacy and Bill Forecast, ensuring consistent methodology.
+ *
+ * CAPACITY MARKETS (PJM/NYISO/MISO):
+ * - Use auction clearing price × 365 (100% pass-through required by market rules)
+ * - This is SEPARATE from demand charges (which cover T&D, not wholesale capacity)
+ * - Utilities cannot mark up or absorb these costs
+ *
+ * ERCOT (Energy-Only):
+ * - Capacity embedded in energy via ORDC scarcity pricing
+ * - Use 50% of embedded constant (no separate capacity market)
+ * - No capacity charge pass-through needed
+ *
+ * REGULATED/SPP:
+ * - Capacity embedded in demand charges through cost-of-service ratemaking
+ * - Use embedded constant as proxy for utility's generation investment recovery
+ * - Demand charges ARE the capacity cost recovery mechanism
+ *
+ * @param peakDemandMW - DC contribution to system peak
+ * @param utility - Utility with market structure
+ * @returns Capacity cost result with methodology used
+ */
+export function calculateMarginalCapacityCost(
+    peakDemandMW: number,
+    utility: Utility | undefined
+): MarginalCapacityCostResult {
+    const embeddedCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear; // $150k
+
+    if (utility?.marketType === 'ercot') {
+        // ERCOT: Energy-only market - capacity embedded in wholesale energy via ORDC
+        // Use 50% of embedded constant (capacity revenues come through scarcity pricing)
+        const pricePerMWYear = embeddedCapacityCost * 0.50;
+        return {
+            cost: peakDemandMW * pricePerMWYear,
+            methodology: 'ercot_embedded',
+            pricePerMWYear,
+        };
+    }
+
+    if (utility?.hasCapacityMarket && utility?.capacityPrice2024) {
+        // Capacity markets (PJM, NYISO, MISO): Use actual auction clearing price
+        // Market rules require 100% pass-through - utilities cannot absorb or mark up
+        const pricePerMWYear = utility.capacityPrice2024 * 365;
+        return {
+            cost: peakDemandMW * pricePerMWYear,
+            methodology: 'capacity_market',
+            pricePerMWYear,
+        };
+    }
+
+    // Regulated/SPP: Capacity embedded in demand charges through cost-of-service ratemaking
+    // Use full embedded cost - this represents utility's generation investment recovery
+    return {
+        cost: peakDemandMW * embeddedCapacityCost,
+        methodology: 'regulated_embedded',
+        pricePerMWYear: embeddedCapacityCost,
+    };
+}
+
+// ============================================
 // REVENUE ADEQUACY CALCULATION
 // Based on E3 "Tailored for Scale" methodology
 // Compares DC revenue to marginal cost-to-serve
@@ -383,33 +478,13 @@ export function calculateRevenueAdequacy(
     // Note: Fuel costs are pass-through and net out in margin calculation
     // ============================================
 
-    // Capacity cost - MUST align with calculateNetResidentialImpact() methodology
-    // Different market structures have different capacity cost treatment:
-    // - ERCOT: Energy-only market, capacity costs embedded in wholesale energy (50% of embedded)
-    // - PJM/NYISO: Capacity market prices determine marginal capacity cost
-    // - SPP/Regulated: Demand charges ARE the capacity recovery mechanism
-    let marginalCapacityCost: number;
-
-    if (utility?.marketType === 'ercot') {
-        // ERCOT: Energy-only market - capacity costs are embedded in wholesale energy prices
-        // Use 50% of embedded capacity cost to match calculateNetResidentialImpact() (line 815)
-        // This reflects that generators recover capacity through energy margins, not capacity payments
-        const ercotCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.50;
-        marginalCapacityCost = peakDemandMW * ercotCapacityCost;
-    } else if (utility?.hasCapacityMarket && utility?.capacityPrice2024) {
-        // Capacity market (PJM, NYISO): use market price since retail rates may not fully reflect
-        // Capacity price is $/MW-day, convert to annual
-        marginalCapacityCost = peakDemandMW * utility.capacityPrice2024 * 365;
-    } else if (tariff) {
-        // Regulated/SPP market with tariff: use full embedded capacity cost
-        // Per E3 methodology: Surplus = Total Revenue - Gross Cost
-        // Don't subtract demand charges from cost - they're already counted in revenue
-        // This avoids "double-netting" where demand charges would be credited twice
-        marginalCapacityCost = peakDemandMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
-    } else {
-        // No tariff, no capacity market - use embedded cost as fallback
-        marginalCapacityCost = peakDemandMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
-    }
+    // Capacity cost - uses unified calculateMarginalCapacityCost() for consistency
+    // with calculateNetResidentialImpact(). Market-specific methodology:
+    // - ERCOT: 50% of embedded (capacity in energy prices via ORDC)
+    // - Capacity Markets (PJM/NYISO/MISO): Market clearing price × 365
+    // - Regulated/SPP: Full embedded cost (in demand charges)
+    const capacityCostResult = calculateMarginalCapacityCost(peakDemandMW, utility);
+    const marginalCapacityCost = capacityCostResult.cost;
 
     // Energy cost and revenue adjustment for fuel rider tariffs
     //
@@ -441,7 +516,7 @@ export function calculateRevenueAdequacy(
 
     // Network upgrade cost (only socialized portion, not CIAC)
     const interconnection = utility?.interconnection ?? {
-        ciacRecoveryFraction: 0.60,
+        ciacRecoveryFraction: 0.80, // Default: 80% DC pays upfront
         networkUpgradeCostPerMW: 140000,
     };
     // Annualize over 20-year recovery period
@@ -452,13 +527,25 @@ export function calculateRevenueAdequacy(
     // ============================================
     // REVENUE ADEQUACY METRICS
     // ============================================
-
-    // Revenue Adequacy compares FULL tariff revenue to FULL marginal cost
-    // Per E3 "Tailored for Scale" methodology: if DC tariff revenue covers marginal cost,
-    // the DC is revenue-adequate regardless of how costs flow through to other ratepayers.
     //
-    // Note: Flow-through rates (used in Bill Forecast) are for cost ALLOCATION, not cost COVERAGE.
-    // A DC can be revenue-adequate (covering its costs) while bill impacts depend on flow-through.
+    // METHODOLOGY ALIGNMENT NOTE:
+    // Both Revenue Adequacy and Bill Forecast (calculateNetResidentialImpact) now use
+    // the same capacity cost basis via calculateMarginalCapacityCost(). The difference is:
+    //
+    // REVENUE ADEQUACY (this function):
+    //   - Compares FULL tariff revenue to FULL marginal cost
+    //   - Answers: "Does the DC pay for its cost-to-serve?"
+    //   - 100% of revenue vs 100% of cost (no flow-through applied)
+    //   - Per E3 "Tailored for Scale" methodology
+    //
+    // BILL FORECAST (calculateNetResidentialImpact):
+    //   - Allocates net costs to residential after demand charge flow-through
+    //   - Answers: "What is the impact on residential bills?"
+    //   - Demand charges offset infrastructure costs via market-specific flow-through
+    //   - Socialized capacity spillover applies pass-through for timing lag
+    //
+    // These serve different purposes but use consistent cost inputs.
+    // A DC can be revenue-adequate while bill impacts vary based on flow-through rates.
     const surplusOrDeficit = totalRevenue - totalMarginalCost;
     const surplusOrDeficitPerMW = surplusOrDeficit / dcCapacityMW;
     const revenueAdequacyRatio = totalMarginalCost > 0 ? totalRevenue / totalMarginalCost : 1.0;
@@ -805,7 +892,7 @@ const calculateNetResidentialImpact = (
 
     // Get interconnection cost structure (CIAC recovery vs network upgrades)
     const interconnection = utility?.interconnection ?? {
-        ciacRecoveryFraction: 0.60, // Default: 60% CIAC recovery
+        ciacRecoveryFraction: 0.80, // Default: 80% DC pays upfront
         networkUpgradeCostPerMW: 140000, // Default: $140k/MW network upgrades
     };
 
@@ -868,41 +955,45 @@ const calculateNetResidentialImpact = (
     const annualizedInfraCost = annualizedTransmissionCost + annualizedDistributionCost;
 
     // ============================================
-    // CAPACITY COSTS - Market-specific with ENDOGENOUS PRICING
+    // CAPACITY COSTS - Market-specific methodology (unified with Revenue Adequacy)
     // ============================================
-    let baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
-    const capacityCostPassThrough = utility?.capacityCostPassThrough ?? 0.40;
+    // Uses calculateMarginalCapacityCost() for consistent capacity cost basis.
+    //
+    // Key insight from research:
+    // - CAPACITY MARKETS: 100% pass-through of auction price (required by market rules)
+    // - ERCOT: Capacity embedded in energy via ORDC scarcity pricing (no separate charge)
+    // - REGULATED: Capacity embedded in demand charges (cost-of-service ratemaking)
+    //
+    // The old "capacityCostPassThrough" (40%) was conceptually incorrect for base capacity cost.
+    // It now ONLY applies to the socialized spillover effect (price increase on existing customers
+    // due to timing lag between capacity auctions and retail rate updates).
+    const capacityCostResult = calculateMarginalCapacityCost(effectivePeakMW, utility);
 
-    // Endogenous capacity pricing variables
+    // Base capacity cost: use the market-appropriate rate directly
+    let baseCapacityCost = capacityCostResult.pricePerMWYear;
+    let socializedCapacityCost = 0;
     let capacityPriceResult: CapacityPriceResult | null = null;
-    let socializedCapacityCost = 0; // The "capacity cost spillover" cost impact
 
-    if (utility?.hasCapacityMarket) {
+    // For capacity markets: calculate dynamic price impact (hockey stick effect)
+    if (utility?.hasCapacityMarket && capacityCostResult.methodology === 'capacity_market') {
         // Calculate dynamic capacity price based on reserve margin impact
-        // Pass marketType to enable ISO-level reserve margin calculation for capacity markets
         capacityPriceResult = calculateDynamicCapacityPrice(utility, effectivePeakMW, utility.marketType);
 
-        // The DC pays the new capacity price for its own load
-        const dcCapacityPriceAnnual = capacityPriceResult.newPrice * 365;
-        baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.3 +
-                          dcCapacityPriceAnnual * capacityCostPassThrough * 0.7;
+        // The DC pays the NEW capacity price for its load
+        // Update baseCapacityCost to use the dynamic price instead of static
+        baseCapacityCost = capacityPriceResult.newPrice * 365;
 
-        // CRITICAL: Calculate the socialized cost impact on existing ratepayers
-        // This is the "Hockey Stick" effect - ALL load pays the higher price
-        // The DC's addition to system peak causes prices to rise for everyone
-        socializedCapacityCost = capacityPriceResult.socializedCostImpact * capacityCostPassThrough;
-
-    } else if (utility?.capacityPrice2024) {
-        // Fallback to static pricing if no endogenous calculation
-        const capacityPriceAnnual = utility.capacityPrice2024 * 365;
-        baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.5 +
-                          capacityPriceAnnual * capacityCostPassThrough * 0.5;
+        // CRITICAL: The price INCREASE affects ALL existing load - this is the socialized impact
+        // Apply capacityCostPassThrough ONLY to the spillover (timing lag for existing customers)
+        // Existing customers don't immediately see the higher price due to rate case lag
+        const spilloverPassThrough = utility?.capacityCostPassThrough ?? 0.40;
+        socializedCapacityCost = capacityPriceResult.socializedCostImpact * spilloverPassThrough;
     }
 
+    // ERCOT: No socialization (energy-only market, no capacity price spillover)
+    // baseCapacityCost already set correctly by calculateMarginalCapacityCost (50% of embedded)
     if (utility?.marketType === 'ercot') {
-        // No capacity market in ERCOT, but still need some generation adequacy costs
-        baseCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.50;
-        socializedCapacityCost = 0; // No socialization in energy-only market
+        socializedCapacityCost = 0;
     }
 
     // ============================================

@@ -547,6 +547,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1150,
     market: { ...TVA_MARKET },
     tariff: { ...TVA_TARIFF },
+    // TVA Alabama - standard large load interconnection
+    interconnection: {
+      ciacRecoveryFraction: 0.80, // TVA default
+      networkUpgradeCostPerMW: 130000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Growing data center interest in TVA region; low-cost hydro and nuclear power',
     defaultDataCenterMW: 800,
@@ -567,6 +572,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1050,
     market: { ...REGULATED_MARKET },
     tariff: { ...GENERIC_REGULATED_TARIFF },
+    // APS Arizona - greenfield sites with dedicated facilities
+    interconnection: {
+      ciacRecoveryFraction: 0.90, // Large DCs with dedicated facilities, greenfield sites
+      networkUpgradeCostPerMW: 140000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Phoenix metro data center growth; projecting 40% peak demand growth to 13,000 MW by 2031. Aggressive: 3-4 GW DC growth by 2035.',
     defaultDataCenterMW: 4000,
@@ -590,9 +600,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...MISO_MARKET, notes: 'Entergy operates in MISO. Formula Rate Plan allows annual rate adjustments through AR PSC.' },
     tariff: { ...ENTERGY_ARKANSAS_TARIFF },
-    // MISO regulated utility - moderate CIAC recovery and network costs
+    // MISO regulated utility - standard large load interconnection
     interconnection: {
-      ciacRecoveryFraction: 0.60,
+      ciacRecoveryFraction: 0.85, // Standard large load (25-100 MW)
       networkUpgradeCostPerMW: 140000,
     },
     hasDataCenterActivity: true,
@@ -615,6 +625,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 700,
     market: { ...REGULATED_MARKET },
     tariff: { ...GENERIC_REGULATED_TARIFF },
+    // Xcel Colorado - standard large load interconnection
+    interconnection: {
+      ciacRecoveryFraction: 0.85, // Standard large load (25-100 MW)
+      networkUpgradeCostPerMW: 145000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Data centers expected to drive 2/3 of new demand; 19% peak increase projected by 2031',
     defaultDataCenterMW: 600,
@@ -635,6 +650,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...REGULATED_MARKET, notes: 'Florida regulated market under FL PSC. Storm hardening costs included in base rates.' },
     tariff: { ...DUKE_FLORIDA_TARIFF },
+    // Duke Florida - standard large load interconnection
+    interconnection: {
+      ciacRecoveryFraction: 0.85, // Standard large load (25-100 MW)
+      networkUpgradeCostPerMW: 150000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Central Florida data center corridor growth; hurricane resilience considerations',
     defaultDataCenterMW: 600,
@@ -655,9 +675,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1150,
     market: { ...REGULATED_MARKET },
     tariff: { ...GEORGIA_POWER_TARIFF },
-    // Georgia Power regulated market with standard CIAC
+    // Georgia Power - large DCs with dedicated transmission taps
     interconnection: {
-      ciacRecoveryFraction: 0.60, // 60% via CIAC - regulated market standard
+      ciacRecoveryFraction: 0.90, // Large DCs with dedicated facilities, greenfield sites
       networkUpgradeCostPerMW: 140000, // Moderate network upgrade costs
     },
     hasDataCenterActivity: true,
@@ -688,9 +708,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'I&M operates in PJM but remains vertically integrated with owned generation including Cook Nuclear Plant. Hybrid market structure.'
     },
     tariff: { ...AEP_OHIO_TARIFF },
-    // PJM market with hybrid utility structure
+    // PJM market with hybrid utility structure - deep grid investments
     interconnection: {
-      ciacRecoveryFraction: 0.55,
+      ciacRecoveryFraction: 0.90, // Deep grid investments, DCs build dedicated facilities
       networkUpgradeCostPerMW: 155000,
     },
     hasDataCenterActivity: true,
@@ -713,6 +733,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1050,
     market: { ...TVA_MARKET },
     tariff: { ...TVA_TARIFF },
+    // TVA Kentucky - standard large load interconnection
+    interconnection: {
+      ciacRecoveryFraction: 0.80, // TVA default
+      networkUpgradeCostPerMW: 130000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'TVA service area in western Kentucky; low-cost power attracts industrial loads',
     defaultDataCenterMW: 400,
@@ -736,9 +761,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...MISO_MARKET, notes: 'Entergy operates in MISO. AWS data center development announced in Mississippi.' },
     tariff: { ...ENTERGY_MISSISSIPPI_TARIFF },
-    // MISO regulated utility - moderate CIAC recovery and network costs
+    // MISO regulated utility - standard large load interconnection
     interconnection: {
-      ciacRecoveryFraction: 0.60,
+      ciacRecoveryFraction: 0.85, // Standard large load (25-100 MW)
       networkUpgradeCostPerMW: 140000,
     },
     hasDataCenterActivity: true,
@@ -761,6 +786,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 900,
     market: { ...REGULATED_MARKET },
     tariff: { ...GENERIC_REGULATED_TARIFF },
+    // NV Energy - greenfield sites with dedicated facilities
+    interconnection: {
+      ciacRecoveryFraction: 0.90, // Large DCs with dedicated facilities, greenfield sites
+      networkUpgradeCostPerMW: 135000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Data centers requesting to triple peak demand; 4,000+ MW of AI data center projects planned in Reno area. Aggressive: 4-5 GW by 2035.',
     defaultDataCenterMW: 4000,
@@ -788,8 +818,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     dataCenterNotes: 'Limited NYC data center growth due to high costs and space constraints; some edge facilities',
     defaultDataCenterMW: 200,
     // NYISO - NYC has highest transmission constraints and network costs
+    // Constrained urban area with more shared infrastructure
     interconnection: {
-      ciacRecoveryFraction: 0.55,
+      ciacRecoveryFraction: 0.75, // Dense grid, more shared infrastructure
       networkUpgradeCostPerMW: 200000,  // Highest - NYC transmission constraints
     },
     sources: ['ConEd PSC No. 10 Electricity', 'NYISO capacity data', 'NY PSC rate orders Dec 2023']
@@ -810,9 +841,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 650,
     market: { ...NYISO_MARKET },
     tariff: { ...NATIONAL_GRID_NY_TARIFF },
-    // NYISO Upstate - moderate network costs
+    // NYISO Upstate - DCs build dedicated substations
     interconnection: {
-      ciacRecoveryFraction: 0.55,
+      ciacRecoveryFraction: 0.85, // Upstate, DCs build dedicated infrastructure
       networkUpgradeCostPerMW: 165000,
     },
     hasDataCenterActivity: true,
@@ -836,9 +867,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 700,
     market: { ...NYISO_MARKET },
     tariff: { ...NYSEG_TARIFF },
-    // NYISO Central NY - moderate network costs
+    // NYISO Central NY - DCs build dedicated infrastructure
     interconnection: {
-      ciacRecoveryFraction: 0.55,
+      ciacRecoveryFraction: 0.85, // Central NY, dedicated infrastructure
       networkUpgradeCostPerMW: 165000,
     },
     hasDataCenterActivity: true,
@@ -861,6 +892,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1000,
     market: { ...REGULATED_MARKET },
     tariff: { ...DUKE_TARIFF },
+    // Duke Carolinas - standard large load interconnection
+    interconnection: {
+      ciacRecoveryFraction: 0.85, // Standard large load (25-100 MW)
+      networkUpgradeCostPerMW: 155000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Growing data center presence in Charlotte metro area. NC has 42 GW in queue. Aggressive: 3-4 GW growth by 2035.',
     defaultDataCenterMW: 4000,
@@ -879,6 +915,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1000,
     market: { ...REGULATED_MARKET },
     tariff: { ...DUKE_TARIFF },
+    // Duke Progress - standard large load interconnection
+    interconnection: {
+      ciacRecoveryFraction: 0.85, // Standard large load (25-100 MW)
+      networkUpgradeCostPerMW: 155000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Serves Raleigh area with growing tech sector',
     defaultDataCenterMW: 800,
@@ -976,6 +1017,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     averageMonthlyUsageKWh: 1100,
     market: { ...TVA_MARKET, notes: 'TVA provides wholesale power to 153 local distributors. 5.25% base rate increase effective Oct 2024. Federal power agency.' },
     tariff: { ...TVA_TARIFF },
+    // TVA Tennessee - standard large load interconnection
+    interconnection: {
+      ciacRecoveryFraction: 0.80, // TVA default
+      networkUpgradeCostPerMW: 130000,
+    },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Nashville area data center growth; Google, Facebook facilities in region',
     defaultDataCenterMW: 800,
@@ -999,9 +1045,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'Energy-only market with no capacity payments. 46% of projected load growth from data centers. Lower baseline capacity costs but transmission costs still flow to ratepayers. Retail choice allows competitive pricing.'
     },
     tariff: { ...ERCOT_TARIFF },
-    // ERCOT has strong CIAC recovery with 4CP-based transmission allocation
+    // ERCOT - 4CP structure with dedicated interconnection
     interconnection: {
-      ciacRecoveryFraction: 0.70, // 70% via CIAC - strong upfront recovery
+      ciacRecoveryFraction: 0.85, // 4CP structure, dedicated interconnection facilities
       networkUpgradeCostPerMW: 105000, // Lower network costs, less congestion outside major metros
     },
     hasDataCenterActivity: true,
@@ -1086,9 +1132,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'APCo Virginia operates in PJM. Virginia SCC regulates retail rates. Data center interest as NoVA capacity constrained.'
     },
     tariff: { ...AEP_OHIO_TARIFF },
-    // PJM market - proximity to NoVA gives higher network costs
+    // PJM market - deep grid investments, proximity to NoVA
     interconnection: {
-      ciacRecoveryFraction: 0.55,
+      ciacRecoveryFraction: 0.90, // Deep grid investments, DCs build dedicated facilities
       networkUpgradeCostPerMW: 165000,  // Higher - proximity to NoVA
     },
     hasDataCenterActivity: true,
@@ -1119,9 +1165,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'APCo WV operates in PJM but WV remains traditionally regulated. 2024-2025 rate case pending with ~14% commercial increase proposed.'
     },
     tariff: { ...APCO_WV_TARIFF },
-    // PJM market - standard network costs
+    // PJM market - deep grid investments
     interconnection: {
-      ciacRecoveryFraction: 0.55,
+      ciacRecoveryFraction: 0.90, // Deep grid investments, DCs build dedicated facilities
       networkUpgradeCostPerMW: 155000,
     },
     hasDataCenterActivity: true,
@@ -1149,9 +1195,9 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
       notes: 'FirstEnergy utilities in WV operate in PJM. 2024 rate case approved 6.4% base rate increase with 12% commercial impact.'
     },
     tariff: { ...MON_POWER_TARIFF },
-    // PJM market - standard network costs
+    // PJM market - standard large load interconnection
     interconnection: {
-      ciacRecoveryFraction: 0.55,
+      ciacRecoveryFraction: 0.85, // Standard large load interconnection
       networkUpgradeCostPerMW: 155000,
     },
     hasDataCenterActivity: false,
@@ -1239,15 +1285,200 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
   }
 ];
 
+// ============================================
+// TARIFF TO PROFILE CONVERSION
+// ============================================
+
+import { GENERATED_TARIFFS, type EnrichedTariff } from './generatedTariffData';
+
+/**
+ * Maps ISO/RTO string to MarketStructure
+ * Used when converting EnrichedTariff to UtilityProfile
+ */
+function getMarketForISO(iso: string): MarketStructure {
+  switch (iso) {
+    case 'PJM':
+      return { ...PJM_MARKET };
+    case 'ERCOT':
+      return { ...ERCOT_MARKET };
+    case 'MISO':
+      return { ...MISO_MARKET };
+    case 'SPP':
+      return { ...SPP_MARKET };
+    case 'NYISO':
+      return { ...NYISO_MARKET };
+    case 'CAISO':
+      return { ...REGULATED_MARKET, type: 'caiso' as MarketType, notes: 'California ISO - partially deregulated' };
+    case 'ISO-NE':
+      return { ...PJM_MARKET, type: 'pjm' as MarketType, capacityPrice2024: 150, notes: 'ISO New England - capacity market similar to PJM' };
+    default:
+      return { ...REGULATED_MARKET };
+  }
+}
+
+/**
+ * Maps ISO/RTO to DemandChargeStructure
+ */
+function getDemandChargeTypeForISO(iso: string): DemandChargeStructure {
+  switch (iso) {
+    case 'PJM':
+    case 'ISO-NE':
+      return 'CP_1_5';
+    case 'ERCOT':
+      return 'CP_4';
+    case 'MISO':
+    case 'SPP':
+    case 'NYISO':
+    case 'CAISO':
+    default:
+      return 'COINCIDENT_PEAK';
+  }
+}
+
+/**
+ * Gets CIAC recovery fraction based on ISO/RTO
+ * Higher values = DC pays more upfront = less socialized to ratepayers
+ */
+function getCIACForISO(iso: string): number {
+  switch (iso) {
+    case 'PJM':
+      return 0.95; // DCs pay for own substations, deep grid upgrades socialized
+    case 'ERCOT':
+      return 0.85; // 4CP structure with dedicated interconnection
+    case 'MISO':
+      return 0.85; // Standard large load interconnection
+    case 'SPP':
+      return 0.95; // Near-full upfront recovery (PSO-style)
+    case 'NYISO':
+      return 0.85; // Varies by location (NYC lower, upstate higher)
+    case 'CAISO':
+      return 0.80; // California with more shared costs
+    case 'ISO-NE':
+      return 0.80; // New England standard
+    default:
+      return 0.85; // Regulated utility default
+  }
+}
+
+/**
+ * Estimates residential customer count based on utility type and region
+ * (Model Assumption - flagged in sources)
+ */
+function estimateResidentialCustomers(tariff: EnrichedTariff): number {
+  // Base estimates by region
+  const regionalDefaults: Record<string, number> = {
+    'Southeast': 1500000,
+    'Texas': 800000,
+    'Midwest': 600000,
+    'Northeast': 1200000,
+    'Mid-Atlantic': 1000000,
+    'West': 700000,
+    'Plains': 400000,
+    'Mountain': 300000,
+    'Southwest': 500000,
+    'Pacific Northwest': 500000,
+    'California': 1500000,
+  };
+  return regionalDefaults[tariff.region] || 500000;
+}
+
+/**
+ * Converts an EnrichedTariff to a UtilityProfile
+ * Used to add utilities from tariff database that don't have dedicated profiles
+ */
+export function enrichedTariffToUtilityProfile(tariff: EnrichedTariff): UtilityProfile {
+  const market = getMarketForISO(tariff.iso_rto);
+  const residentialCustomers = estimateResidentialCustomers(tariff);
+  const totalCustomers = Math.round(residentialCustomers * 1.2);
+  const systemPeakMW = Math.round(residentialCustomers * 5 / 1000); // ~5 kW per customer
+
+  // Convert demand charges from $/kW to $/MW
+  const peakDemandCharge = (tariff.peak_demand_charge || 5) * 1000;
+  const maxDemandCharge = (tariff.off_peak_demand_charge || tariff.peak_demand_charge * 0.4) * 1000;
+
+  // Convert energy rate from $/kWh to $/MWh
+  const energyCharge = tariff.blendedRatePerKWh * 1000;
+
+  // Get ratchet percentage if available
+  const ratchetPercent = tariff.protections.ratchet_pct
+    ? tariff.protections.ratchet_pct / 100
+    : undefined;
+
+  return {
+    id: tariff.id,
+    name: tariff.utility,
+    shortName: tariff.utility_short.length > 20
+      ? tariff.utility_short.substring(0, 20) + '...'
+      : tariff.utility_short,
+    state: tariff.state,
+    region: tariff.region,
+    residentialCustomers,
+    totalCustomers,
+    systemPeakMW,
+    averageMonthlyBill: tariff.region === 'Northeast' ? 145 : tariff.region === 'Texas' ? 140 : 130,
+    averageMonthlyUsageKWh: tariff.region === 'Southeast' ? 1100 : tariff.region === 'Texas' ? 1100 : 900,
+    market,
+    tariff: {
+      demandChargeType: getDemandChargeTypeForISO(tariff.iso_rto),
+      peakDemandCharge,
+      maxDemandCharge,
+      energyCharge,
+      ratchetPercent,
+      ratchetMonths: ratchetPercent ? 12 : 0,
+      onPeakDefinition: 'Based on utility tariff schedule',
+      flexibilityBenefitMultiplier: tariff.iso_rto === 'ERCOT' ? 1.8 : tariff.iso_rto === 'PJM' ? 1.5 : 1.2,
+      tariffSource: `${tariff.tariff_name} (${tariff.rate_schedule}); E3 Tariff Database`,
+    },
+    interconnection: {
+      ciacRecoveryFraction: getCIACForISO(tariff.iso_rto),
+      networkUpgradeCostPerMW: tariff.iso_rto === 'PJM' ? 200000 : tariff.iso_rto === 'NYISO' ? 180000 : 140000,
+    },
+    hasDataCenterActivity: tariff.data_center_specific || tariff.notes?.toLowerCase().includes('data center') || false,
+    dataCenterNotes: tariff.notes || undefined,
+    defaultDataCenterMW: tariff.region === 'Texas' ? 800 : tariff.region === 'Southeast' ? 600 : 400,
+    sources: [
+      `E3 "Tailored for Scale" Study (2025)`,
+      tariff.citation?.document || tariff.rate_schedule,
+      '(Model Assumption for customer counts and system peaks)',
+    ],
+  };
+}
+
+/**
+ * Get all utilities including both manually curated profiles and generated tariff data
+ * Prioritizes manually curated profiles when IDs match
+ */
+export function getAllUtilityProfiles(): UtilityProfile[] {
+  // Create a map of existing profile IDs for quick lookup
+  const existingIds = new Set(UTILITY_PROFILES.map(p => p.id));
+
+  // Convert tariffs that don't already have profiles
+  const additionalProfiles = GENERATED_TARIFFS
+    .filter(tariff => !existingIds.has(tariff.id))
+    .map(enrichedTariffToUtilityProfile);
+
+  // Combine with existing profiles
+  return [...UTILITY_PROFILES, ...additionalProfiles];
+}
+
 // Helper to get utility by ID
 export function getUtilityById(id: string): UtilityProfile | undefined {
-  return UTILITY_PROFILES.find(u => u.id === id);
+  // First check manually curated profiles
+  const manual = UTILITY_PROFILES.find(u => u.id === id);
+  if (manual) return manual;
+
+  // Then check generated tariffs
+  const tariff = GENERATED_TARIFFS.find(t => t.id === id);
+  if (tariff) return enrichedTariffToUtilityProfile(tariff);
+
+  return undefined;
 }
 
 // Get utilities sorted alphabetically by state, then by utility name
 // Places generic options at the end
+// Now includes all 88 utilities from tariff database
 export function getUtilitiesSortedByState(): UtilityProfile[] {
-  return [...UTILITY_PROFILES].sort((a, b) => {
+  return [...getAllUtilityProfiles()].sort((a, b) => {
     // Custom/generic options go last
     const aIsGeneric = a.id.startsWith('generic') || a.id === 'custom';
     const bIsGeneric = b.id.startsWith('generic') || b.id === 'custom';
@@ -1299,8 +1530,9 @@ export function getUtilitiesGroupedByState(): { state: string; utilities: Utilit
 }
 
 // Get utilities grouped by region
+// Now includes all 88 utilities from tariff database
 export function getUtilitiesByRegion(): Record<string, UtilityProfile[]> {
-  return UTILITY_PROFILES.reduce((acc, utility) => {
+  return getAllUtilityProfiles().reduce((acc, utility) => {
     const region = utility.region || 'Other';
     if (!acc[region]) {
       acc[region] = [];
@@ -1311,8 +1543,9 @@ export function getUtilitiesByRegion(): Record<string, UtilityProfile[]> {
 }
 
 // Get utilities grouped by market type
+// Now includes all 88 utilities from tariff database
 export function getUtilitiesByMarketType(): Record<MarketType, UtilityProfile[]> {
-  return UTILITY_PROFILES.reduce((acc, utility) => {
+  return getAllUtilityProfiles().reduce((acc, utility) => {
     const marketType = utility.market.type;
     if (!acc[marketType]) {
       acc[marketType] = [];
@@ -1372,8 +1605,8 @@ const ISO_LABELS: Record<string, string> = {
  * Returns array of { label: string, iso: string, utilities: UtilityProfile[] }
  */
 export function getUtilitiesGroupedByISO(): { label: string; iso: string; utilities: UtilityProfile[] }[] {
-  // Group utilities by ISO
-  const byISO = UTILITY_PROFILES.reduce((acc, utility) => {
+  // Group utilities by ISO - now includes all 88 utilities from tariff database
+  const byISO = getAllUtilityProfiles().reduce((acc, utility) => {
     // Map market type to ISO identifier
     let iso = 'None';
     switch (utility.market.type) {
