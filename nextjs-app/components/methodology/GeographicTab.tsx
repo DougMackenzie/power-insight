@@ -115,7 +115,16 @@ export default function GeographicTab() {
             {/* Data Source Attribution */}
             <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                 <p className="text-sm text-slate-600">
-                    <strong>Data Sources:</strong> Utility service territories aggregated by state. Rate and protection data from E3{' '}
+                    <strong>Data Sources:</strong> Utility service territory boundaries from{' '}
+                    <a
+                        href="https://hifld-geoplatform.hub.arcgis.com/datasets/electric-retail-service-territories"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                    >
+                        HIFLD
+                    </a>{' '}
+                    (Homeland Infrastructure Foundation-Level Data). Rate and protection data from E3{' '}
                     <a
                         href="https://www.ethree.com/wp-content/uploads/2025/12/RatepayerStudy.pdf"
                         target="_blank"
@@ -124,27 +133,24 @@ export default function GeographicTab() {
                     >
                         "Tailored for Scale"
                     </a>{' '}
-                    study (2025), state PUC tariff filings, and utility rate schedules.
-                    Map shows best available rate per state from our database of 88 large load tariffs.
+                    study (2025) and utility tariff filings.
                 </p>
             </div>
 
-            {/* Methodology Note */}
-            <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+            {/* Coverage Note */}
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                 <div className="flex gap-3">
                     <div className="flex-shrink-0">
-                        <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <div>
-                        <h4 className="font-medium text-amber-800 mb-1">State-Level Aggregation</h4>
-                        <p className="text-sm text-amber-700">
-                            This map currently shows the <strong>best available utility rate per state</strong> from our database.
-                            States may contain multiple utilities with different rates and protection levels.
-                            Click on a state to see all utilities serving that region.
-                            For detailed utility-specific boundaries, see the{' '}
-                            <a href="/methodology?tab=utility" className="underline hover:text-amber-900">Utility Data</a> tab.
+                        <h4 className="font-medium text-blue-800 mb-1">Coverage</h4>
+                        <p className="text-sm text-blue-700">
+                            This map displays <strong>85 utility service territories</strong> from our database of 88 large load tariffs.
+                            Gray areas indicate regions without tariff data in our database.
+                            Click on any colored territory to see detailed tariff information.
                         </p>
                     </div>
                 </div>
