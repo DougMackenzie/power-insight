@@ -314,6 +314,31 @@ export interface MarginalCapacityCostResult {
 }
 
 /**
+ * Market-specific Cost of New Entry (CONE) values
+ * Based on Brattle/MISO/PJM studies for 2024-2026
+ *
+ * Sources:
+ * - ERCOT: Brattle 2026 CONE study (~$110k/MW for Aeroderivative CT)
+ * - SPP: Similar to MISO South (~$80k/MW Net-CONE)
+ * - MISO: MISO 2024 Net-CONE study (~$73-80k/MW)
+ * - PJM: Based on auction clearing prices (~$98k/MW at $269/MW-day)
+ * - CAISO: Higher due to CA RA requirements (~$115k/MW)
+ * - SERC/Southeast: Similar to MISO (~$85k/MW)
+ */
+const EMBEDDED_CAPACITY_BY_ISO: Record<string, number> = {
+    'ercot': 110000,     // ERCOT: $110k/MW (Brattle 2026 study - Aeroderivative CT)
+    'spp': 80000,        // SPP: ~$80k/MW (MISO South adjacent, wind-heavy)
+    'miso': 80000,       // MISO: ~$80k/MW (MISO 2024 Net-CONE)
+    'pjm': 98000,        // PJM: ~$98k/MW ($269/MW-day × 365)
+    'nyiso': 105000,     // NYISO: ~$105k/MW (higher than PJM due to NYC constraints)
+    'caiso': 115000,     // CAISO: ~$115k/MW (CA RA requirements)
+    'serc': 85000,       // SERC/Southeast: ~$85k/MW
+    'frcc': 90000,       // Florida: ~$90k/MW
+    'wecc': 100000,      // Other WECC: ~$100k/MW
+    'default': 90000,    // Default: $90k/MW (conservative national average)
+};
+
+/**
  * Calculate marginal capacity cost using market-specific methodology
  *
  * This function provides a UNIFIED capacity cost calculation for both
@@ -326,12 +351,12 @@ export interface MarginalCapacityCostResult {
  *
  * ERCOT (Energy-Only):
  * - Capacity embedded in energy via ORDC scarcity pricing
- * - Use 50% of embedded constant (no separate capacity market)
+ * - Use 50% of market-specific CONE (capacity revenues come through scarcity pricing)
  * - No capacity charge pass-through needed
  *
- * REGULATED/SPP:
+ * REGULATED/SPP/SERC:
  * - Capacity embedded in demand charges through cost-of-service ratemaking
- * - Use embedded constant as proxy for utility's generation investment recovery
+ * - Use market-specific CONE as proxy for utility's generation investment recovery
  * - Demand charges ARE the capacity cost recovery mechanism
  *
  * @param peakDemandMW - DC contribution to system peak
@@ -342,12 +367,14 @@ export function calculateMarginalCapacityCost(
     peakDemandMW: number,
     utility: Utility | undefined
 ): MarginalCapacityCostResult {
-    const embeddedCapacityCost = INFRASTRUCTURE_COSTS.capacityCostPerMWYear; // $150k
+    // Get market-specific CONE value
+    const isoKey = (utility?.marketType || 'default').toLowerCase();
+    const marketCONE = EMBEDDED_CAPACITY_BY_ISO[isoKey] ?? EMBEDDED_CAPACITY_BY_ISO['default'];
 
     if (utility?.marketType === 'ercot') {
         // ERCOT: Energy-only market - capacity embedded in wholesale energy via ORDC
-        // Use 50% of embedded constant (capacity revenues come through scarcity pricing)
-        const pricePerMWYear = embeddedCapacityCost * 0.50;
+        // Use 50% of market-specific CONE (capacity revenues come through scarcity pricing)
+        const pricePerMWYear = marketCONE * 0.50;
         return {
             cost: peakDemandMW * pricePerMWYear,
             methodology: 'ercot_embedded',
@@ -366,12 +393,12 @@ export function calculateMarginalCapacityCost(
         };
     }
 
-    // Regulated/SPP: Capacity embedded in demand charges through cost-of-service ratemaking
-    // Use full embedded cost - this represents utility's generation investment recovery
+    // Regulated/SPP/SERC: Capacity embedded in demand charges through cost-of-service ratemaking
+    // Use market-specific CONE - this represents utility's generation investment recovery
     return {
-        cost: peakDemandMW * embeddedCapacityCost,
+        cost: peakDemandMW * marketCONE,
         methodology: 'regulated_embedded',
-        pricePerMWYear: embeddedCapacityCost,
+        pricePerMWYear: marketCONE,
     };
 }
 
@@ -489,30 +516,39 @@ export function calculateRevenueAdequacy(
     // Energy cost and revenue adjustment for fuel rider tariffs
     //
     // Many large power tariffs (like PSO's LPL) have a "fuel rider" structure:
-    // - Base energy rate in tariff is low (e.g., $15/MWh)
+    // - Base energy rate in tariff is very low (e.g., $1.71/MWh for PSO)
     // - Fuel rider passes through wholesale energy costs separately
-    // - Total revenue = base rate + fuel rider ≈ base rate + wholesale
+    // - These costs flow through to ratepayers dollar-for-dollar
     //
-    // Detection: If tariff energy charge < 80% of wholesale, it's likely a fuel rider structure
-    // In this case, add wholesale cost to revenue (fuel rider collection) AND to cost (wholesale payment)
+    // For Revenue Adequacy purposes, fuel rider tariffs are COST-NEUTRAL on energy:
+    // - The utility collects wholesale costs AND pays wholesale costs
+    // - Net energy margin = $0 (pass-through is not a revenue source or cost)
+    // - Revenue adequacy is driven by DEMAND CHARGES only
+    //
+    // Detection: If tariff energy charge < 50% of wholesale, it's a fuel rider structure
+    // (PSO LPL at $1.71/MWh vs $38/MWh wholesale = ~4.5%, clearly a fuel rider)
     const wholesaleEnergyCost = utility?.marginalEnergyCost ?? 38; // $/MWh
     const tariffEnergyCost = tariff?.energyCharge ?? 30; // $/MWh
 
-    const isFuelRiderTariff = tariffEnergyCost < wholesaleEnergyCost * 0.8;
+    const isFuelRiderTariff = tariffEnergyCost < wholesaleEnergyCost * 0.50;
 
-    // Adjust energy revenue for fuel rider collection
+    // For fuel rider tariffs, energy is cost-neutral (pass-through)
+    // For non-fuel-rider tariffs, calculate actual energy margin
+    let marginalEnergyCost: number;
     if (isFuelRiderTariff) {
-        // Fuel rider tariff: actual revenue = base tariff + fuel rider (≈ wholesale)
-        const effectiveEnergyRevenueRate = tariffEnergyCost + wholesaleEnergyCost;
-        energyChargeRevenue = annualMWh * effectiveEnergyRevenueRate;
+        // Fuel rider: Energy revenue = energy cost = wholesale (net contribution = $0)
+        // Set both to the same value so they cancel out in revenue adequacy
+        energyChargeRevenue = annualMWh * wholesaleEnergyCost;
+        marginalEnergyCost = annualMWh * wholesaleEnergyCost;
+        // Note: This reflects that utility collects AND pays wholesale - no net margin
+    } else {
+        // Non-fuel-rider: Utility has actual energy margin (retail - wholesale)
+        // energyChargeRevenue already set above from calculateTariffBasedDemandCharges
+        marginalEnergyCost = annualMWh * wholesaleEnergyCost;
     }
-    // Note: If not a fuel rider tariff, energyChargeRevenue already set from tariff calculation above
 
     // Calculate total revenue AFTER fuel rider adjustment
     const totalRevenue = demandChargeRevenue + energyChargeRevenue + customerChargeRevenue;
-
-    // Energy cost is always wholesale (what utility pays generators)
-    const marginalEnergyCost = annualMWh * wholesaleEnergyCost;
 
     // Network upgrade cost (only socialized portion, not CIAC)
     const interconnection = utility?.interconnection ?? {
