@@ -7,6 +7,7 @@ import ResearchTab from '@/components/methodology/ResearchTab';
 import UtilityDataTab from '@/components/methodology/UtilityDataTab';
 import EnergyViewTab from '@/components/methodology/EnergyViewTab';
 import CalculatorTab from '@/components/methodology/CalculatorTab';
+import GeographicTab from '@/components/methodology/GeographicTab';
 
 // Define methodology tabs
 const METHODOLOGY_TABS: Tab[] = [
@@ -19,6 +20,11 @@ const METHODOLOGY_TABS: Tab[] = [
         id: 'utility',
         label: 'Utility Data',
         icon: TabIcons.database,
+    },
+    {
+        id: 'geographic',
+        label: 'Geographic View',
+        icon: TabIcons.globe,
         badge: 'New',
         badgeColor: 'bg-primary-100 text-primary-700',
     },
@@ -55,6 +61,12 @@ function TabContent({ activeTab }: { activeTab: string }) {
             return (
                 <Suspense fallback={<TabLoadingFallback />}>
                     <UtilityDataTab />
+                </Suspense>
+            );
+        case 'geographic':
+            return (
+                <Suspense fallback={<TabLoadingFallback />}>
+                    <GeographicTab />
                 </Suspense>
             );
         case 'calculator':

@@ -8,6 +8,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 const methodologySubPages = [
     { href: '/methodology?tab=research', label: 'Research & Framework' },
     { href: '/methodology?tab=utility', label: 'Utility Data' },
+    { href: '/methodology?tab=geographic', label: 'Geographic View' },
     { href: '/methodology?tab=calculator', label: 'Calculator' },
     { href: '/methodology?tab=energy', label: 'Energy View' },
 ];
