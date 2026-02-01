@@ -94,3 +94,20 @@ nextjs-app/.env*.local
 # Uncomment if needed:
 # data/*.csv
 # data/local/
+
+# Excel files - data is extracted to generatedTariffData.ts
+*.xlsx
+.~lock.*.xlsx#
+
+# Documentation and reference folders (kept locally, not in git)
+docs/
+prototypes/
+references/
+archive/
+
+# Streamlit app (archived locally)
+streamlit-app/
+streamlit_app/
+
+# PDF reference files
+*.pdf
