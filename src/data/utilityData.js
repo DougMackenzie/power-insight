@@ -1,21 +1,21 @@
 /**
- * Utility data compiled from public sources including EIA, utility filings, and annual reports
- * Data reflects 2024 figures where available
+ * Utility data generated from the tariff database (88 utilities)
  *
- * Market Structure Types:
- * - 'regulated': Vertically integrated utility with state PUC oversight
- * - 'pjm': PJM Interconnection (capacity market, 2024 prices ~$270/MW-day)
- * - 'ercot': ERCOT Texas (energy-only market, no capacity market)
- * - 'miso': MISO (capacity market, lower prices than PJM)
- * - 'spp': Southwest Power Pool (energy market, no mandatory capacity market)
+ * This file provides utility profiles for the calculator, with data sourced from:
+ * - E3 "Tailored for Scale" Study (2025)
+ * - State PUC tariff filings
+ * - Utility rate schedules and annual reports
+ * - EIA Form 861 data
  *
- * Cost Allocation Notes:
- * - Regulated markets: Infrastructure costs allocated through rate base, ~40% residential
- * - PJM markets: Capacity costs flow through retail suppliers, high volatility
- * - ERCOT: No capacity market, transmission costs allocated, more direct price signals
+ * Last Updated: 2026-01-01
  */
 
-// Market structure presets
+import { CALCULATOR_TARIFFS, getAllTariffs, getTariffsByRegion } from './calculatorTariffs';
+
+// ============================================
+// MARKET STRUCTURE PRESETS
+// ============================================
+
 const REGULATED_MARKET = {
   type: 'regulated',
   hasCapacityMarket: false,
@@ -44,7 +44,7 @@ const ERCOT_MARKET = {
   capacityCostPassThrough: 0.25,
   transmissionAllocation: 0.35,
   utilityOwnsGeneration: false,
-  notes: 'Energy-only market with no capacity payments. Price signals drive investment.'
+  notes: 'Energy-only market with no capacity payments. 4CP transmission allocation.'
 };
 
 const MISO_MARKET = {
@@ -68,275 +68,175 @@ const SPP_MARKET = {
   notes: 'Southwest Power Pool. Energy market but no mandatory capacity market.'
 };
 
+const NYISO_MARKET = {
+  type: 'nyiso',
+  hasCapacityMarket: true,
+  baseResidentialAllocation: 0.35,
+  capacityCostPassThrough: 0.45,
+  transmissionAllocation: 0.35,
+  utilityOwnsGeneration: false,
+  capacityPrice2024: 180.00,
+  notes: 'NYISO capacity market. Zone J (NYC) has highest prices.'
+};
+
+const ISONE_MARKET = {
+  type: 'iso-ne',
+  hasCapacityMarket: true,
+  baseResidentialAllocation: 0.35,
+  capacityCostPassThrough: 0.45,
+  transmissionAllocation: 0.35,
+  utilityOwnsGeneration: false,
+  capacityPrice2024: 150.00,
+  notes: 'ISO New England Forward Capacity Market.'
+};
+
+const CAISO_MARKET = {
+  type: 'caiso',
+  hasCapacityMarket: false,
+  baseResidentialAllocation: 0.35,
+  capacityCostPassThrough: 0.40,
+  transmissionAllocation: 0.35,
+  utilityOwnsGeneration: false,
+  notes: 'CAISO with Resource Adequacy program. High renewable penetration.'
+};
+
+// Map ISO/RTO to market structure
+const ISO_TO_MARKET = {
+  'PJM': PJM_MARKET,
+  'ERCOT': ERCOT_MARKET,
+  'MISO': MISO_MARKET,
+  'SPP': SPP_MARKET,
+  'NYISO': NYISO_MARKET,
+  'ISO-NE': ISONE_MARKET,
+  'CAISO': CAISO_MARKET,
+  'None': REGULATED_MARKET,
+};
+
+// ============================================
+// UTILITY DATA ESTIMATES
+// ============================================
+
+// Estimated utility system data (from EIA 861 and public filings)
+const UTILITY_SYSTEM_DATA = {
+  'tva-tn': { residentialCustomers: 4500000, systemPeakMW: 33000, avgBill: 125 },
+  'public-service-company-of-oklahoma-pso-ok': { residentialCustomers: 460000, systemPeakMW: 4400, avgBill: 130 },
+  'dominion-energy-virginia-va': { residentialCustomers: 2500000, systemPeakMW: 18000, avgBill: 145 },
+  'duke-energy-carolinas-nc': { residentialCustomers: 2507000, systemPeakMW: 20700, avgBill: 135 },
+  'georgia-power-ga': { residentialCustomers: 2400000, systemPeakMW: 17100, avgBill: 153 },
+  'aep-ohio-oh': { residentialCustomers: 1200000, systemPeakMW: 12000, avgBill: 135 },
+  'ercot-market-via-rep-tx': { residentialCustomers: 12000000, systemPeakMW: 85508, avgBill: 140 },
+  'nv-energy-nv': { residentialCustomers: 610000, systemPeakMW: 9000, avgBill: 125 },
+  'arizona-public-service-aps-az': { residentialCustomers: 1200000, systemPeakMW: 8212, avgBill: 140 },
+  'xcel-energy-co-co': { residentialCustomers: 1400000, systemPeakMW: 7200, avgBill: 105 },
+  'florida-power-and-light-fpl-fl': { residentialCustomers: 5200000, systemPeakMW: 28000, avgBill: 150 },
+  'pacific-gas-and-electric-pgande-ca': { residentialCustomers: 5500000, systemPeakMW: 32000, avgBill: 190 },
+  'southern-california-edison-sce-ca': { residentialCustomers: 5000000, systemPeakMW: 24000, avgBill: 200 },
+  'conedison-ny': { residentialCustomers: 3400000, systemPeakMW: 13500, avgBill: 180 },
+  'comed-exelon-il': { residentialCustomers: 3900000, systemPeakMW: 22000, avgBill: 95 },
+  'aep-indiana-michigan-power-in': { residentialCustomers: 480000, systemPeakMW: 5500, avgBill: 130 },
+  'aep-appalachian-power-va': { residentialCustomers: 800000, systemPeakMW: 7000, avgBill: 125 },
+  'swepco-aep-tx': { residentialCustomers: 400000, systemPeakMW: 4800, avgBill: 120 },
+  // Default estimates for utilities not in the list
+};
+
+// Default system data estimates based on region
+const REGION_DEFAULTS = {
+  'Southeast': { residentialCustomers: 1500000, systemPeakMW: 12000, avgBill: 140 },
+  'Mid-Atlantic': { residentialCustomers: 1200000, systemPeakMW: 10000, avgBill: 145 },
+  'Midwest': { residentialCustomers: 800000, systemPeakMW: 6000, avgBill: 120 },
+  'Texas': { residentialCustomers: 2000000, systemPeakMW: 15000, avgBill: 135 },
+  'West': { residentialCustomers: 1000000, systemPeakMW: 8000, avgBill: 150 },
+  'Plains': { residentialCustomers: 400000, systemPeakMW: 3500, avgBill: 115 },
+  'Mountain West': { residentialCustomers: 500000, systemPeakMW: 4000, avgBill: 110 },
+  'Northeast': { residentialCustomers: 1200000, systemPeakMW: 8000, avgBill: 160 },
+  'Southwest': { residentialCustomers: 900000, systemPeakMW: 7000, avgBill: 130 },
+};
+
+/**
+ * Build a utility profile from tariff data
+ */
+function buildUtilityProfile(tariff) {
+  // Get system data estimates
+  const systemData = UTILITY_SYSTEM_DATA[tariff.id] ||
+    REGION_DEFAULTS[tariff.region] ||
+    { residentialCustomers: 500000, systemPeakMW: 4000, avgBill: 130 };
+
+  // Get market structure
+  const market = ISO_TO_MARKET[tariff.isoRto] || REGULATED_MARKET;
+
+  // Estimate default DC capacity based on system size
+  const defaultDataCenterMW = Math.round(systemData.systemPeakMW * 0.25 / 100) * 100 || 500;
+
+  return {
+    id: tariff.id,
+    name: tariff.utility,
+    shortName: tariff.utilityShort,
+    state: tariff.state,
+    region: tariff.region,
+    isoRto: tariff.isoRto,
+
+    // System characteristics
+    residentialCustomers: systemData.residentialCustomers,
+    totalCustomers: Math.round(systemData.residentialCustomers * 1.2),
+    systemPeakMW: systemData.systemPeakMW,
+    averageMonthlyBill: systemData.avgBill,
+    averageMonthlyUsageKWh: Math.round(systemData.avgBill / (tariff.blendedRate / 1000)),
+
+    // Market structure
+    market: { ...market },
+
+    // Tariff data link
+    tariffId: tariff.id,
+    tariffName: tariff.tariffName,
+    rateSchedule: tariff.rateSchedule,
+    blendedRate: tariff.blendedRate,
+    protectionRating: tariff.protectionRating,
+    protectionScore: tariff.protectionScore,
+
+    // Data center activity
+    hasDataCenterActivity: tariff.protectionRating === 'High' || tariff.initialTermYears >= 10,
+    dataCenterNotes: tariff.notes || '',
+    defaultDataCenterMW,
+  };
+}
+
+// ============================================
+// GENERATE UTILITY PROFILES FROM TARIFF DATA
+// ============================================
+
+/**
+ * All utility profiles generated from the tariff database
+ */
 export const UTILITY_PROFILES = [
-  // ============================================
-  // REGULATED / VERTICALLY INTEGRATED UTILITIES
-  // ============================================
-  {
-    id: 'pso-oklahoma',
-    name: 'Public Service Company of Oklahoma (PSO)',
-    shortName: 'PSO Oklahoma',
-    state: 'Oklahoma',
-    region: 'Southwest',
-    residentialCustomers: 460000,
-    totalCustomers: 575000,
-    systemPeakMW: 4400,
-    averageMonthlyBill: 130,
-    averageMonthlyUsageKWh: 1100,
-    market: { ...SPP_MARKET },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Proposed 2GW hyperscale facility; PSO facing 31% power deficit by 2031',
-    defaultDataCenterMW: 2000,
-  },
-  {
-    id: 'duke-carolinas',
-    name: 'Duke Energy Carolinas',
-    shortName: 'Duke Carolinas',
-    state: 'North Carolina / South Carolina',
-    region: 'Southeast',
-    residentialCustomers: 2507000,
-    totalCustomers: 2926000,
-    systemPeakMW: 20700,
-    averageMonthlyBill: 135,
-    averageMonthlyUsageKWh: 1000,
-    market: { ...REGULATED_MARKET },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Growing data center presence in Charlotte metro area',
-    defaultDataCenterMW: 1000,
-  },
-  {
-    id: 'duke-progress',
-    name: 'Duke Energy Progress',
-    shortName: 'Duke Progress',
-    state: 'North Carolina / South Carolina',
-    region: 'Southeast',
-    residentialCustomers: 1400000,
-    totalCustomers: 1700000,
-    systemPeakMW: 13800,
-    averageMonthlyBill: 132,
-    averageMonthlyUsageKWh: 1000,
-    market: { ...REGULATED_MARKET },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Serves Raleigh area with growing tech sector',
-    defaultDataCenterMW: 800,
-  },
-  {
-    id: 'georgia-power',
-    name: 'Georgia Power',
-    shortName: 'Georgia Power',
-    state: 'Georgia',
-    region: 'Southeast',
-    residentialCustomers: 2400000,
-    totalCustomers: 2804000,
-    systemPeakMW: 17100,
-    averageMonthlyBill: 153,
-    averageMonthlyUsageKWh: 1150,
-    market: { ...REGULATED_MARKET },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Projecting 8,200 MW load growth by 2030 including data centers',
-    defaultDataCenterMW: 1200,
-  },
-  {
-    id: 'aps-arizona',
-    name: 'Arizona Public Service (APS)',
-    shortName: 'APS Arizona',
-    state: 'Arizona',
-    region: 'Southwest',
-    residentialCustomers: 1200000,
-    totalCustomers: 1400000,
-    systemPeakMW: 8212,
-    averageMonthlyBill: 140,
-    averageMonthlyUsageKWh: 1050,
-    market: { ...REGULATED_MARKET },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Phoenix metro data center growth; 40% peak growth by 2031',
-    defaultDataCenterMW: 800,
-  },
-  {
-    id: 'nv-energy',
-    name: 'NV Energy',
-    shortName: 'NV Energy Nevada',
-    state: 'Nevada',
-    region: 'West',
-    residentialCustomers: 610000,
-    totalCustomers: 2400000,
-    systemPeakMW: 9000,
-    averageMonthlyBill: 125,
-    averageMonthlyUsageKWh: 900,
-    market: { ...REGULATED_MARKET },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Data centers requesting to triple peak demand',
-    defaultDataCenterMW: 1500,
-  },
-  {
-    id: 'xcel-colorado',
-    name: 'Xcel Energy Colorado',
-    shortName: 'Xcel Colorado',
-    state: 'Colorado',
-    region: 'Mountain West',
-    residentialCustomers: 1400000,
-    totalCustomers: 1600000,
-    systemPeakMW: 7200,
-    averageMonthlyBill: 105,
-    averageMonthlyUsageKWh: 700,
-    market: { ...REGULATED_MARKET },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Data centers to drive 2/3 of new demand',
-    defaultDataCenterMW: 600,
-  },
-
-  // ============================================
-  // AEP UTILITIES
-  // ============================================
-  {
-    id: 'aep-ohio',
-    name: 'AEP Ohio',
-    shortName: 'AEP Ohio',
-    state: 'Ohio',
-    region: 'Midwest',
-    residentialCustomers: 1200000,
-    totalCustomers: 1500000,
-    systemPeakMW: 12000,
-    averageMonthlyBill: 135,
-    averageMonthlyUsageKWh: 900,
-    market: {
-      ...PJM_MARKET,
-      notes: 'AEP Ohio operates in PJM. Ohio is deregulated but AEP owns transmission.'
-    },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Ohio seeing significant data center growth; AEP proposed new rate class',
-    defaultDataCenterMW: 1000,
-  },
-  {
-    id: 'aep-indiana-michigan',
-    name: 'Indiana Michigan Power (I&M)',
-    shortName: 'AEP I&M',
-    state: 'Indiana / Michigan',
-    region: 'Midwest',
-    residentialCustomers: 480000,
-    totalCustomers: 600000,
-    systemPeakMW: 5500,
-    averageMonthlyBill: 130,
-    averageMonthlyUsageKWh: 950,
-    market: {
-      ...PJM_MARKET,
-      utilityOwnsGeneration: true,
-      baseResidentialAllocation: 0.38,
-      notes: 'I&M operates in PJM but owns generation including Cook Nuclear.'
-    },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Northeast Indiana seeing industrial and data center growth',
-    defaultDataCenterMW: 500,
-  },
-  {
-    id: 'aep-appalachian',
-    name: 'Appalachian Power (APCo)',
-    shortName: 'AEP Appalachian',
-    state: 'Virginia / West Virginia',
-    region: 'Appalachian',
-    residentialCustomers: 800000,
-    totalCustomers: 1000000,
-    systemPeakMW: 7000,
-    averageMonthlyBill: 125,
-    averageMonthlyUsageKWh: 1000,
-    market: {
-      ...PJM_MARKET,
-      utilityOwnsGeneration: true,
-      baseResidentialAllocation: 0.40,
-      notes: 'Appalachian Power operates in PJM but WV remains traditionally regulated.'
-    },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Virginia portion seeing data center interest as NoVA constrained',
-    defaultDataCenterMW: 600,
-  },
-  {
-    id: 'aep-swepco',
-    name: 'Southwestern Electric Power (SWEPCO)',
-    shortName: 'AEP SWEPCO',
-    state: 'Arkansas / Louisiana / Texas',
-    region: 'Southwest',
-    residentialCustomers: 400000,
-    totalCustomers: 540000,
-    systemPeakMW: 4800,
-    averageMonthlyBill: 120,
-    averageMonthlyUsageKWh: 1100,
-    market: {
-      ...SPP_MARKET,
-      notes: 'SWEPCO operates in SPP. Vertically integrated with state PUC regulation.'
-    },
-    hasDataCenterActivity: false,
-    dataCenterNotes: 'Less data center activity than other AEP territories',
-    defaultDataCenterMW: 400,
-  },
-
-  // ============================================
-  // PJM / ISO MARKET UTILITIES
-  // ============================================
-  {
-    id: 'dominion-virginia',
-    name: 'Dominion Energy Virginia',
-    shortName: 'Dominion Virginia',
-    state: 'Virginia',
-    region: 'Mid-Atlantic',
-    residentialCustomers: 2500000,
-    totalCustomers: 2800000,
-    systemPeakMW: 18000,
-    averageMonthlyBill: 145,
-    averageMonthlyUsageKWh: 1050,
-    market: {
-      ...PJM_MARKET,
-      utilityOwnsGeneration: true,
-      baseResidentialAllocation: 0.35,
-      notes: 'Dominion operates in PJM. Data center capital of the world.'
-    },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Data center capital of the world; forecasting 9GW DC peak in 10 years',
-    defaultDataCenterMW: 1500,
-  },
-
-  // ============================================
-  // ENERGY-ONLY MARKETS
-  // ============================================
-  {
-    id: 'ercot-texas',
-    name: 'ERCOT (Texas Grid)',
-    shortName: 'ERCOT Texas',
-    state: 'Texas',
-    region: 'Texas',
-    residentialCustomers: 12000000,
-    totalCustomers: 26000000,
-    systemPeakMW: 85508,
-    averageMonthlyBill: 140,
-    averageMonthlyUsageKWh: 1100,
-    market: {
-      ...ERCOT_MARKET,
-      notes: 'Energy-only market. 46% of projected load growth from data centers.'
-    },
-    hasDataCenterActivity: true,
-    dataCenterNotes: 'Data centers account for 46% of projected load growth',
-    defaultDataCenterMW: 3000,
-  },
-
-  // ============================================
-  // CUSTOM OPTION
-  // ============================================
+  // Add Custom option at the beginning
   {
     id: 'custom',
     name: 'Custom / Enter Your Own',
     shortName: 'Custom',
     state: '',
     region: '',
+    isoRto: 'None',
     residentialCustomers: 500000,
     totalCustomers: 600000,
     systemPeakMW: 4000,
-    averageMonthlyBill: 144,
-    averageMonthlyUsageKWh: 865,
+    averageMonthlyBill: 130,
+    averageMonthlyUsageKWh: 900,
     market: { ...REGULATED_MARKET },
+    tariffId: null,
     hasDataCenterActivity: false,
     dataCenterNotes: 'Enter your own utility parameters',
     defaultDataCenterMW: 1000,
-  }
+  },
+  // Generate profiles from all tariffs
+  ...Object.values(CALCULATOR_TARIFFS)
+    .filter(t => t.id !== 'custom')
+    .map(buildUtilityProfile)
+    .sort((a, b) => a.blendedRate - b.blendedRate),
 ];
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
 
 export function getUtilityById(id) {
   return UTILITY_PROFILES.find(u => u.id === id);
@@ -355,11 +255,63 @@ export function getUtilitiesByRegion() {
 
 export function getUtilitiesByMarketType() {
   return UTILITY_PROFILES.reduce((acc, utility) => {
-    const marketType = utility.market.type;
+    const marketType = utility.market?.type || 'other';
     if (!acc[marketType]) {
       acc[marketType] = [];
     }
     acc[marketType].push(utility);
     return acc;
   }, {});
+}
+
+export function getUtilitiesByISO() {
+  return UTILITY_PROFILES.reduce((acc, utility) => {
+    const iso = utility.isoRto || 'None';
+    if (!acc[iso]) {
+      acc[iso] = [];
+    }
+    acc[iso].push(utility);
+    return acc;
+  }, {});
+}
+
+/**
+ * Get utilities grouped by ISO with display labels
+ */
+export function getUtilitiesGroupedByISO() {
+  const ISO_LABELS = {
+    'PJM': 'PJM Interconnection',
+    'ERCOT': 'ERCOT (Texas)',
+    'MISO': 'MISO',
+    'SPP': 'Southwest Power Pool',
+    'NYISO': 'New York ISO',
+    'ISO-NE': 'ISO New England',
+    'CAISO': 'California ISO',
+    'None': 'Regulated / Non-ISO',
+  };
+
+  const grouped = getUtilitiesByISO();
+
+  return Object.entries(ISO_LABELS)
+    .filter(([iso]) => grouped[iso]?.length > 0)
+    .map(([iso, label]) => ({
+      label,
+      iso,
+      utilities: grouped[iso].sort((a, b) => a.blendedRate - b.blendedRate),
+    }));
+}
+
+/**
+ * Get utilities grouped by region with display labels
+ */
+export function getUtilitiesGroupedByRegion() {
+  const grouped = getUtilitiesByRegion();
+
+  return Object.entries(grouped)
+    .filter(([region]) => region !== 'Other' && region !== '')
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([region, utilities]) => ({
+      label: region,
+      utilities: utilities.sort((a, b) => a.blendedRate - b.blendedRate),
+    }));
 }

@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import TrajectoryChart from '../components/TrajectoryChart';
 import SummaryCards from '../components/SummaryCards';
+import TariffDetails from '../components/TariffDetails';
 import { useCalculator } from '../hooks/useCalculator';
 import { DEFAULT_UTILITY, DEFAULT_DATA_CENTER, DC_CAPACITY_RANGE, UTILITY_PEAK_RANGE, formatCurrency, formatMW } from '../data/constants';
 
@@ -78,6 +79,8 @@ const CalculatorPage = ({ onNavigate }) => {
     selectedUtilityProfile,
     selectUtilityProfile,
     utilityProfiles,
+    utilitiesGroupedByISO,
+    tariffData,
   } = useCalculator();
 
   const [activeSection, setActiveSection] = useState('utility');
@@ -108,10 +111,17 @@ const CalculatorPage = ({ onNavigate }) => {
               onChange={(e) => selectUtilityProfile(e.target.value)}
               className="w-full px-3 py-2.5 bg-white border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
             >
-              {utilityProfiles.map((profile) => (
-                <option key={profile.id} value={profile.id}>
-                  {profile.shortName} {profile.state && `(${profile.state})`}
-                </option>
+              {/* Custom option */}
+              <option value="custom">Custom / Enter Your Own</option>
+              {/* Grouped by ISO/RTO */}
+              {utilitiesGroupedByISO.map((group) => (
+                <optgroup key={group.iso} label={group.label}>
+                  {group.utilities.map((profile) => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.shortName} {profile.state && `(${profile.state})`} - ${profile.blendedRate?.toFixed(0) || '??'}/MWh
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
             {selectedUtilityProfile && selectedUtilityProfile.id !== 'custom' && (
@@ -123,6 +133,9 @@ const CalculatorPage = ({ onNavigate }) => {
               </div>
             )}
           </div>
+
+          {/* Tariff Details */}
+          {tariffData && <TariffDetails collapsed={true} />}
 
           {/* Section tabs */}
           <div className="flex border-b border-gray-200">

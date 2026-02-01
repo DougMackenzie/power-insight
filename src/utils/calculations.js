@@ -26,7 +26,16 @@ import {
   SCENARIO_PARAMS,
   DC_RATE_STRUCTURE,
   calculateDCRevenueOffset,
+  ISO_CAPACITY_COSTS,
+  ERCOT_4CP,
+  getCapacityCostByISO,
 } from '../data/constants';
+
+import {
+  buildTariffRates,
+  calculateERCOT4CPTransmission,
+  adjustForProtections,
+} from './tariffHelpers';
 
 // ============================================
 // RESIDENTIAL ALLOCATION MODEL
@@ -129,6 +138,15 @@ const calculateResidentialAllocation = (
  *
  * This is the key insight: well-structured data center loads can create
  * downward pressure on residential rates.
+ *
+ * @param {number} dcCapacityMW - Data center capacity in MW
+ * @param {number} loadFactor - Load factor (0-1)
+ * @param {number} peakCoincidence - Peak coincidence factor (0-1)
+ * @param {number} residentialCustomers - Number of residential customers
+ * @param {number} residentialAllocation - Residential cost allocation fraction
+ * @param {boolean} includeCapacityCredit - Whether to include DR/gen capacity credits
+ * @param {number} onsiteGenMW - Onsite generation capacity in MW
+ * @param {object} tariffData - Optional tariff data for utility-specific rates
  */
 const calculateNetResidentialImpact = (
   dcCapacityMW,
@@ -137,100 +155,92 @@ const calculateNetResidentialImpact = (
   residentialCustomers,
   residentialAllocation,
   includeCapacityCredit = false,
-  onsiteGenMW = 0
+  onsiteGenMW = 0,
+  tariffData = null
 ) => {
+  // Build tariff-specific rates or use defaults
+  const tariffRates = tariffData
+    ? buildTariffRates(tariffData, { loadFactor, peakCoincidence })
+    : null;
+
+  // Get demand charge from tariff or use default
+  const demandChargePerMWMonth = tariffRates?.demandChargePerMWMonth || DC_RATE_STRUCTURE.demandChargePerMWMonth;
+
+  // Get energy margin from tariff or use default
+  const energyMarginPerMWh = tariffRates?.energyMarginPerMWh || DC_RATE_STRUCTURE.energyMarginPerMWh;
+
+  // Get ISO-specific capacity cost
+  const isoRto = tariffData?.isoRto || 'None';
+  const capacityCostPerMWYear = tariffRates?.capacityCostPerMWYear || getCapacityCostByISO(isoRto);
+
   // Infrastructure costs based on peak demand contribution
   const effectivePeakMW = dcCapacityMW * peakCoincidence - onsiteGenMW;
-  const transmissionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.transmissionCostPerMW;
+  let transmissionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.transmissionCostPerMW;
   const distributionCost = Math.max(0, effectivePeakMW) * INFRASTRUCTURE_COSTS.distributionCostPerMW;
+
+  // ERCOT 4CP: Special transmission cost allocation
+  // In ERCOT, transmission is allocated based on 4 Coincident Peaks (June-Sept)
+  let ercot4CPCost = 0;
+  let ercot4CPSavings = 0;
+  if (tariffRates?.isERCOT4CP || isoRto === 'ERCOT') {
+    const ercotCalc = calculateERCOT4CPTransmission(dcCapacityMW, peakCoincidence, loadFactor);
+    ercot4CPCost = ercotCalc.effectiveTransmissionCost;
+    ercot4CPSavings = ercotCalc.transmissionSavings;
+    // Replace standard transmission with ERCOT 4CP calculation
+    transmissionCost = ercot4CPCost;
+  }
 
   // Annualized infrastructure cost (20-year asset life)
   const totalInfraCost = transmissionCost + distributionCost;
   const annualizedInfraCost = totalInfraCost / 20;
 
   // Capacity costs (or credits)
-  //
-  // In REGULATED territories (like PSO/SPP):
-  // - Utility owns generation and recovers costs through rate base
-  // - Capacity "cost" = embedded cost of owned generation (~$80-120/kW-year)
-  // - No capacity market premium, but still need to maintain reserve margins
-  // - DC demand charges help offset utility's generation costs
-  //
-  // In MARKET territories (PJM, MISO energy-only regions):
-  // - Capacity procured through auctions or bilateral contracts
-  // - Recent PJM auctions: $29-269/MW-day ($10k-$98k/MW-year) - RISING due to retirements & load growth
-  // - Scarcity is increasing capacity values significantly
-  //
-  // We use $150k/MW-year as a forward-looking blend, recognizing capacity values are RISING.
-  // The DC's demand charges ($9,050/MW-month = $108,600/MW-year) largely cover this.
-  //
-  const demandChargeAnnual = DC_RATE_STRUCTURE.demandChargePerMWMonth * 12; // $108,600/MW-year
-  const netCapacityCostPerMW = Math.max(0, INFRASTRUCTURE_COSTS.capacityCostPerMWYear - demandChargeAnnual);
+  // Use ISO-specific capacity costs based on tariff data
+  const demandChargeAnnual = demandChargePerMWMonth * 12;
+  const netCapacityCostPerMW = Math.max(0, capacityCostPerMWYear - demandChargeAnnual);
   let capacityCostOrCredit = Math.max(0, effectivePeakMW) * netCapacityCostPerMW;
 
   // DR and onsite generation provide CAPACITY VALUE to the system
-  // This is a real asset that helps the utility avoid purchasing capacity
-  // In a tightening capacity market, this value is INCREASING
   let capacityCredit = 0;
   if (includeCapacityCredit) {
-    // DR capability: The curtailable portion can be called during system peaks
-    // This has value equal to avoided capacity purchases
     const curtailableMW = dcCapacityMW * (1 - peakCoincidence);
 
-    // Onsite generation: Can island or export during emergencies
-    // Often MORE valuable than DR because it's dispatchable
-    const drCreditValue = curtailableMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.8; // 80% of capacity value for DR
-    const genCreditValue = onsiteGenMW * INFRASTRUCTURE_COSTS.capacityCostPerMWYear * 0.95; // 95% for dispatchable gen
+    // DR credit value based on ISO-specific capacity cost
+    const drCreditValue = curtailableMW * capacityCostPerMWYear * 0.8; // 80% of capacity value for DR
+    const genCreditValue = onsiteGenMW * capacityCostPerMWYear * 0.95; // 95% for dispatchable gen
 
     capacityCredit = drCreditValue + genCreditValue;
-
-    // Net capacity position can go NEGATIVE (net credit to system)
     capacityCostOrCredit = capacityCostOrCredit - capacityCredit;
   }
 
-  // Revenue from data center (offsets costs for other ratepayers)
-  const dcRevenue = calculateDCRevenueOffset(dcCapacityMW, loadFactor, peakCoincidence);
+  // Revenue from data center using tariff-specific rates
+  const coincidentPeakMW = dcCapacityMW * peakCoincidence;
+  const annualDemandRevenue = coincidentPeakMW * demandChargePerMWMonth * 12;
+  const annualMWh = dcCapacityMW * loadFactor * 8760;
+  const annualEnergyMargin = annualMWh * energyMarginPerMWh;
+
+  const dcRevenue = {
+    demandRevenue: annualDemandRevenue,
+    energyMargin: annualEnergyMargin,
+    total: annualDemandRevenue + annualEnergyMargin,
+    perYear: annualDemandRevenue + annualEnergyMargin,
+  };
 
   // Total annual infrastructure cost impact on system
-  // Note: capacityCostOrCredit can be NEGATIVE when DR/gen credits exceed costs
-  // This is a real benefit - the DC is providing capacity value to the grid
   const grossAnnualInfraCost = annualizedInfraCost + capacityCostOrCredit;
 
   // DC revenue contribution to fixed cost recovery
-  // The DC pays demand charges and energy margins that help cover utility fixed costs
-  // This REDUCES the amount that needs to be recovered from other customers
-  //
-  // Revenue flow:
-  // - Demand charges: ~$9,050/MW × peak MW × 12 months
-  // - Energy margin: ~$4.88/MWh × annual MWh
-  //
-  // How much benefits other ratepayers depends on regulatory structure:
-  //
-  // In REGULATED utilities (like PSO):
-  // - Demand charges primarily recover CAPACITY costs the DC is causing
-  // - Net benefit to others is mainly the energy margin spread
-  // - Fixed cost spreading happens gradually through rate cases
-  //
-  // In MARKET-BASED systems:
-  // - More direct pass-through of capacity/energy economics
-  // - Benefits flow more quickly
-  //
-  // Conservative approach: Only energy margin flows through directly as benefit
-  // Demand charges are assumed to roughly match capacity costs they cause
-  // (This is by design - demand charges are SET to recover capacity costs)
-  //
-  // The true benefit to other ratepayers comes from:
-  // 1. Energy margin (utility keeps spread between wholesale and retail)
-  // 2. Fixed cost spreading (more kWh to spread overhead across)
-  // 3. Capacity credits (if DC provides DR or generation)
-  //
-  // We use conservative flow-through: only energy margin + portion of fixed cost spreading
-  const energyMarginFlowThrough = 0.85; // Most energy margin benefits ratepayers
-  const fixedCostSpreadingBenefit = dcRevenue.demandRevenue * 0.15; // Small fixed-cost spreading benefit
-  const revenueOffset = (dcRevenue.energyMargin * energyMarginFlowThrough) + fixedCostSpreadingBenefit;
+  const energyMarginFlowThrough = 0.85;
+  const fixedCostSpreadingBenefit = dcRevenue.demandRevenue * 0.15;
+  let revenueOffset = (dcRevenue.energyMargin * energyMarginFlowThrough) + fixedCostSpreadingBenefit;
+
+  // Apply protection mechanism adjustments if tariff data available
+  if (tariffData) {
+    const protectionAdjustment = adjustForProtections(revenueOffset, tariffData);
+    revenueOffset = protectionAdjustment.adjustedRevenue;
+  }
 
   // Net impact = Infrastructure costs - Revenue offset
-  // If revenue > infrastructure costs, this is NEGATIVE (a benefit!)
   const netAnnualImpact = grossAnnualInfraCost - revenueOffset;
 
   // Allocate to residential customers
@@ -238,11 +248,11 @@ const calculateNetResidentialImpact = (
   const perCustomerMonthly = residentialImpact / residentialCustomers / 12;
 
   return {
-    perCustomerMonthly, // Can be negative (benefit) or positive (cost)
+    perCustomerMonthly,
     annualResidentialImpact: residentialImpact,
     grossCost: grossAnnualInfraCost,
     revenueOffset,
-    netImpact: netAnnualImpact, // Negative = benefit to ratepayers
+    netImpact: netAnnualImpact,
     metrics: {
       effectivePeakMW: Math.max(0, effectivePeakMW),
       transmissionCost,
@@ -251,6 +261,13 @@ const calculateNetResidentialImpact = (
       capacityCostOrCredit,
       revenueOffset,
       energyMarginFlowThrough,
+      // Tariff-specific metrics
+      demandChargePerMWMonth,
+      energyMarginPerMWh,
+      capacityCostPerMWYear,
+      isoRto,
+      ercot4CPCost,
+      ercot4CPSavings,
     },
   };
 };
@@ -331,7 +348,8 @@ export const calculateBaselineTrajectory = (
 export const calculateUnoptimizedTrajectory = (
   utility = DEFAULT_UTILITY,
   dataCenter = DEFAULT_DATA_CENTER,
-  years = TIME_PARAMS.projectionYears
+  years = TIME_PARAMS.projectionYears,
+  tariffData = null
 ) => {
   const trajectory = [];
   const baseYear = TIME_PARAMS.baseYear;
@@ -364,7 +382,7 @@ export const calculateUnoptimizedTrajectory = (
       );
       currentAllocation = allocationResult.allocation;
 
-      // Calculate net impact (can be positive or negative!)
+      // Calculate net impact using tariff-specific rates if available
       const yearImpact = calculateNetResidentialImpact(
         dataCenter.capacityMW,
         firmLF,
@@ -372,7 +390,8 @@ export const calculateUnoptimizedTrajectory = (
         utility.residentialCustomers,
         currentAllocation,
         false, // No capacity credit for firm load
-        0      // No onsite gen
+        0,     // No onsite gen
+        tariffData
       );
 
       yearMetrics = yearImpact.metrics;
@@ -435,7 +454,8 @@ export const calculateUnoptimizedTrajectory = (
 export const calculateFlexibleTrajectory = (
   utility = DEFAULT_UTILITY,
   dataCenter = DEFAULT_DATA_CENTER,
-  years = TIME_PARAMS.projectionYears
+  years = TIME_PARAMS.projectionYears,
+  tariffData = null
 ) => {
   const trajectory = [];
   const baseYear = TIME_PARAMS.baseYear;
@@ -474,7 +494,8 @@ export const calculateFlexibleTrajectory = (
         utility.residentialCustomers,
         currentAllocation,
         true, // Include capacity credit for DR
-        0     // No onsite gen in this scenario
+        0,    // No onsite gen in this scenario
+        tariffData
       );
 
       yearMetrics = yearImpact.metrics;
@@ -536,7 +557,8 @@ export const calculateFlexibleTrajectory = (
 export const calculateDispatchableTrajectory = (
   utility = DEFAULT_UTILITY,
   dataCenter = DEFAULT_DATA_CENTER,
-  years = TIME_PARAMS.projectionYears
+  years = TIME_PARAMS.projectionYears,
+  tariffData = null
 ) => {
   const trajectory = [];
   const baseYear = TIME_PARAMS.baseYear;
@@ -575,8 +597,9 @@ export const calculateDispatchableTrajectory = (
         flexPeakCoincidence,
         utility.residentialCustomers,
         currentAllocation,
-        true,      // Include capacity credit
-        onsiteGenMW // Onsite generation
+        true,       // Include capacity credit
+        onsiteGenMW, // Onsite generation
+        tariffData
       );
 
       yearMetrics = {
@@ -715,17 +738,22 @@ export const calculateFlexVsFirmBenefit = (
 
 /**
  * Generate all four scenario trajectories for comparison
+ * @param {object} utility - Utility parameters
+ * @param {object} dataCenter - Data center parameters
+ * @param {number} years - Projection years
+ * @param {object} tariffData - Optional tariff data for utility-specific rates
  */
 export const generateAllTrajectories = (
   utility = DEFAULT_UTILITY,
   dataCenter = DEFAULT_DATA_CENTER,
-  years = TIME_PARAMS.projectionYears
+  years = TIME_PARAMS.projectionYears,
+  tariffData = null
 ) => {
   return {
     baseline: calculateBaselineTrajectory(utility, years),
-    unoptimized: calculateUnoptimizedTrajectory(utility, dataCenter, years),
-    flexible: calculateFlexibleTrajectory(utility, dataCenter, years),
-    dispatchable: calculateDispatchableTrajectory(utility, dataCenter, years),
+    unoptimized: calculateUnoptimizedTrajectory(utility, dataCenter, years, tariffData),
+    flexible: calculateFlexibleTrajectory(utility, dataCenter, years, tariffData),
+    dispatchable: calculateDispatchableTrajectory(utility, dataCenter, years, tariffData),
   };
 };
 

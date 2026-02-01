@@ -2,7 +2,7 @@
  * Calculator Context and Hook
  *
  * Provides centralized state management for calculator inputs
- * and computed trajectory data.
+ * and computed trajectory data. Now includes tariff data integration.
  */
 
 import { createContext, useContext, useState, useMemo, useCallback } from 'react';
@@ -12,7 +12,8 @@ import {
   formatTrajectoriesForChart,
   calculateSummaryStats,
 } from '../utils/calculations';
-import { UTILITY_PROFILES, getUtilityById } from '../data/utilityData';
+import { UTILITY_PROFILES, getUtilityById, getUtilitiesGroupedByISO } from '../data/utilityData';
+import { getTariffById } from '../data/calculatorTariffs';
 
 // Create context
 const CalculatorContext = createContext(null);
@@ -30,17 +31,23 @@ export const CalculatorProvider = ({ children }) => {
   // UI state
   const [selectedScenarios, setSelectedScenarios] = useState(['baseline', 'unoptimized', 'flexible', 'dispatchable']);
   const [projectionYears, setProjectionYears] = useState(10);
-  const [selectedUtilityId, setSelectedUtilityId] = useState('pso-oklahoma');
+  const [selectedUtilityId, setSelectedUtilityId] = useState('public-service-company-of-oklahoma-pso-ok');
 
   // Get selected utility profile
   const selectedUtilityProfile = useMemo(() => {
     return getUtilityById(selectedUtilityId);
   }, [selectedUtilityId]);
 
-  // Calculate trajectories (memoized for performance)
+  // Get tariff data for selected utility
+  const tariffData = useMemo(() => {
+    if (!selectedUtilityProfile?.tariffId) return null;
+    return getTariffById(selectedUtilityProfile.tariffId);
+  }, [selectedUtilityProfile]);
+
+  // Calculate trajectories using tariff data (memoized for performance)
   const trajectories = useMemo(() => {
-    return generateAllTrajectories(utility, dataCenter, projectionYears);
-  }, [utility, dataCenter, projectionYears]);
+    return generateAllTrajectories(utility, dataCenter, projectionYears, tariffData);
+  }, [utility, dataCenter, projectionYears, tariffData]);
 
   // Format for charts
   const chartData = useMemo(() => {
@@ -88,6 +95,8 @@ export const CalculatorProvider = ({ children }) => {
         hasCapacityMarket: profile.market.hasCapacityMarket,
         capacityCostPassThrough: profile.market.capacityCostPassThrough,
         capacityPrice2024: profile.market.capacityPrice2024,
+        // ISO/RTO for capacity cost lookup
+        isoRto: profile.isoRto,
       }));
       setDataCenter(prev => ({
         ...prev,
@@ -102,7 +111,7 @@ export const CalculatorProvider = ({ children }) => {
     setDataCenter(DEFAULT_DATA_CENTER);
     setSelectedScenarios(['baseline', 'unoptimized', 'flexible', 'dispatchable']);
     setProjectionYears(10);
-    setSelectedUtilityId('pso-oklahoma');
+    setSelectedUtilityId('public-service-company-of-oklahoma-pso-ok');
   }, []);
 
   // Context value
@@ -114,6 +123,9 @@ export const CalculatorProvider = ({ children }) => {
     projectionYears,
     selectedUtilityId,
     selectedUtilityProfile,
+
+    // Tariff data
+    tariffData,
 
     // Computed
     trajectories,
@@ -131,6 +143,7 @@ export const CalculatorProvider = ({ children }) => {
 
     // Data
     utilityProfiles: UTILITY_PROFILES,
+    utilitiesGroupedByISO: getUtilitiesGroupedByISO(),
   };
 
   return (

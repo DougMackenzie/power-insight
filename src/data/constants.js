@@ -93,12 +93,52 @@ export const INFRASTRUCTURE_COSTS = {
   distributionCostPerMW: 150000,     // $ per MW of distribution upgrades
 
   // Capacity/generation costs
-  capacityCostPerMWYear: 150000,     // $/MW-year for capacity procurement
+  capacityCostPerMWYear: 150000,     // $/MW-year for capacity procurement (default)
   peakerCostPerMW: 1200000,          // $ per MW if building new peakers
 
   // Baseline infrastructure upgrade rate
   annualBaselineUpgradePercent: 0.015, // 1.5% annual infrastructure replacement
   avgRateBasePerCustomer: 3500,        // $ rate base per residential customer
+};
+
+// ============================================
+// ISO-SPECIFIC CAPACITY COSTS ($/MW-year)
+// ============================================
+// Based on 2024-2025 capacity market clearing prices
+// Source: ISO/RTO auction results, FERC filings
+
+export const ISO_CAPACITY_COSTS = {
+  'PJM': 98528,      // $269.92/MW-day × 365 (2024/25 BRA - 10x increase from prior year)
+  'MISO': 10950,     // $30/MW-day × 365 (lower clearing prices than PJM)
+  'NYISO': 65700,    // $180/MW-day × 365 (mid-range, Zone J higher)
+  'ISO-NE': 54750,   // $150/MW-day × 365 (Forward Capacity Market)
+  'CAISO': 27375,    // $75/MW-day × 365 (Resource Adequacy program)
+  'ERCOT': 0,        // No capacity market (energy-only)
+  'SPP': 0,          // No mandatory capacity market
+  'None': 50000,     // Regulated utility embedded capacity cost estimate
+};
+
+// ============================================
+// ERCOT 4CP TRANSMISSION ALLOCATION
+// ============================================
+// ERCOT allocates transmission costs based on contribution to
+// 4 Coincident Peak (4CP) intervals during summer months (June-Sept)
+
+export const ERCOT_4CP = {
+  ratePerKW: 5.50,              // $/kW per 4CP contribution
+  annualRatePerMW: 22000,       // $/MW-year ($5.50 × 1000 × 4 peaks)
+  peakMonths: ['June', 'July', 'August', 'September'],
+  peakHours: '14:00-18:00 CST', // Typical peak window
+  notes: 'Flexible loads can reduce 4CP exposure by curtailing during peak intervals',
+};
+
+/**
+ * Get capacity cost for a specific ISO/RTO
+ * @param {string} isoRto - ISO/RTO identifier
+ * @returns {number} Capacity cost in $/MW-year
+ */
+export const getCapacityCostByISO = (isoRto) => {
+  return ISO_CAPACITY_COSTS[isoRto] ?? INFRASTRUCTURE_COSTS.capacityCostPerMWYear;
 };
 
 // ============================================
