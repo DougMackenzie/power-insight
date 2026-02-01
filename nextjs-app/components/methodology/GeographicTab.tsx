@@ -148,9 +148,13 @@ export default function GeographicTab() {
                     <div>
                         <h4 className="font-medium text-blue-800 mb-1">Coverage</h4>
                         <p className="text-sm text-blue-700">
-                            This map displays <strong>85 utility service territories</strong> from our database of 88 large load tariffs.
+                            This map displays <strong>85 utility service territories</strong> from our database of 86 large load tariffs.
                             Gray areas indicate regions without tariff data in our database.
                             Click on any colored territory to see detailed tariff information.
+                        </p>
+                        <p className="text-sm text-blue-600 mt-2">
+                            <strong>Note:</strong> ERCOT (Texas) operates as a competitive retail market—customers choose their Retail Electric Provider (REP).
+                            Texas utilities shown (Oncor, CenterPoint, etc.) represent transmission/distribution service territories.
                         </p>
                     </div>
                 </div>

@@ -89,7 +89,7 @@ UTILITY_NAME_MAPPING = {
     'Delmarva Power': ['DELMARVA POWER'],
     'PSEG': ['PUBLIC SERVICE ELEC & GAS CO'],
     'AEP Appalachian Power': ['APPALACHIAN POWER'],
-    'Gulf Power (NextEra)': ['GULF POWER'],
+    # Gulf Power merged into FPL in 2021, no longer separate utility
     'LG&E/KU (PPL)': ['LOUISVILLE GAS & ELECTRIC', 'KENTUCKY UTILITIES'],
     'Salt River Project (SRP)': ['SALT RIVER PROJECT'],
     'Pepco (MD/DC)': ['POTOMAC ELECTRIC POWER'],
