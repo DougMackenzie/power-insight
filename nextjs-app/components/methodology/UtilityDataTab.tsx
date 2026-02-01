@@ -68,14 +68,14 @@ export default function UtilityDataTab({ initialView = 'overview' }: UtilityData
                 <p className="text-sm text-slate-600">
                     <strong>Data Sources:</strong> E3{' '}
                     <a
-                        href="https://www.ethree.com/wp-content/uploads/2024/12/Tailored-for-Scale-Designing-Rates-to-Support-Data-Centers-E3-December-2024.pdf"
+                        href="https://www.ethree.com/wp-content/uploads/2025/12/RatepayerStudy.pdf"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline"
                     >
                         "Tailored for Scale"
                     </a>{' '}
-                    study (2024), state PUC tariff filings, utility rate schedules, and ISO/RTO interconnection requirements.
+                    study (2025), state PUC tariff filings, utility rate schedules, and ISO/RTO interconnection requirements.
                     Last updated January 2026.
                 </p>
             </div>

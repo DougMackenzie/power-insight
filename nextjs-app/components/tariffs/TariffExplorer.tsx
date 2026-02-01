@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import {
     BarChart,
     Bar,
@@ -16,6 +16,9 @@ import {
     Legend,
 } from 'recharts';
 import { GENERATED_TARIFFS, TARIFF_STATS, type EnrichedTariff } from '@/lib/generatedTariffData';
+
+// Lazy load the heatmap component for better initial load
+const UtilityHeatmap = lazy(() => import('./UtilityHeatmap'));
 
 // Rating colors
 const RATING_COLORS = {
@@ -92,7 +95,7 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 };
 
 export default function TariffExplorer({ initialView = 'overview' }: TariffExplorerProps) {
-    const [viewMode, setViewMode] = useState<'blendedRate' | 'annualCost' | 'scatter'>('blendedRate');
+    const [viewMode, setViewMode] = useState<'blendedRate' | 'annualCost' | 'scatter' | 'map'>('blendedRate');
     const [sortBy, setSortBy] = useState<'blendedRate' | 'protection' | 'utility'>('blendedRate');
     const [filterISO, setFilterISO] = useState<string>('all');
     const [showTable, setShowTable] = useState(false);
@@ -202,12 +205,13 @@ export default function TariffExplorer({ initialView = 'overview' }: TariffExplo
                     <label className="text-slate-600 text-sm block mb-1">View Mode</label>
                     <select
                         value={viewMode}
-                        onChange={(e) => setViewMode(e.target.value as 'blendedRate' | 'annualCost' | 'scatter')}
+                        onChange={(e) => setViewMode(e.target.value as 'blendedRate' | 'annualCost' | 'scatter' | 'map')}
                         className="bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     >
                         <option value="blendedRate">Blended Rate (¢/kWh)</option>
                         <option value="annualCost">Annual Cost ($M)</option>
                         <option value="scatter">Rate vs Protection</option>
+                        <option value="map">Geographic Map</option>
                     </select>
                 </div>
                 <div>
@@ -249,16 +253,28 @@ export default function TariffExplorer({ initialView = 'overview' }: TariffExplo
                 </div>
             </div>
 
-            {/* Chart */}
+            {/* Chart / Map */}
             <div className="bg-white rounded-lg border border-slate-200 p-4">
                 <h3 className="font-semibold text-gray-900 mb-4">
                     {viewMode === 'scatter' ? 'Rate vs Protection Tradeoff' :
                      viewMode === 'annualCost' ? 'Annual Cost by Utility' :
+                     viewMode === 'map' ? 'Utility Rates & Protection by State' :
                      'Blended Rate by Utility'}
                     <span className="font-normal text-slate-500 ml-2">({filteredData.length} utilities)</span>
                 </h3>
 
-                {viewMode === 'scatter' ? (
+                {viewMode === 'map' ? (
+                    <Suspense fallback={
+                        <div className="flex items-center justify-center h-96">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                        </div>
+                    }>
+                        <UtilityHeatmap
+                            filteredTariffs={filteredData}
+                            colorMode="combined"
+                        />
+                    </Suspense>
+                ) : viewMode === 'scatter' ? (
                     <ResponsiveContainer width="100%" height={500}>
                         <ScatterChart margin={{ top: 20, right: 20, bottom: 60, left: 60 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />

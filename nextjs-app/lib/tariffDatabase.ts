@@ -6,7 +6,7 @@
  * and regulatory status.
  *
  * Data Sources:
- * - E3 Study "Tailored for Scale" (2024)
+ * - E3 Study "Tailored for Scale" (2025)
  * - State PUC tariff filings
  * - Utility rate schedules
  * - ISO/RTO interconnection requirements

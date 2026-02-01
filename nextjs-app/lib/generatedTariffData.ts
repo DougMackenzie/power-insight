@@ -31,7 +31,7 @@ export interface EnrichedTariff extends LargeLoadTariff {
 
 /**
  * Complete tariff database with all 88 utilities
- * Data sourced from E3 "Tailored for Scale" study and utility tariff filings
+ * Data sourced from E3 "Tailored for Scale" study (2025) and utility tariff filings
  * Sorted by blended rate (lowest to highest)
  */
 export const GENERATED_TARIFFS: EnrichedTariff[] = [
