@@ -13,6 +13,8 @@ import json
 import urllib.request
 import urllib.parse
 from pathlib import Path
+from shapely.geometry import shape, mapping
+from shapely.validation import make_valid
 
 # ArcGIS Feature Service endpoint
 HIFLD_SERVICE = "https://services3.arcgis.com/OYP7N6mAJJCyH6hd/arcgis/rest/services/Electric_Retail_Service_Territories_HIFLD/FeatureServer/0/query"
@@ -155,62 +157,70 @@ def query_hifld(where_clause, offset=0, limit=1000):
     with urllib.request.urlopen(url, timeout=120) as response:
         return json.loads(response.read().decode('utf-8'))
 
-def simplify_coordinates(coords, precision=3):
-    """Reduce coordinate precision to save space."""
-    if isinstance(coords[0], (int, float)):
-        return [round(coords[0], precision), round(coords[1], precision)]
-    return [simplify_coordinates(c, precision) for c in coords]
+def simplify_geometry(geometry, tolerance=0.005, min_area=0.001):
+    """
+    Use Shapely for proper topology-preserving simplification.
 
-def simplify_ring(ring, tolerance=0.01):
-    """Douglas-Peucker-style simplification for a coordinate ring."""
-    if len(ring) <= 4:
-        return ring
+    Args:
+        geometry: GeoJSON geometry dict
+        tolerance: Simplification tolerance in degrees (~0.005 = ~500m)
+        min_area: Minimum polygon area in square degrees to keep (~0.0001 = ~1 sq km)
 
-    # Simple vertex reduction: keep every Nth point
-    step = max(1, len(ring) // 100)  # Keep max ~100 points per ring (more aggressive)
-    simplified = ring[::step]
-
-    # Ensure the ring is closed
-    if simplified[0] != simplified[-1]:
-        simplified.append(simplified[0])
-
-    return simplified
-
-def simplify_geometry(geometry, precision=3):
-    """Simplify geometry coordinates and reduce vertices."""
+    Returns:
+        Simplified GeoJSON geometry dict, or None if invalid
+    """
     if geometry is None:
         return None
 
-    geom_type = geometry.get('type')
-    coords = geometry.get('coordinates')
+    try:
+        from shapely.geometry import MultiPolygon, Polygon
 
-    if not coords:
-        return geometry
+        # Convert GeoJSON to Shapely geometry
+        geom = shape(geometry)
 
-    # Simplify based on geometry type
-    if geom_type == 'Polygon':
-        simplified_coords = []
-        for ring in coords:
-            simplified_ring = simplify_ring(ring)
-            simplified_ring = simplify_coordinates(simplified_ring, precision)
-            simplified_coords.append(simplified_ring)
-        return {'type': geom_type, 'coordinates': simplified_coords}
+        # Fix any invalid geometry first
+        if not geom.is_valid:
+            geom = make_valid(geom)
 
-    elif geom_type == 'MultiPolygon':
-        simplified_coords = []
-        for polygon in coords:
-            simplified_polygon = []
-            for ring in polygon:
-                simplified_ring = simplify_ring(ring)
-                simplified_ring = simplify_coordinates(simplified_ring, precision)
-                simplified_polygon.append(simplified_ring)
-            simplified_coords.append(simplified_polygon)
-        return {'type': geom_type, 'coordinates': simplified_coords}
+        # Simplify with topology preservation (Douglas-Peucker algorithm)
+        simplified = geom.simplify(tolerance, preserve_topology=True)
 
-    else:
-        # For other types, just reduce precision
-        simplified_coords = simplify_coordinates(coords, precision)
-        return {'type': geom_type, 'coordinates': simplified_coords}
+        # Skip empty results
+        if simplified.is_empty:
+            print(f"  Warning: Geometry simplified to empty")
+            return None
+
+        # Filter out tiny polygons from MultiPolygon
+        if simplified.geom_type == 'MultiPolygon':
+            # Keep only polygons with area >= min_area
+            large_polys = [p for p in simplified.geoms if p.area >= min_area]
+            if not large_polys:
+                print(f"  Warning: All polygons filtered out (too small)")
+                return None
+            if len(large_polys) == 1:
+                simplified = large_polys[0]
+            else:
+                simplified = MultiPolygon(large_polys)
+        elif simplified.geom_type == 'Polygon':
+            if simplified.area < min_area:
+                print(f"  Warning: Polygon too small (area={simplified.area:.6f})")
+                return None
+
+        # Convert back to GeoJSON and round coordinates to 4 decimal places
+        result = mapping(simplified)
+
+        # Round coordinates to reduce file size
+        def round_coords(coords):
+            if isinstance(coords[0], (int, float)):
+                return [round(coords[0], 4), round(coords[1], 4)]
+            return [round_coords(c) for c in coords]
+
+        result['coordinates'] = round_coords(result['coordinates'])
+        return result
+
+    except Exception as e:
+        print(f"  Warning: Could not simplify geometry: {e}")
+        return geometry  # Return original if simplification fails
 
 def match_utility(feature, tariff_name):
     """Check if a HIFLD feature matches a tariff utility."""
