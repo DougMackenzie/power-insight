@@ -176,6 +176,48 @@ const NavigationInner = () => {
                             )}
                         </div>
 
+                        {/* Methodology Dropdown */}
+                        <div className="relative" ref={methodologyRef}>
+                            <button
+                                onClick={() => setIsMethodologyOpen(!isMethodologyOpen)}
+                                className={`font-medium transition-colors duration-200 flex items-center gap-1 ${
+                                    isMethodologyActive
+                                        ? 'text-primary-600'
+                                        : 'text-gray-600 hover:text-primary-600'
+                                }`}
+                            >
+                                Methodology
+                                <svg
+                                    className={`w-4 h-4 transition-transform duration-200 ${isMethodologyOpen ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            {isMethodologyOpen && (
+                                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                    {methodologySubPages.map((subPage) => (
+                                        <Link
+                                            key={subPage.href}
+                                            href={subPage.href}
+                                            onClick={() => setIsMethodologyOpen(false)}
+                                            className={`block px-4 py-2 text-sm transition-colors ${
+                                                pathname === '/methodology' && searchParams.get('tab') === subPage.href.split('tab=')[1]
+                                                    ? 'bg-primary-50 text-primary-600'
+                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
+                                            }`}
+                                        >
+                                            {subPage.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         {/* Utility Portal Dropdown (Protected) */}
                         <div className="relative" ref={utilityPortalRef}>
                             <button
@@ -212,7 +254,7 @@ const NavigationInner = () => {
 
                             {/* Dropdown Menu */}
                             {isUtilityPortalOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                                     {/* Registration status indicator */}
                                     <div className={`px-4 py-2 text-xs border-b border-gray-100 ${isRegistered ? 'text-green-600 bg-green-50' : 'text-amber-600 bg-amber-50'}`}>
                                         {isRegistered ? (
@@ -257,48 +299,6 @@ const NavigationInner = () => {
                                             </button>
                                         </div>
                                     )}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Methodology Dropdown */}
-                        <div className="relative" ref={methodologyRef}>
-                            <button
-                                onClick={() => setIsMethodologyOpen(!isMethodologyOpen)}
-                                className={`font-medium transition-colors duration-200 flex items-center gap-1 ${
-                                    isMethodologyActive
-                                        ? 'text-primary-600'
-                                        : 'text-gray-600 hover:text-primary-600'
-                                }`}
-                            >
-                                Methodology
-                                <svg
-                                    className={`w-4 h-4 transition-transform duration-200 ${isMethodologyOpen ? 'rotate-180' : ''}`}
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-
-                            {/* Dropdown Menu */}
-                            {isMethodologyOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                                    {methodologySubPages.map((subPage) => (
-                                        <Link
-                                            key={subPage.href}
-                                            href={subPage.href}
-                                            onClick={() => setIsMethodologyOpen(false)}
-                                            className={`block px-4 py-2 text-sm transition-colors ${
-                                                pathname === '/methodology' && searchParams.get('tab') === subPage.href.split('tab=')[1]
-                                                    ? 'bg-primary-50 text-primary-600'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
-                                            }`}
-                                        >
-                                            {subPage.label}
-                                        </Link>
-                                    ))}
                                 </div>
                             )}
                         </div>
@@ -392,6 +392,29 @@ const NavigationInner = () => {
                                 </div>
                             </div>
 
+                            {/* Methodology Section */}
+                            <div className="border-t border-gray-100 pt-3">
+                                <span className={`font-medium py-2 block ${isMethodologyActive ? 'text-primary-600' : 'text-gray-600'}`}>
+                                    Methodology
+                                </span>
+                                <div className="ml-4 flex flex-col gap-2 mt-2">
+                                    {methodologySubPages.map((subPage) => (
+                                        <Link
+                                            key={subPage.href}
+                                            href={subPage.href}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className={`text-sm py-1 transition-colors ${
+                                                pathname === '/methodology' && searchParams.get('tab') === subPage.href.split('tab=')[1]
+                                                    ? 'text-primary-600'
+                                                    : 'text-gray-500 hover:text-primary-600'
+                                            }`}
+                                        >
+                                            {subPage.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+
                             {/* Utility Portal Section (Protected) */}
                             <div className="border-t border-gray-100 pt-3">
                                 <span className={`font-medium py-2 flex items-center gap-2 ${isUtilityPortalActive ? 'text-primary-600' : 'text-gray-600'}`}>
@@ -431,29 +454,6 @@ const NavigationInner = () => {
                                             Register for Free Access
                                         </button>
                                     )}
-                                </div>
-                            </div>
-
-                            {/* Methodology Section */}
-                            <div className="border-t border-gray-100 pt-3">
-                                <span className={`font-medium py-2 block ${isMethodologyActive ? 'text-primary-600' : 'text-gray-600'}`}>
-                                    Methodology
-                                </span>
-                                <div className="ml-4 flex flex-col gap-2 mt-2">
-                                    {methodologySubPages.map((subPage) => (
-                                        <Link
-                                            key={subPage.href}
-                                            href={subPage.href}
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                            className={`text-sm py-1 transition-colors ${
-                                                pathname === '/methodology' && searchParams.get('tab') === subPage.href.split('tab=')[1]
-                                                    ? 'text-primary-600'
-                                                    : 'text-gray-500 hover:text-primary-600'
-                                            }`}
-                                        >
-                                            {subPage.label}
-                                        </Link>
-                                    ))}
                                 </div>
                             </div>
 

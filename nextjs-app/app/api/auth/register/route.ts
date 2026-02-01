@@ -62,21 +62,31 @@ const isAutoApprovedDomain = (email: string): boolean => {
 // FILE STORAGE (Replace with DB in production)
 // ============================================
 
-const REGISTRY_PATH = path.join(process.cwd(), 'data', 'user-registry.json');
+// Use __dirname-relative path for more reliable resolution
+const DATA_DIR = path.join(process.cwd(), 'data');
+const REGISTRY_PATH = path.join(DATA_DIR, 'user-registry.json');
 
 async function ensureRegistryExists(): Promise<void> {
-  const dataDir = path.dirname(REGISTRY_PATH);
   try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
+    // Ensure data directory exists
+    try {
+      await fs.access(DATA_DIR);
+    } catch {
+      console.log(`Creating data directory: ${DATA_DIR}`);
+      await fs.mkdir(DATA_DIR, { recursive: true });
+    }
 
-  try {
-    await fs.access(REGISTRY_PATH);
-  } catch {
-    const emptyRegistry: UserRegistry = { users: [], lastUpdated: new Date().toISOString() };
-    await fs.writeFile(REGISTRY_PATH, JSON.stringify(emptyRegistry, null, 2));
+    // Ensure registry file exists
+    try {
+      await fs.access(REGISTRY_PATH);
+    } catch {
+      console.log(`Creating registry file: ${REGISTRY_PATH}`);
+      const emptyRegistry: UserRegistry = { users: [], lastUpdated: new Date().toISOString() };
+      await fs.writeFile(REGISTRY_PATH, JSON.stringify(emptyRegistry, null, 2));
+    }
+  } catch (err) {
+    console.error('Error ensuring registry exists:', err);
+    throw err;
   }
 }
 
@@ -181,8 +191,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Registration error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: `Registration failed: ${errorMessage}` },
       { status: 500 }
     );
   }
