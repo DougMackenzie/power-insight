@@ -50,9 +50,11 @@ const BIVARIATE_COLORS: Record<string, Record<string, string>> = {
 };
 
 // Rate thresholds (in $/kWh) for categorization
+// Adjusted for better color distribution across utilities
 const RATE_THRESHOLDS = {
-    low: 0.06,    // Below 6¢/kWh = low rate
-    mid: 0.10,    // 6-10¢/kWh = mid rate
+    low: 0.07,    // Below 7¢/kWh = low rate (green)
+    mid: 0.12,    // 7-12¢/kWh = mid rate (amber)
+    // Above 12¢ = high rate (red)
 };
 
 interface UtilityHeatmapProps {
@@ -200,8 +202,8 @@ function UtilityHeatmap({
                                                 key={`utility-${geo.rsmKey}`}
                                                 geography={geo}
                                                 fill={fillColor}
-                                                stroke={isSelected ? '#1e40af' : isHovered ? '#334155' : '#64748b'}
-                                                strokeWidth={isSelected ? 1.5 : isHovered ? 1 : 0.3}
+                                                stroke={isSelected ? '#1e40af' : isHovered ? '#1e293b' : '#475569'}
+                                                strokeWidth={isSelected ? 2 : isHovered ? 1.5 : 0.75}
                                                 style={{
                                                     default: {
                                                         outline: 'none',
@@ -340,9 +342,9 @@ function UtilityHeatmap({
                     {/* Rate Thresholds */}
                     <div className="text-xs text-slate-500 space-y-1">
                         <div><strong>Rate thresholds:</strong></div>
-                        <div>Low: &lt;6¢/kWh</div>
-                        <div>Mid: 6-10¢/kWh</div>
-                        <div>High: &gt;10¢/kWh</div>
+                        <div>Low: &lt;7¢/kWh</div>
+                        <div>Mid: 7-12¢/kWh</div>
+                        <div>High: &gt;12¢/kWh</div>
                     </div>
                 </div>
             </div>
