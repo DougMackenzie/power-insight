@@ -293,54 +293,63 @@ function UtilityHeatmap({
             {/* Bivariate Legend */}
             <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                    {/* 3x3 Color Matrix */}
-                    <div className="flex flex-col items-center">
-                        <div className="grid grid-cols-3 gap-0.5 relative ml-12">
-                            {/* Row labels */}
-                            <div className="absolute -left-12 top-0.5 text-xs text-slate-500">High</div>
-                            <div className="absolute -left-10 top-[22px] text-xs text-slate-500">Mid</div>
-                            <div className="absolute -left-10 top-[44px] text-xs text-slate-500">Low</div>
-
-                            {/* High protection row */}
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.High.low }} title="Low rate + High protection" />
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.High.mid }} title="Mid rate + High protection" />
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.High.high }} title="High rate + High protection" />
-
-                            {/* Mid protection row */}
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Mid.low }} title="Low rate + Mid protection" />
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Mid.mid }} title="Mid rate + Mid protection" />
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Mid.high }} title="High rate + Mid protection" />
-
-                            {/* Low protection row */}
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Low.low }} title="Low rate + Low protection" />
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Low.mid }} title="Mid rate + Low protection" />
-                            <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Low.high }} title="High rate + Low protection" />
+                    {/* 3x3 Color Matrix with axis labels */}
+                    <div className="flex items-end gap-2">
+                        {/* Y-axis label (rotated) */}
+                        <div className="flex flex-col items-center justify-center">
+                            <span className="text-xs text-slate-500 transform -rotate-90 whitespace-nowrap mb-6">← Protection</span>
                         </div>
-                        <div className="flex justify-between w-full mt-1 text-xs text-slate-500 ml-12">
-                            <span>Low</span>
-                            <span>Rate →</span>
-                            <span>High</span>
+
+                        <div className="flex flex-col items-center">
+                            <div className="grid grid-cols-3 gap-0.5 relative ml-12">
+                                {/* Row labels */}
+                                <div className="absolute -left-12 top-0.5 text-xs text-slate-500">High</div>
+                                <div className="absolute -left-10 top-[22px] text-xs text-slate-500">Mid</div>
+                                <div className="absolute -left-10 top-[44px] text-xs text-slate-500">Low</div>
+
+                                {/* High protection row */}
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.High.low }} title="Low rate + High protection" />
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.High.mid }} title="Mid rate + High protection" />
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.High.high }} title="High rate + High protection" />
+
+                                {/* Mid protection row */}
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Mid.low }} title="Low rate + Mid protection" />
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Mid.mid }} title="Mid rate + Mid protection" />
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Mid.high }} title="High rate + Mid protection" />
+
+                                {/* Low protection row */}
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Low.low }} title="Low rate + Low protection" />
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Low.mid }} title="Mid rate + Low protection" />
+                                <div className="w-6 h-6 rounded-sm" style={{ backgroundColor: BIVARIATE_COLORS.Low.high }} title="High rate + Low protection" />
+                            </div>
+                            <div className="flex justify-between w-full mt-1 text-xs text-slate-500 ml-12">
+                                <span>Low</span>
+                                <span>Rate →</span>
+                                <span>High</span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Legend Explanation */}
-                    <div className="flex-1 space-y-2 text-sm">
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded" style={{ backgroundColor: BIVARIATE_COLORS.High.low }} />
-                            <span className="text-slate-700"><strong>Best:</strong> Low rates + High ratepayer protection</span>
+                    {/* Axis Descriptions */}
+                    <div className="flex-1 space-y-3 text-sm">
+                        <div>
+                            <div className="font-semibold text-slate-700 mb-1">Ratepayer Protection (↑ vertical axis)</div>
+                            <p className="text-slate-500 text-xs">
+                                Measures tariff safeguards: demand ratchets, CIAC requirements, cost allocation mechanisms,
+                                and regulatory oversight that protect existing ratepayers from bearing disproportionate infrastructure costs.
+                            </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded" style={{ backgroundColor: BIVARIATE_COLORS.Low.high }} />
-                            <span className="text-slate-700"><strong>Caution:</strong> High rates + Low ratepayer protection</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded" style={{ backgroundColor: '#f1f5f9' }} />
-                            <span className="text-slate-700"><strong>Gray:</strong> No large load tariff data</span>
+                        <div>
+                            <div className="font-semibold text-slate-700 mb-1">Blended Rate (→ horizontal axis)</div>
+                            <p className="text-slate-500 text-xs">
+                                All-in cost per kWh including demand charges, energy charges, and riders for a 100MW data center
+                                at 90% load factor.
+                            </p>
                         </div>
                     </div>
 
                     {/* Rate Thresholds */}
-                    <div className="text-xs text-slate-500 space-y-1">
+                    <div className="text-xs text-slate-500 space-y-1 border-l border-slate-200 pl-4">
                         <div><strong>Rate thresholds:</strong></div>
                         <div>Low: &lt;7¢/kWh</div>
                         <div>Mid: 7-12¢/kWh</div>
