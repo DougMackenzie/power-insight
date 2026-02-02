@@ -14,6 +14,8 @@ import {
     ESCALATION_RANGES,
     calculateDCRevenueOffset,
     getISODataForMarket,
+    HIGH_NBC_STATES,
+    MAX_ENERGY_MARGIN_CONTRIBUTION,
     type Utility,
     type DataCenter,
     type InterconnectionCosts,
@@ -474,12 +476,14 @@ export function calculateRevenueAdequacy(
 
     if (tariff) {
         // Use the comprehensive tariff-based calculation with dynamic energy margin
+        // Pass state for NBC energy margin cap in high-NBC states (CA, NY, etc.)
         const tariffRevenue = calculateTariffBasedDemandCharges(
             dcCapacityMW,
             loadFactor,
             peakCoincidence,
             tariff,
-            wholesaleEnergyCostForMargin
+            wholesaleEnergyCostForMargin,
+            utility?.state
         );
         demandChargeRevenue = tariffRevenue.totalDemandRevenue;
         energyChargeRevenue = tariffRevenue.energyRevenue;
@@ -634,7 +638,8 @@ export function calculateTariffBasedDemandCharges(
     loadFactor: number,
     peakCoincidence: number,
     tariff: TariffStructure,
-    marginalEnergyCost: number = 38 // Default wholesale cost if not provided
+    marginalEnergyCost: number = 38, // Default wholesale cost if not provided
+    state?: string // 2-letter state code for NBC energy margin cap
 ): {
     peakDemandRevenue: number;
     maxDemandRevenue: number;
@@ -730,7 +735,15 @@ export function calculateTariffBasedDemandCharges(
     // to fixed cost recovery. Some tariffs have very low energy rates (e.g., PSO's LPL
     // at $1.708/MWh) which are essentially wholesale pass-through - in those cases
     // the margin may be negative (fuel rider tariff), handled in calculateRevenueAdequacy.
-    const energyMarginPerMWh = Math.max(0, tariff.energyCharge - marginalEnergyCost);
+    const rawEnergyMargin = Math.max(0, tariff.energyCharge - marginalEnergyCost);
+
+    // In high-NBC states (CA, NY, CT, MA, RI, NH), retail rates include significant
+    // pass-through charges (wildfire funds, PPP, PCIA, nuclear decommissioning).
+    // Cap the "contribution to fixed costs" at realistic levels to avoid treating
+    // pass-throughs as utility profit margin.
+    const energyMarginPerMWh = (state && HIGH_NBC_STATES.includes(state.toUpperCase()))
+        ? Math.min(rawEnergyMargin, MAX_ENERGY_MARGIN_CONTRIBUTION)
+        : Math.min(rawEnergyMargin, 80); // General cap of $80/MWh for any state
     const energyRevenue = annualMWh * energyMarginPerMWh;
     const totalRevenue = totalDemandRevenue + energyRevenue;
 
@@ -1042,13 +1055,15 @@ const calculateNetResidentialImpact = (
     if (tariff) {
         // Use utility-specific tariff calculations with dynamic energy margin
         // Pass the utility's marginal energy cost for proper margin calculation
+        // Pass state for NBC energy margin cap in high-NBC states (CA, NY, etc.)
         const marginalEnergyCost = utility?.marginalEnergyCost ?? 38;
         tariffBasedRevenue = calculateTariffBasedDemandCharges(
             dcCapacityMW,
             loadFactor,
             peakCoincidence,
             tariff,
-            marginalEnergyCost
+            marginalEnergyCost,
+            utility?.state
         );
         flexibilityBenefitFromTariff = tariffBasedRevenue.flexibilityBenefit;
 
@@ -1197,17 +1212,36 @@ const calculateNetResidentialImpact = (
     // Note: ERCOT now uses standard allocation (no special 0.60 factor)
     // This ensures Revenue Adequacy and Bill Forecast align directionally
     if (isRegulatedMarket) {
-        // REGULATED MARKETS: Aggressive cost causation adjustment
-        // If DC revenue covers costs, residential allocation approaches zero
-        // The formula: allocation = base * (1 - costRecoveryRatio)^0.5
-        // At 100% cost recovery: allocation drops to ~0
-        // At 50% cost recovery: allocation is ~30% of base
-        // At 0% cost recovery: allocation is 100% of base
-        const costRecoveryCapped = Math.min(1.0, dcCostRecoveryRatio);
-        const regulatedCostCausationFactor = Math.pow(1 - costRecoveryCapped, 0.5);
-        adjustedAllocation = residentialAllocation * Math.max(0.05, regulatedCostCausationFactor);
+        // KEY FIX: ASYMMETRIC TREATMENT FOR COSTS VS BENEFITS
+        // If DC generates a SURPLUS (benefit), residents get FULL SHARE
+        // If DC creates a DEFICIT (cost), apply cost causation protection
+        //
+        // Rationale: When a DC pays MORE than its cost-to-serve, the surplus should
+        // flow to ratepayers at their full allocation share. This is fair because
+        // the DC is actively contributing to lower costs for everyone.
+        // However, when a DC creates a deficit, cost causation principles should
+        // protect ratepayers from bearing costs caused by the DC.
 
-        // RATE SPREADING BENEFIT for high load factor loads
+        if (netAnnualImpact < 0) {
+            // BENEFIT SCENARIO: DC revenue exceeds its cost causation
+            // Residents should receive their FULL allocation share of benefits
+            // This is the key fix - benefits should flow to ratepayers at 100%
+            adjustedAllocation = residentialAllocation;
+        } else {
+            // COST SCENARIO: DC creates deficit that must be socialized
+            // Apply cost causation protection - reduce residential allocation
+            // based on how well DC covers its costs
+            // The formula: allocation = base * (1 - costRecoveryRatio)^0.5
+            // At 100% cost recovery: allocation drops to ~0
+            // At 50% cost recovery: allocation is ~30% of base
+            // At 0% cost recovery: allocation is 100% of base
+            const costRecoveryCapped = Math.min(1.0, dcCostRecoveryRatio);
+            const regulatedCostCausationFactor = Math.pow(1 - costRecoveryCapped, 0.5);
+            // Minimum 5% allocation even for worst-case deficits
+            adjustedAllocation = residentialAllocation * Math.max(0.05, regulatedCostCausationFactor);
+        }
+
+        // RATE SPREADING BENEFIT for high load factor loads (applies to both scenarios)
         // A high LF industrial load spreads fixed costs over more kWh
         // This benefits all ratepayers through lower average costs
         // Effect: ~5-15% reduction in residential allocation for high LF loads

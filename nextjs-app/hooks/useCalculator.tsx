@@ -92,6 +92,8 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
             // Set utility values
             setUtility({
                 ...DEFAULT_UTILITY,
+                name: profile.name,
+                state: profile.state, // Pass state for NBC energy margin cap
                 residentialCustomers: profile.residentialCustomers,
                 averageMonthlyBill: profile.averageMonthlyBill,
                 averageMonthlyUsage: profile.averageMonthlyUsageKWh,
@@ -182,6 +184,8 @@ export const CalculatorProvider = ({ children }: { children: ReactNode }) => {
             // Auto-populate utility values from profile including market structure
             setUtility({
                 ...utility,
+                name: profile.name,
+                state: profile.state, // Pass state for NBC energy margin cap
                 residentialCustomers: profile.residentialCustomers,
                 averageMonthlyBill: profile.averageMonthlyBill,
                 averageMonthlyUsage: profile.averageMonthlyUsageKWh,

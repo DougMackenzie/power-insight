@@ -18,6 +18,26 @@ export interface ScenarioParams {
 
 export type MarketType = 'regulated' | 'pjm' | 'ercot' | 'miso' | 'caiso' | 'spp' | 'nyiso' | 'tva';
 
+// ============================================
+// NON-BYPASSABLE CHARGE (NBC) CONSTANTS
+// ============================================
+
+/**
+ * States with significant Non-Bypassable Charges (NBCs)
+ * These charges are pass-throughs to fund state programs, not utility margin.
+ * Examples: CA wildfire funds, PPP, PCIA, nuclear decommissioning;
+ *           NY system benefit charges, renewable portfolio standards
+ */
+export const HIGH_NBC_STATES: string[] = ['CA', 'NY', 'CT', 'MA', 'RI', 'NH'];
+
+/**
+ * Maximum energy margin that represents true fixed cost contribution ($/MWh)
+ * In high-NBC states, retail rates include significant pass-through charges.
+ * Amounts above this cap are assumed to be pass-through charges, not utility profit.
+ * Based on analysis of utility cost structures in regulated markets.
+ */
+export const MAX_ENERGY_MARGIN_CONTRIBUTION = 40;
+
 /**
  * Interconnection cost structure for calculations
  * Separates CIAC-recovered costs from network upgrade costs
@@ -31,6 +51,8 @@ export interface InterconnectionCosts {
 
 export interface Utility {
     name: string;
+    // 2-letter state code (e.g., 'CA', 'NY') for NBC detection
+    state?: string;
     residentialCustomers: number;
     commercialCustomers: number;
     industrialCustomers: number;
