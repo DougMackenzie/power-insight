@@ -1259,8 +1259,11 @@ const calculateNetResidentialImpact = (
                                     0.60; // Capacity markets
 
     // Energy margin flow-through: energy charges beyond fuel cost
+    // ERCOT FIX: In deregulated Texas, energy profit goes to REPs (NRG, Vistra),
+    // NOT the wires utility (Oncor/CenterPoint). Ratepayers only benefit if
+    // TDU (wires) revenue exceeds TDU costs. Set to 0% to eliminate "phantom benefit".
     const energyMarginFlowThrough = isRegulatedMarket ? 0.85 :
-                                    utility?.marketType === 'ercot' ? 0.65 :
+                                    utility?.marketType === 'ercot' ? 0.0 :  // Deregulated: REPs keep energy profit
                                     0.50;
 
     // Total revenue offset
@@ -1269,8 +1272,17 @@ const calculateNetResidentialImpact = (
     // Per Master QA/QC: Use full revenue to determine if DC is "paying its fair share"
     const fullDCRevenue = dcRevenue.demandRevenue + dcRevenue.energyMargin;
 
+    // SCE FIX: In high-NBC states (CA, NY, CT, MA, RI, NH), demand charges are often
+    // "loaded" with pass-through costs (wildfire hardening, PPP, PCIA, nuclear decommissioning).
+    // Only ~60% represents true utility revenue; the rest is obligated spending.
+    // This prevents inflated surplus calculations that treat pass-throughs as profit.
+    const normalizedUtilityState = normalizeStateCode(utility?.state);
+    const demandChargePassThrough = (normalizedUtilityState && HIGH_NBC_STATES.includes(normalizedUtilityState))
+        ? 0.60  // High-NBC: only 60% is "real" utility revenue
+        : 1.0;  // Other states: full demand charge is revenue
+
     // Flow-through revenue is what actually offsets bills (accounts for rate case lag)
-    const demandRevenueOffset = dcRevenue.demandRevenue * demandChargeFlowThrough;
+    const demandRevenueOffset = dcRevenue.demandRevenue * demandChargeFlowThrough * demandChargePassThrough;
     const energyRevenueOffset = dcRevenue.energyMargin * energyMarginFlowThrough;
     let revenueOffset = demandRevenueOffset + energyRevenueOffset;
 
@@ -1341,9 +1353,14 @@ const calculateNetResidentialImpact = (
 
         if (netAnnualImpact < 0) {
             // BENEFIT SCENARIO: DC revenue exceeds its cost causation
-            // Residents should receive their FULL allocation share of benefits
-            // This is the key fix - benefits should flow to ratepayers at 100%
-            adjustedAllocation = residentialAllocation;
+            // PSO FIX: Apply regulatory friction - ratepayers don't get 100% of surplus immediately
+            // Reasons for reduced sharing:
+            // - Regulatory lag: Rate cases occur every 2-3 years, not immediately
+            // - Utility retained earnings: Utilities have profit motive
+            // - Cross-subsidization: Surplus often used to lower industrial rates or accelerate
+            //   depreciation of coal plants, rather than lowering residential bills dollar-for-dollar
+            const regulatorySurplusSharing = 0.60; // 60% flows to ratepayers, 40% retained/lag
+            adjustedAllocation = residentialAllocation * regulatorySurplusSharing;
         } else {
             // COST SCENARIO: DC creates deficit that must be socialized
             // Apply cost causation protection - reduce residential allocation
