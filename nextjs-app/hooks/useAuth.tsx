@@ -1,26 +1,25 @@
 'use client';
 
 /**
- * Authentication Context for Power Insight
+ * Auth Stub for Power Insight v2.0 (Community-First)
  *
- * Provides identity-gated access to utility benchmarks and scoring data.
- * This is NOT a security wall - it's a "know your user" registry.
+ * Per Phase 5.1 of the v2.0 QAQC plan: the registration wall is removed.
+ * The platform is community-first — all content is publicly accessible.
  *
- * Users self-register with:
- * - Email (we track domain for auto-approval)
- * - Organization name
- * - Role/title
- * - Intended use
+ * This file is now a stub that satisfies the prior `useAuth()` contract
+ * while always returning a "registered, anonymous community member" so
+ * existing consumers (Navigation, methodology page, benchmarks page) keep
+ * rendering without surgical edits to every call site.
  *
- * Auto-approved domains: .gov, .edu, known utility domains
- * Others: Approved automatically but flagged for review
+ * Follow-up cleanup (next pass): grep for `useAuth` consumers and remove
+ * the calls + the conditional rendering they gate. Delete this file and
+ * `RegistrationForm.tsx`, `ProtectedContent.tsx`, and the `app/api/auth/*`
+ * routes once no consumers remain.
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 
-// ============================================
-// TYPES
-// ============================================
+// ─── Types (preserved for consumer compatibility) ──────────────────────────
 
 export interface RegisteredUser {
   id: string;
@@ -46,13 +45,10 @@ export interface RegistrationData {
 }
 
 interface AuthContextType {
-  // State
   user: RegisteredUser | null;
   isLoading: boolean;
   isRegistered: boolean;
   showRegistration: boolean;
-
-  // Actions
   register: (data: RegistrationData) => Promise<{ success: boolean; error?: string }>;
   checkAccess: () => Promise<boolean>;
   logout: () => void;
@@ -60,220 +56,61 @@ interface AuthContextType {
   closeRegistration: () => void;
 }
 
-// ============================================
-// AUTO-APPROVE DOMAINS
-// ============================================
+// ─── Community-first stub user ─────────────────────────────────────────────
 
-const AUTO_APPROVE_DOMAINS = [
-  // Government
-  '.gov',
-  '.gov.uk',
-  '.gc.ca',
-
-  // Education
-  '.edu',
-  '.ac.uk',
-
-  // Research institutions
-  'epri.com',
-  'lbl.gov',
-  'nrel.gov',
-  'anl.gov',
-  'ornl.gov',
-  'pnnl.gov',
-
-  // Regulatory bodies
-  'ferc.gov',
-  'eia.gov',
-  'naruc.org',
-
-  // Major utilities (add more as needed)
-  'duke-energy.com',
-  'dominionenergy.com',
-  'pge.com',
-  'sce.com',
-  'xcelenergy.com',
-  'entergy.com',
-  'aep.com',
-  'southerncompany.com',
-  'nexteraenergy.com',
-  'exeloncorp.com',
-];
-
-const isAutoApprovedDomain = (email: string): boolean => {
-  const domain = email.split('@')[1]?.toLowerCase() || '';
-  return AUTO_APPROVE_DOMAINS.some(approved =>
-    domain.endsWith(approved) || domain === approved.replace('.', '')
-  );
+const COMMUNITY_USER: RegisteredUser = {
+  id: 'community',
+  email: 'community@power-insight.org',
+  name: 'Community Member',
+  organization: 'Community',
+  role: '',
+  intendedUse: '',
+  registeredAt: new Date().toISOString(),
+  lastAccessAt: new Date().toISOString(),
+  accessCount: 1,
+  domain: 'power-insight.org',
+  autoApproved: true,
+  status: 'active',
 };
 
-// ============================================
-// CONTEXT
-// ============================================
+const STUB_CONTEXT: AuthContextType = {
+  user: COMMUNITY_USER,
+  isLoading: false,
+  isRegistered: true,
+  showRegistration: false,
+  register: async () => ({ success: true }),
+  checkAccess: async () => true,
+  logout: () => {},
+  openRegistration: () => {},
+  closeRegistration: () => {},
+};
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// ─── Context (kept so consumers' imports still resolve) ────────────────────
 
-// ============================================
-// PROVIDER
-// ============================================
+const AuthContext = createContext<AuthContextType>(STUB_CONTEXT);
+
+// ─── Provider (now a passthrough — no state) ──────────────────────────────
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<RegisteredUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showRegistration, setShowRegistration] = useState(false);
-
-  // Check for existing session on mount - use localStorage directly
-  useEffect(() => {
-    const checkExistingSession = () => {
-      try {
-        // Check localStorage for session token and user data
-        const sessionToken = localStorage.getItem('power_insight_session');
-        const storedUser = localStorage.getItem('power_insight_user');
-
-        if (sessionToken && storedUser) {
-          try {
-            const userData = JSON.parse(storedUser) as RegisteredUser;
-            // Update last access time
-            userData.lastAccessAt = new Date().toISOString();
-            userData.accessCount = (userData.accessCount || 0) + 1;
-            localStorage.setItem('power_insight_user', JSON.stringify(userData));
-            setUser(userData);
-          } catch {
-            // Invalid stored data, clear it
-            localStorage.removeItem('power_insight_session');
-            localStorage.removeItem('power_insight_user');
-          }
-        }
-      } catch (error) {
-        console.error('Session check failed:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkExistingSession();
-  }, []);
-
-  // Register new user - client-side storage for Vercel compatibility
-  const register = useCallback(async (data: RegistrationData): Promise<{ success: boolean; error?: string }> => {
-    try {
-      // Validate required fields
-      if (!data.email || !data.name || !data.organization) {
-        return { success: false, error: 'Please fill in all required fields' };
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(data.email)) {
-        return { success: false, error: 'Invalid email format' };
-      }
-
-      // Generate session token
-      const sessionToken = crypto.randomUUID();
-      const domain = data.email.split('@')[1]?.toLowerCase() || '';
-      const autoApproved = isAutoApprovedDomain(data.email);
-
-      // Create user object
-      const newUser: RegisteredUser = {
-        id: crypto.randomUUID(),
-        email: data.email.toLowerCase(),
-        name: data.name,
-        organization: data.organization,
-        role: data.role || '',
-        intendedUse: data.intendedUse || '',
-        registeredAt: new Date().toISOString(),
-        lastAccessAt: new Date().toISOString(),
-        accessCount: 1,
-        domain,
-        autoApproved,
-        status: 'active',
-      };
-
-      // Store in localStorage
-      localStorage.setItem('power_insight_session', sessionToken);
-      localStorage.setItem('power_insight_user', JSON.stringify(newUser));
-
-      setUser(newUser);
-      setShowRegistration(false);
-
-      // Also try to log to server (fire and forget - won't fail if server unavailable)
-      try {
-        fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        }).catch(() => {}); // Ignore errors - localStorage is the source of truth
-      } catch {
-        // Ignore server errors
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error('Registration error:', error);
-      return { success: false, error: 'Registration failed. Please try again.' };
-    }
-  }, []);
-
-  // Check if user has access (for protected routes)
-  const checkAccess = useCallback(async (): Promise<boolean> => {
-    if (user && user.status === 'active') {
-      // Log access for analytics
-      fetch('/api/auth/log-access', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id }),
-      }).catch(() => {}); // Fire and forget
-
-      return true;
-    }
-    return false;
-  }, [user]);
-
-  // Logout
-  const logout = useCallback(() => {
-    localStorage.removeItem('power_insight_session');
-    localStorage.removeItem('power_insight_user');
-    setUser(null);
-  }, []);
-
-  // Registration modal controls
-  const openRegistration = useCallback(() => setShowRegistration(true), []);
-  const closeRegistration = useCallback(() => setShowRegistration(false), []);
-
-  const value: AuthContextType = {
-    user,
-    isLoading,
-    isRegistered: !!user,
-    showRegistration,
-    register,
-    checkAccess,
-    logout,
-    openRegistration,
-    closeRegistration,
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={STUB_CONTEXT}>{children}</AuthContext.Provider>;
 }
 
-// ============================================
-// HOOK
-// ============================================
+// ─── Hook ─────────────────────────────────────────────────────────────────
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+export function useAuth(): AuthContextType {
+  // useContext(AuthContext) is safe even outside a provider because
+  // STUB_CONTEXT is the default value. No more "must be used within an
+  // AuthProvider" runtime error.
+  return useContext(AuthContext);
 }
 
-// Export utility function
-export { isAutoApprovedDomain };
+// ─── Preserved utility for any consumer that imports it ───────────────────
+
+export function isAutoApprovedDomain(_email: string): boolean {
+  // Community-first: everyone is auto-approved.
+  return true;
+}

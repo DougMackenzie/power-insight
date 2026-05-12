@@ -303,8 +303,11 @@ const SliderField = ({
 
 export interface CalculatorTabProps {}
 
-// TEMPORARY: Under Construction flag - set to false to enable calculator
-const UNDER_CONSTRUCTION = true;
+// Calculator re-enabled 2026-05-12 after Phase 1+3 of v2.0 QAQC: methodology
+// validated against the Feb 2026 fix audit (NBC cap, regional CONE, asymmetric
+// allocation, flex premium, fuel rider treatment) and locked behind 40
+// boundary-condition unit tests in lib/calculations.test.ts.
+const UNDER_CONSTRUCTION = false;
 
 export default function CalculatorTab({}: CalculatorTabProps = {}) {
     const {
