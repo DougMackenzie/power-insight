@@ -20,9 +20,10 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Power Insight - Take Charge of Your Energy Future',
+  metadataBase: new URL('https://power-insight.org'),
+  title: 'Power Insight — Take Charge of Your Energy Future',
   description:
-    'Understand how data center development impacts your electric bill. Free, open-source tool for individuals and community leaders to evaluate ratepayer impacts.',
+    'Understand how data center development impacts your electric bill. Free, open-source tool for individuals and community leaders to evaluate ratepayer impacts across 88 US utilities.',
   keywords: [
     'data center',
     'electricity costs',
@@ -31,18 +32,25 @@ export const metadata: Metadata = {
     'electric bill calculator',
     'demand response',
     'grid flexibility',
+    'utility tariffs',
+    'large load tariff',
+    'community energy',
   ],
   authors: [{ name: 'Power Insight Contributors' }],
   openGraph: {
-    title: 'Power Insight - Take Charge of Your Energy Future',
-    description: 'Understand how data center development impacts your electric bill',
+    title: 'Power Insight — Take Charge of Your Energy Future',
+    description:
+      'Understand how data center development impacts your electric bill. Free, open-source tool covering 88 US utilities.',
     type: 'website',
     siteName: 'Power Insight',
+    url: 'https://power-insight.org',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Power Insight',
-    description: 'Understand data center impact on your electric bill',
+    description:
+      'Understand how data center development impacts your electric bill. Free, open-source tool covering 88 US utilities.',
   },
   robots: {
     index: true,

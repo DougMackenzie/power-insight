@@ -5,6 +5,10 @@ import { QRCodeSVG } from 'qrcode.react';
 
 const SITE_URL = 'https://power-insight.org';
 
+// Data freshness indicator (Phase 5.10 of v2.0 QAQC plan).
+// Update when tariff database is regenerated from primary sources (Phase 2).
+const TARIFF_DATA_EFFECTIVE = 'January 2026';
+
 const Footer = () => {
     const currentYear = new Date().getFullYear();
 
@@ -155,6 +159,9 @@ const Footer = () => {
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-sm text-gray-500">
                             © {currentYear} Power Insight. Open source under MIT License.
+                        </p>
+                        <p className="text-sm text-gray-500">
+                            Tariff data effective: {TARIFF_DATA_EFFECTIVE}
                         </p>
                         <p className="text-sm text-gray-500 text-center md:text-right">
                             Built for communities. Not affiliated with any data center company or utility.
