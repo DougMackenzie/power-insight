@@ -198,7 +198,10 @@ export const ISO_CAPACITY_DATA: Record<string, ISOCapacityData> = {
     miso: {
         totalPeakMW: 127000,           // ~127 GW summer peak
         totalCapacityMW: 155000,       // ~155 GW installed capacity
-        targetReserveMargin: 0.079,    // 7.9% summer PRM (2025/26 PRA — moved to seasonal construct)
+        // Historical PRMR ~17-18% before RBDC; MISO moved to seasonal construct in 2025/26.
+        // Summer 2025/26 PRMR was 7.9% (a tighter operational requirement, not a planning target).
+        // Keeping historical planning-target shape since this field is "target" semantics.
+        targetReserveMargin: 0.17,
         // MISO 2025/26 PRA cleared April 2025 with first-ever Reliability-Based Demand Curve.
         // Summer cleared at record $666.50/MW-day; annualized blended ~$217/MW-day (North/Central),
         // ~$212 (South). Surplus capacity 43% lower than prior summer.
@@ -220,9 +223,10 @@ export const ISO_CAPACITY_DATA: Record<string, ISOCapacityData> = {
         totalPeakMW: 90000,            // ~90 GW peak (aligns with calculations.ts:977)
         // 2026 expected summer capacity = 104,850+ MW (ERCOT Dec 2025 CDR).
         totalCapacityMW: 105000,
-        // 2026 summer Planning Reserve Margin = 18.3% peak load, 20.9% peak net load.
-        // Tighter than the historical glut-era margins.
-        targetReserveMargin: 0.18,
+        // ERCOT minimum target = 13.75% per PUCT. Actual 2026 summer projection
+        // is 18.3% PRM (peak load) / 20.9% (peak net load), but field semantics
+        // is "target", so using the regulator-set minimum here.
+        targetReserveMargin: 0.1375,
         capacityPrice2024: 0,          // No capacity market - energy-only
         dataSource: 'ERCOT December 2025 Capacity, Demand and Reserves Report',
     },

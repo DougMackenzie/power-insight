@@ -980,7 +980,11 @@ export const UTILITY_PROFILES: UtilityProfile[] = [
     },
     hasDataCenterActivity: true,
     dataCenterNotes: 'Multiple large data center proposals; PSO facing 31% power deficit by 2031. Large load queue exceeds 6 GW including hyperscale AI facilities.',
-    defaultDataCenterMW: 6000,
+    // 1000 MW representative scenario (single hyperscale campus). The full 6 GW
+    // queue load on a 460k-residential utility produces accurate but visually
+    // extreme bill-impact numbers; defaulting to 1 GW shows a realistic single
+    // facility scenario. Users can scale up via the calculator if desired.
+    defaultDataCenterMW: 1000,
     sources: ['PSO 2024 IRP Report', 'Oklahoma Corporation Commission filings', 'AEP annual reports', 'PSO LPL Schedule 242/244/246', 'SemiAnalysis 2025']
   },
   // --- SOUTH DAKOTA ---
