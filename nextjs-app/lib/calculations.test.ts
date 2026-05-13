@@ -332,10 +332,12 @@ describe('SUPPLY_CURVE — capacity price interpolation', () => {
 // ─── ISO_CAPACITY_DATA + getISODataForMarket ──────────────────────────────
 
 describe('ISO capacity data lookup', () => {
-  it('returns PJM data with 2024 BRA cleared price ($269.92)', () => {
+  it('returns PJM data with most-recent BRA cleared price (2027/28 = $333.44)', () => {
+    // Refreshed 2026-05-13: PJM 2027/28 BRA cleared at FERC cap $333.44/MW-day
+    // (PJM Inside Lines, Dec 2025). Prior values: 2026/27 = $329.17, 2025/26 = $269.92.
     const pjm = getISODataForMarket('pjm');
     expect(pjm).not.toBeNull();
-    expect(pjm!.capacityPrice2024).toBe(269.92);
+    expect(pjm!.capacityPrice2024).toBe(333.44);
     expect(pjm!.targetReserveMargin).toBe(0.15);
   });
 

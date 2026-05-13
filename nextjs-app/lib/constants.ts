@@ -180,34 +180,51 @@ export interface ISOCapacityData {
     dataSource: string;            // Documentation reference
 }
 
+// Capacity-market reference prices and system sizes per ISO.
+// Refreshed 2026-05-13 to most-recent published auctions / CDR reports.
+// `capacityPrice2024` field name kept for backward-compat with downstream code,
+// but values are now the most recent FORWARD-LOOKING auction (PJM 2027/28, MISO 2025/26, NYISO 2025).
 export const ISO_CAPACITY_DATA: Record<string, ISOCapacityData> = {
     pjm: {
-        totalPeakMW: 150000,           // ~150 GW summer peak
+        totalPeakMW: 150000,           // ~150 GW summer peak (PJM 2026 Load Forecast Report)
         totalCapacityMW: 180000,       // ~180 GW installed capacity
         targetReserveMargin: 0.15,     // 15% Installed Reserve Margin (IRM)
-        capacityPrice2024: 269.92,     // 2025/26 BRA cleared price
-        dataSource: 'PJM 2024 State of the Market Report',
+        // PJM 2027/28 BRA cleared 2025-12-17 at FERC-cap $333.44/MW-day uniformly across all LDAs.
+        // 2026/27 BRA cleared 2025-07-22 at $329.17/MW-day. Both maxed the FERC price cap.
+        // Procured 134,479 MW UCAP for 27/28; short of reliability requirement by ~6,623 MW.
+        capacityPrice2024: 333.44,
+        dataSource: 'PJM 2027/28 Base Residual Auction Report (Dec 2025)',
     },
     miso: {
         totalPeakMW: 127000,           // ~127 GW summer peak
         totalCapacityMW: 155000,       // ~155 GW installed capacity
-        targetReserveMargin: 0.20,     // Higher reserve target than PJM
-        capacityPrice2024: 30.00,      // Lower capacity prices than PJM
-        dataSource: 'MISO 2024 LOLE Study',
+        targetReserveMargin: 0.079,    // 7.9% summer PRM (2025/26 PRA — moved to seasonal construct)
+        // MISO 2025/26 PRA cleared April 2025 with first-ever Reliability-Based Demand Curve.
+        // Summer cleared at record $666.50/MW-day; annualized blended ~$217/MW-day (North/Central),
+        // ~$212 (South). Surplus capacity 43% lower than prior summer.
+        // Using annualized blended figure as the canonical price point.
+        capacityPrice2024: 217.00,
+        dataSource: 'MISO 2025/26 Planning Resource Auction Results (April 2025)',
     },
     nyiso: {
         totalPeakMW: 32000,            // ~32 GW summer peak
         totalCapacityMW: 40000,        // ~40 GW installed capacity
         targetReserveMargin: 0.15,     // 15% IRM
-        capacityPrice2024: 180.00,     // NYISO capacity prices
-        dataSource: 'NYISO 2024 Gold Book',
+        // NYISO statewide ICAP prices have averaged $2-6/kW-month since 2023 (~$67-200/MW-day).
+        // NYC zone runs 250%+ premium ($12-20/kW-month, ~$400-667/MW-day).
+        // Using mid-point statewide blend; for NYC-specific scenarios the model should adjust.
+        capacityPrice2024: 180.00,
+        dataSource: 'NYISO 2025 ICAP Auction Series (Modo Energy summary, Dec 2025)',
     },
     ercot: {
         totalPeakMW: 90000,            // ~90 GW peak (aligns with calculations.ts:977)
-        totalCapacityMW: 100000,       // ~100 GW available capacity
-        targetReserveMargin: 0.10,     // ERCOT has tighter margins (energy-only market)
+        // 2026 expected summer capacity = 104,850+ MW (ERCOT Dec 2025 CDR).
+        totalCapacityMW: 105000,
+        // 2026 summer Planning Reserve Margin = 18.3% peak load, 20.9% peak net load.
+        // Tighter than the historical glut-era margins.
+        targetReserveMargin: 0.18,
         capacityPrice2024: 0,          // No capacity market - energy-only
-        dataSource: 'ERCOT 2024 CDR Report',
+        dataSource: 'ERCOT December 2025 Capacity, Demand and Reserves Report',
     },
 };
 
@@ -583,23 +600,32 @@ export const formatMW = (value: number): string => {
 // NATIONAL DATA CENTER STATISTICS
 // ============================================
 
+// Refreshed 2026-05-13. LBNL 2024 report (published Dec 2024) is still the canonical source for
+// current US DC capacity / TWh; LBNL released a "Large Load Literature Review September 2025
+// Update" but did NOT publish a full successor to the 2024 report.
 export const NATIONAL_DC_STATS = {
-    // Current state (2024-2025)
-    // Source: LBNL 2024 Data Center Energy Usage Report
-    currentCapacityGW: 25, // ~25 GW operating capacity (LBNL 2024); BNEF estimates ~35-40 GW by late 2025
-    currentElectricityShare: 0.044, // 4.4% (LBNL 2024)
+    // Current state (most-recent reported = 2023 actuals)
+    // Source: LBNL 2024 United States Data Center Energy Usage Report
+    currentCapacityGW: 25, // ~25 GW operating capacity (LBNL 2024)
+    currentElectricityShare: 0.044, // 4.4% of US electricity (LBNL 2024)
     currentTWh: 176, // 2023 consumption (LBNL 2024)
 
     // Projections
-    // Sources: EPRI (6-9% by 2030), DOE (~50 GW net new DC demand by 2030),
-    // Grid Strategies (market-adjusted ~65 GW net new by 2030),
-    // BloombergNEF (106 GW total by 2035, conservative estimate, Dec 2025)
-    projected2030ShareLow: 0.06,
-    projected2030ShareHigh: 0.09,
-    projected2030NetNewGWLow: 50, // DOE estimate
-    projected2030NetNewGWHigh: 65, // Grid Strategies market-adjusted
-    projected2035CapacityGWLow: 100, // Conservative (BNEF 106 GW)
-    projected2035CapacityGWHigh: 150, // High-end / aggressive scenario
+    // LBNL 2024: 325-580 TWh by 2028 → ~74-132 GW total capacity at 50% utilization
+    // EPRI: 6-9% of US electricity by 2030
+    // DOE: ~50 GW net new DC demand by 2030
+    // Grid Strategies: ~65 GW net new by 2030 (market-adjusted)
+    // BloombergNEF Dec 2025: 106 GW total by 2035 (conservative)
+    projected2028CapacityGWLow: 74, // LBNL 2024
+    projected2028CapacityGWHigh: 132, // LBNL 2024
+    projected2028TWhLow: 325, // LBNL 2024
+    projected2028TWhHigh: 580, // LBNL 2024
+    projected2030ShareLow: 0.06, // EPRI
+    projected2030ShareHigh: 0.09, // EPRI
+    projected2030NetNewGWLow: 50, // DOE
+    projected2030NetNewGWHigh: 65, // Grid Strategies
+    projected2035CapacityGWLow: 100, // BNEF conservative (106 GW)
+    projected2035CapacityGWHigh: 150, // High-end / aggressive
     growthMultiplier2035: '4-6x', // Range from 2024 baseline
 
     // Equivalents
@@ -607,15 +633,20 @@ export const NATIONAL_DC_STATS = {
     homesPerGW: 750000, // ~750k-1M homes per GW (CRS)
 
     // Demand backlog
-    // Source: LBNL Queued Up database; ERCOT alone has 233 GW of large load requests
-    // Note: historically only ~13% of interconnection requests reach commercial operation
-    totalUSRequestedGW: 1000, // GW requested from US utilities (aggregate)
+    // Source: LBNL Queued Up + LBNL Large Load Literature Review (Sept 2025 update);
+    // ERCOT alone has 233 GW of large load requests. Historically only ~13% of
+    // interconnection requests reach commercial operation, so requested >> built.
+    totalUSRequestedGW: 1000,
 
-    // PJM capacity market impact
-    // Source: PJM 2025/26 Base Residual Auction Report
-    pjmCapacityPrice2024: 269.92, // $/MW-day
-    pjmCapacityPricePrior: 28.92, // $/MW-day (prior year)
-    pjmPriceIncreaseMultiple: 10, // 10x increase
+    // PJM capacity market impact (refreshed to 2027/28 BRA)
+    // 2027/28 BRA cleared 2025-12-17 at FERC cap $333.44/MW-day (PJM Inside Lines)
+    // 2026/27 BRA cleared 2025-07-22 at FERC cap $329.17/MW-day
+    // 2025/26 BRA cleared at $269.92/MW-day
+    // 2024/25 BRA was $28.92/MW-day prior to the demand-driven step-change
+    // → 11.5x increase from 24/25 to 27/28
+    pjmCapacityPrice2024: 333.44, // most-recent BRA (2027/28)
+    pjmCapacityPricePrior: 28.92, // 2024/25 BRA (pre-step-change baseline)
+    pjmPriceIncreaseMultiple: 11.5, // 333.44 / 28.92
     dcAttributionPercent: 0.63, // 63% of increase attributed to DC growth (Grid Strategies)
 };
 
