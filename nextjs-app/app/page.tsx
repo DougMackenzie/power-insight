@@ -37,36 +37,81 @@ export default function HomePage() {
             </div>
 
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              The Scale of AI and Planning for{' '}
+              See how new data centers could change{' '}
               <span className="text-amber-300">
-                Responsible Energy Growth
+                your electric bill
               </span>
             </h1>
             <p className="text-xl text-slate-300 mb-8 leading-relaxed max-w-3xl">
-              New data centers are reshaping our energy landscape. Research shows that with the right policies, this
-              growth can mean lower bills, a more reliable grid, and breakthroughs in science and
-              medicine. Explore the data and help shape better outcomes for your community.
+              Pick your utility, set the size of the data center, and get a plain-English answer in under
+              a minute. Free, open-source, and built on tariff data from 88 US utilities.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/methodology?tab=calculator"
+                href="/calculator"
                 className="px-8 py-4 bg-amber-400 text-slate-900 font-semibold rounded-full hover:bg-amber-300 transition-all duration-200 hover:scale-105"
               >
-                Calculate My Electric Costs
+                Open the Calculator
               </Link>
               <Link
                 href="/methodology"
                 className="px-8 py-4 bg-transparent border border-white/30 text-white font-semibold rounded-full hover:bg-white/10 transition-all duration-200"
               >
-                See Our Data Sources
+                How the math works
               </Link>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Plain-English summary — Grade 8-9 reading level */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-4">
+        <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm">
+          <div className="grid md:grid-cols-3 gap-6">
+            <div>
+              <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center mb-3">
+                <span className="font-bold text-amber-700">1</span>
+              </div>
+              <h3 className="font-semibold text-slate-800 mb-2">A new data center wants power</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                A single large data center can use as much electricity as 300,000 homes. That means new
+                power lines, new substations, and sometimes new power plants.
+              </p>
+            </div>
+            <div>
+              <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center mb-3">
+                <span className="font-bold text-amber-700">2</span>
+              </div>
+              <h3 className="font-semibold text-slate-800 mb-2">The utility builds &mdash; and someone pays</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Building infrastructure costs money. Whether households pay more or less depends on what
+                rate the data center is charged and how much spare grid capacity already exists.
+              </p>
+            </div>
+            <div>
+              <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center mb-3">
+                <span className="font-bold text-amber-700">3</span>
+              </div>
+              <h3 className="font-semibold text-slate-800 mb-2">The calculator shows you the math</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Pick your utility and set the data center size. The tool uses your utility&rsquo;s actual
+                tariff to estimate the impact on a typical residential bill &mdash; up or down.
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+            <Link
+              href="/calculator"
+              className="inline-block px-6 py-3 bg-slate-800 text-white font-semibold rounded-full hover:bg-slate-700 transition-colors"
+            >
+              Try it for your utility &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Why This Matters */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-4">
         <div className="bg-gradient-to-br from-emerald-50 to-slate-50 rounded-2xl p-8 md:p-10 border border-emerald-100">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">
@@ -319,7 +364,7 @@ export default function HomePage() {
           </div>
 
           <p className="text-center text-sm text-slate-500 mt-6">
-            Use our <Link href="/methodology?tab=calculator" className="text-amber-600 hover:underline font-medium">calculator</Link> to see projections specific to your utility and community.
+            Use our <Link href="/calculator" className="text-amber-600 hover:underline font-medium">calculator</Link> to see projections specific to your utility and community.
           </p>
         </div>
       </section>
@@ -507,7 +552,7 @@ export default function HomePage() {
               specific situation.
             </p>
             <Link
-              href="/methodology?tab=calculator"
+              href="/calculator"
               className="inline-block px-6 py-3 bg-slate-700 text-white font-semibold rounded-full hover:bg-slate-600 transition-colors"
             >
               Open Calculator

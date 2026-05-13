@@ -357,7 +357,7 @@ export default function EnergyViewTab({}: EnergyViewTabProps = {}) {
             {/* Header */}
             <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-8 text-white">
                 <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
-                    <Link href="/methodology?tab=calculator" className="hover:text-white">Calculator</Link>
+                    <Link href="/calculator" className="hover:text-white">Calculator</Link>
                     <span>/</span>
                     <span>Energy View</span>
                 </div>
@@ -719,13 +719,13 @@ export default function EnergyViewTab({}: EnergyViewTabProps = {}) {
                     </div>
                     <div className="flex gap-3">
                         <Link
-                            href="/methodology?tab=calculator"
+                            href="/calculator"
                             className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                         >
                             Bill Calculator
                         </Link>
                         <Link
-                            href="/methodology?tab=research"
+                            href="/methodology"
                             className="px-4 py-2 text-white bg-slate-700 rounded-lg hover:bg-slate-600"
                         >
                             View Methodology

@@ -75,7 +75,7 @@ const Footer = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/methodology?tab=calculator"
+                                    href="/calculator"
                                     className="text-gray-600 hover:text-primary-600 transition-colors"
                                 >
                                     Calculator
@@ -83,10 +83,10 @@ const Footer = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/learn-more"
+                                    href="/utilities"
                                     className="text-gray-600 hover:text-primary-600 transition-colors"
                                 >
-                                    Learn More
+                                    Utility Data
                                 </Link>
                             </li>
                             <li>
@@ -95,6 +95,14 @@ const Footer = () => {
                                     className="text-gray-600 hover:text-primary-600 transition-colors"
                                 >
                                     Methodology
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/learn-more"
+                                    className="text-gray-600 hover:text-primary-600 transition-colors"
+                                >
+                                    Community Guide
                                 </Link>
                             </li>
                         </ul>

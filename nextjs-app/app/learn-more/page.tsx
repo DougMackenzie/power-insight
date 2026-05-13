@@ -843,7 +843,7 @@ export default function LearnMorePage() {
                         Enter your utility's numbers to see projections specific to your community.
                     </p>
                     <Link
-                        href="/methodology?tab=calculator"
+                        href="/calculator"
                         className="inline-block px-6 py-3 bg-[#a69340] text-slate-900 font-semibold rounded-lg hover:bg-[#b8a54d] transition-colors"
                     >
                         Open Calculator →

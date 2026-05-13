@@ -442,7 +442,7 @@ function CallToAction() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <a
-                        href="/methodology?tab=calculator"
+                        href="/calculator"
                         className="px-6 py-3 rounded-lg font-semibold transition-colors hover:opacity-90"
                         style={{
                             backgroundColor: NYT_COLORS.textPrimary,

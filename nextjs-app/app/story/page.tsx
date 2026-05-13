@@ -74,7 +74,7 @@ export default function StoryPage() {
                             </svg>
                         </a>
                         <a
-                            href="/methodology?tab=calculator"
+                            href="/calculator"
                             className="px-8 py-4 bg-transparent border border-white/30 text-white rounded-full font-semibold text-lg hover:bg-white/10 transition-all"
                         >
                             Skip to Calculator

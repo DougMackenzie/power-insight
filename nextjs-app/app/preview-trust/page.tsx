@@ -63,7 +63,7 @@ export default function PreviewTrustPage() {
               Enter your utility's actual numbers to see projections specific to your situation.
             </p>
             <Link
-              href="/methodology?tab=calculator"
+              href="/calculator"
               className="inline-block px-6 py-3 bg-slate-700 text-white font-semibold rounded-full hover:bg-slate-600 transition-colors"
             >
               Open Calculator

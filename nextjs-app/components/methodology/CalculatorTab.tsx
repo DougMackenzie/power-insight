@@ -881,7 +881,7 @@ export default function CalculatorTab({}: CalculatorTabProps = {}) {
                         </p>
                     </div>
                     <Link
-                        href="/methodology?tab=energy"
+                        href="/energy-view"
                         className="px-5 py-2.5 text-white bg-slate-700 rounded-lg hover:bg-slate-600 font-medium flex items-center gap-2"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -903,7 +903,7 @@ export default function CalculatorTab({}: CalculatorTabProps = {}) {
                     </div>
                     <div className="flex gap-3">
                         <Link
-                            href="/methodology?tab=research"
+                            href="/methodology"
                             className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                         >
                             View Methodology
