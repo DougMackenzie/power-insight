@@ -1396,7 +1396,20 @@ export function enrichedTariffToUtilityProfile(tariff: EnrichedTariff): UtilityP
   const totalCustomers = Math.round(residentialCustomers * 1.2);
   const systemPeakMW = Math.round(residentialCustomers * 5 / 1000); // ~5 kW per customer
 
-  // Convert demand charges from $/kW to $/MW
+  // Convert demand charges from $/kW to $/MW.
+  // CRITICAL: A tariff with `peak_demand_charge === 0` is a data-quality red flag.
+  // It used to silently fall back to $5/kW (suppressed by `|| 5`), masking broken
+  // Hermes extractions that captured cover sheets / process pages instead of rate
+  // schedules (Track E audit 2026-05-14, Bug 5 in EXTRACTION-WORKFLOW.md).
+  // Now: log a console warning + use the fallback so the app keeps working, but
+  // the failure is visible. Production deploys should investigate any utility
+  // logging this warning.
+  if (!tariff.peak_demand_charge || tariff.peak_demand_charge <= 0) {
+    console.warn(
+      `[utilityData] tariff ${tariff.id} has zero/missing peak_demand_charge — ` +
+      `using $5/kW fallback. Possible broken extraction; verify source PDF.`
+    );
+  }
   const peakDemandCharge = (tariff.peak_demand_charge || 5) * 1000;
   const maxDemandCharge = (tariff.off_peak_demand_charge || tariff.peak_demand_charge * 0.4) * 1000;
 
@@ -1475,7 +1488,14 @@ export function getUtilityById(id: string): UtilityProfile | undefined {
   // If both exist, merge: use manual profile structure but override tariff rates/scores
   // with fresher data from generated (Excel-sourced) tariff database
   if (manual && tariff) {
-    // Convert generated tariff charges to proper units
+    // Convert generated tariff charges to proper units.
+    // Same data-quality guard as enrichedTariffToUtilityProfile() — see comment there.
+    if (!tariff.peak_demand_charge || tariff.peak_demand_charge <= 0) {
+      console.warn(
+        `[utilityData] getUtilityById(${id}): zero/missing peak_demand_charge — ` +
+        `using $5/kW fallback. Possible broken extraction; verify source PDF.`
+      );
+    }
     const peakDemandCharge = (tariff.peak_demand_charge || 5) * 1000; // $/kW to $/MW
     const maxDemandCharge = (tariff.off_peak_demand_charge || tariff.peak_demand_charge * 0.4) * 1000;
     const energyCharge = tariff.blendedRatePerKWh * 1000; // $/kWh to $/MWh
