@@ -13,7 +13,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:tariffs": "tsx scripts/migrate_tariff_canonical_to_ts.ts",
+    "seed:canonical": "tsx scripts/seed-canonical-tariff-pool.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -28,8 +30,7 @@
     "react-scrollama": "^2.4.2",
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.7.0",
-    "three": "^0.182.0",
-    "zod": "^4.4.3"
+    "three": "^0.182.0"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -44,7 +45,9 @@
     "happy-dom": "^20.9.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.21.1",
     "typescript": "^5",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.6",
+    "zod": "^4.4.3"
   }
 }

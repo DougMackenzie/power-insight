@@ -293,3 +293,142 @@ export function detectRateAnomalies(
 
   return flags;
 }
+
+// ─── Phase 2 canonical pool validators ─────────────────────────────────────
+// These pair with the canonical type definitions at
+// ~/Claude-Context/shared-data/energy-market/utility-tariffs/types.ts.
+//
+// The legacy LargeLoadTariffSchema above is the runtime app shape (consumed
+// by the Calculator). The canonicalTariffPoolSchema below validates the
+// shared canonical pool stored in shared-data. The migrate_tariff_canonical_to_ts
+// build step converts canonical → app shape on every prebuild.
+
+import {
+  CANONICAL_SCHEMA_VERSION,
+  EXTRACTION_METHODS,
+  FRESHNESS_STATUSES as CANONICAL_FRESHNESS_STATUSES,
+  ISO_RTOS,
+  PROTECTION_RATINGS,
+  REGIONS as CANONICAL_REGIONS,
+  TARIFF_STATUS as CANONICAL_TARIFF_STATUS,
+  VERIFIERS,
+  VOLTAGE_LEVELS as CANONICAL_VOLTAGE_LEVELS,
+} from '../../../../../../Claude-Context/shared-data/energy-market/utility-tariffs/types';
+
+const canonicalProtectionsSchema = z.object({
+  // Required flat flags
+  ciac_required: z.boolean(),
+  take_or_pay: z.boolean(),
+  exit_fee: z.boolean(),
+  demand_ratchet: z.boolean(),
+  ratchet_pct: z.number().nullable(),
+  credit_requirements: z.boolean(),
+  collateral_required: z.boolean(),
+
+  // Optional detailed flags
+  minimum_demand_charge: z.boolean().optional(),
+  minimum_demand_pct: z.number().optional(),
+  network_upgrade_allocation: z.boolean().optional(),
+  deposit_required: z.boolean().optional(),
+  letter_of_credit: z.boolean().optional(),
+  parent_guarantee: z.boolean().optional(),
+  contract_min_term_months: z.number().optional(),
+  load_factor_requirement: z.boolean().optional(),
+  ramp_schedule: z.boolean().optional(),
+  fuel_adjustment_clause: z.boolean().optional(),
+  capacity_pass_through: z.boolean().optional(),
+  curtailment_provisions: z.boolean().optional(),
+  force_majeure: z.boolean().optional(),
+  queue_deposit: z.boolean().optional(),
+  milestone_requirements: z.boolean().optional(),
+  study_cost_allocation: z.boolean().optional(),
+  commercial_readiness: z.boolean().optional(),
+  interruptible_discount: z.boolean().optional(),
+  tou_differential: z.boolean().optional(),
+  demand_response_credit: z.boolean().optional(),
+  behind_meter_credit: z.boolean().optional(),
+});
+
+export const canonicalTariffRecordSchema = z.object({
+  id: z.string().min(1),
+  eia_utility_id: z.number().int().positive().optional(),
+  utility: z.string().min(1),
+  utility_short: z.string().min(1).max(48),
+  aliases: z.array(z.string()).min(1),
+  state: z.string().min(2),
+  region: z.enum(CANONICAL_REGIONS),
+  iso_rto: z.enum(ISO_RTOS).nullable(),
+  parent_holding_company: z.string().optional(),
+
+  tariff_name: z.string().min(1),
+  rate_schedule: z.string().min(1),
+  effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  status: z.enum(CANONICAL_TARIFF_STATUS),
+  min_load_mw: z.number().min(0),
+  voltage_level: z.enum(CANONICAL_VOLTAGE_LEVELS),
+
+  peak_demand_charge_per_kw: z.number().min(0),
+  off_peak_demand_charge_per_kw: z.number().min(0),
+  energy_rate_peak_per_kwh: z.number().min(0),
+  energy_rate_off_peak_per_kwh: z.number().min(0),
+  fuel_adjustment_per_kwh: z.number().min(0),
+  capacity_cost_per_mw_day: z.number().min(0).optional(),
+
+  initial_term_years: z.number().min(0),
+  termination_notice_months: z.number().min(0),
+
+  protections: canonicalProtectionsSchema,
+
+  data_center_specific: z.boolean(),
+  dc_specific_provisions: z.string().optional(),
+
+  protection_score: z.number().min(0).max(25),
+  protection_rating: z.enum(PROTECTION_RATINGS),
+  blended_rate_per_kwh: z.number().min(0),
+  annual_cost_m_at_500mw_85pct: z.number().min(0).optional(),
+
+  source_doc: z.string().min(1),
+  source_url: z.union([z.string().url(), z.literal('')]),
+  page_ref: z.string().optional(),
+  docket_number: z.string().optional(),
+
+  effective_date_observed: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  scraped_at: z.string(),
+  last_verified: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  freshness_status: z.enum(CANONICAL_FRESHNESS_STATUSES),
+  extraction_method: z.enum(EXTRACTION_METHODS),
+  verified_by: z.enum(VERIFIERS).nullable().optional(),
+
+  schema_version: z.literal(CANONICAL_SCHEMA_VERSION),
+  notes: z.string().optional(),
+});
+
+export const canonicalTariffPoolSchema = z.object({
+  schema_version: z.literal(CANONICAL_SCHEMA_VERSION),
+  generated_at: z.string(),
+  record_count: z.number().int().nonnegative(),
+  tariffs: z.array(canonicalTariffRecordSchema),
+});
+
+export const utilityAliasEntrySchema = z.object({
+  id: z.string().min(1),
+  eia_utility_id: z.number().int().positive().optional(),
+  canonical_name: z.string().min(1),
+  short_name: z.string().min(1),
+  aliases: z.array(z.string()).min(1),
+  state: z.string().min(2),
+  iso_rto: z.enum(ISO_RTOS).nullable(),
+  region: z.enum(CANONICAL_REGIONS),
+  parent_holding_company: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const utilityAliasMapSchema = z.object({
+  schema_version: z.literal(CANONICAL_SCHEMA_VERSION),
+  generated_at: z.string(),
+  entry_count: z.number().int().nonnegative(),
+  entries: z.array(utilityAliasEntrySchema),
+});
+
+export type ValidatedCanonicalPool = z.infer<typeof canonicalTariffPoolSchema>;
+export type ValidatedAliasMap = z.infer<typeof utilityAliasMapSchema>;
