@@ -313,7 +313,7 @@ import {
   TARIFF_STATUS as CANONICAL_TARIFF_STATUS,
   VERIFIERS,
   VOLTAGE_LEVELS as CANONICAL_VOLTAGE_LEVELS,
-} from '../../../../../../Claude-Context/shared-data/energy-market/utility-tariffs/types';
+} from '@/types/utility-tariffs';
 
 const canonicalProtectionsSchema = z.object({
   // Required flat flags

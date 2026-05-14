@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { canonicalTariffPoolSchema } from '../lib/validation/tariffSchema';
-import type { TariffRecord } from '../../../../../Claude-Context/shared-data/energy-market/utility-tariffs/types';
+import type { TariffRecord } from '@/types/utility-tariffs';
 
 const HOME = os.homedir();
 const CANONICAL_IN = path.join(

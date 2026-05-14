@@ -29,7 +29,7 @@ import {
     type UtilityAliasEntry,
     type UtilityAliasMap,
     type VoltageLevel,
-} from '../../../../../Claude-Context/shared-data/energy-market/utility-tariffs/types';
+} from '@/types/utility-tariffs';
 import {
     canonicalTariffPoolSchema,
     utilityAliasMapSchema,
