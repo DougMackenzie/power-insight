@@ -1743,6 +1743,28 @@ export const calculateFlexibleTrajectory = (
     // 2. Hitting full interconnection every month (demand optimization)
     //
     // For billing/allocation purposes, flex uses same peak coincidence as firm
+    //
+    // ─── MISO seasonal split is INFORMATIONAL only in v2.x ─────────────────
+    // The v2.1 split (`miso_summer` $666.50/MW-day vs `miso_non_summer`
+    // $30/MW-day in ISO_CAPACITY_DATA) is a documented data-quality refresh.
+    // It does NOT yet flow into capacity costs because:
+    //   1. `flexPeakCoincidence` semantically means "% of WORKLOAD at peak,"
+    //      not "% physical capacity curtailed during MISO summer windows."
+    //      The two are physically different — a 75%-workload-skewed DC still
+    //      shows up at full nameplate during MISO summer billing intervals
+    //      and cannot reduce its capacity obligation in MISO's RBDC framework.
+    //   2. Capacity cost properly differentiating curtailment from workload
+    //      mix requires 8760 hourly simulation (out of scope for this
+    //      browser calculator; v2.2 backlog item).
+    // Until v2.2 lands, `getISODataForMarket('miso')` returns `miso_summer`
+    // for all MISO scenarios — the conservative / higher-priced season —
+    // giving a defensible upper bound on capacity costs. The override below
+    // (= 1.0) preserves that conservative posture for the billing path.
+    //
+    // Future v2.2+ flex-curtailment mode is reserved by `DataCenter.flexCurtailmentEnabled`
+    // (defaults false; no caller sets it today). When that flag becomes
+    // active, this branch will compute a weighted miso_summer/miso_non_summer
+    // blend gated by physical curtailment hours. See docs/METHODOLOGY.md §3.4.
     const flexWorkloadAtPeak = dataCenter.flexPeakCoincidence || 0.75; // For reference/display only
     const flexPeakCoincidenceForBilling = 1.0; // Same as firm - still hits full interconnection
 

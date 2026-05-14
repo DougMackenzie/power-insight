@@ -140,6 +140,14 @@ export interface DataCenter {
     energyMargin: number;
     // Capital cost of onsite generation (for reference/transparency, not used in ratepayer calcs)
     generationCapitalCostPerMW?: number;
+    // v2.2 RESERVED — flex curtailment modeling. Defaults false; today the
+    // calculator assumes flex DCs still hit full interconnection for billing
+    // (Feb 2026 fix). When 8760 hourly simulation lands, this flag will gate
+    // a curtailment-based capacity-cost path that consumes the MISO seasonal
+    // split (`miso_summer` / `miso_non_summer` in ISO_CAPACITY_DATA). Until
+    // then it has no behavioral effect and no caller should set it true.
+    // Tracked: docs/METHODOLOGY.md §3.4 + §6, wiki log PM-7 (2026-05-14).
+    flexCurtailmentEnabled?: boolean;
 }
 
 export interface Scenario {

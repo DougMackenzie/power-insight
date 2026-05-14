@@ -435,3 +435,85 @@ describe('Numerical robustness', () => {
     expect(Number.isFinite(result.totalRevenue)).toBe(true);
   });
 });
+
+// ─── MISO seasonal split — flex-curtailment scope (v2.2 backlog) ──────────
+//
+// v2.1 shipped the data split (`miso_summer` $666.50/MW-day vs
+// `miso_non_summer` $30/MW-day in ISO_CAPACITY_DATA). The v2.2 backlog item
+// from Track E was to fix or scope the MISO flex-curtailment dead-code path.
+//
+// Decision (2026-05-14, post-Track-E, advisor-confirmed): Option B — keep
+// the override at calculations.ts (`flexPeakCoincidenceForBilling = 1.0`)
+// and scope curtailment-driven seasonal weighting to a future v2.2 mode
+// gated by `DataCenter.flexCurtailmentEnabled`.
+//
+// Rationale: `flexPeakCoincidence` semantically means "% of WORKLOAD at
+// peak," not "% physical curtailment during MISO summer windows." A
+// workload-skewed flex DC still shows full nameplate during MISO summer
+// billing intervals and cannot reduce its capacity obligation under MISO's
+// RBDC framework. Modeling true curtailment requires 8760 hourly simulation.
+//
+// Tests below pin the v2.x current state so the dead-code path stays
+// observably dead (i.e., MISO capacity cost binds at miso_summer regardless
+// of flexPeakCoincidence) until v2.2 wiring lands.
+
+describe('MISO seasonal split — current v2.x behavior (Option B scoped)', () => {
+  const misoUtility: Utility = {
+    ...psoUtility,
+    marketType: 'miso',
+    hasCapacityMarket: true,
+    // capacityPrice2024 mirrors miso_summer cleared $666.50/MW-day
+    capacityPrice2024: 666.50,
+    currentReserveMargin: 0.17,
+  };
+
+  it('getISODataForMarket("miso") returns miso_summer (conservative upper bound)', () => {
+    const miso = getISODataForMarket('miso');
+    expect(miso).not.toBeNull();
+    // miso_summer cleared price was $666.50/MW-day at the 2025/26 PRA
+    expect(miso!.capacityPrice2024).toBe(666.50);
+    expect(miso!.dataSource).toMatch(/Summer/i);
+  });
+
+  it('miso_non_summer entry exists with much lower clearing price', () => {
+    const nonSummer = ISO_CAPACITY_DATA['miso_non_summer'];
+    expect(nonSummer).toBeDefined();
+    expect(nonSummer.capacityPrice2024).toBe(30.00);
+    // Summer / non-summer ratio should reflect the order-of-magnitude split
+    // documented in the v2.1 change log entry (b9fb040).
+    const summer = ISO_CAPACITY_DATA['miso_summer'];
+    expect(summer.capacityPrice2024 / nonSummer.capacityPrice2024).toBeGreaterThan(20);
+  });
+
+  it('firm DC (peakCoincidence=1.0) in MISO uses miso_summer capacity cost', () => {
+    // Firm: 100% peak coincidence — capacity cost should match miso_summer × 365.
+    // This test pins the conservative upper-bound posture for v2.x.
+    const firm = calculateMarginalCapacityCost(1000, misoUtility);
+    expect(firm.methodology).toBe('capacity_market');
+    expect(firm.pricePerMWYear).toBe(666.50 * 365);
+    expect(firm.cost).toBe(1000 * 666.50 * 365);
+  });
+
+  it('flex DC at 0.75 coincidence in MISO: capacity cost path still binds at miso_summer', () => {
+    // calculateMarginalCapacityCost takes peakDemandMW (already-derated) — for
+    // a 1000 MW flex DC at 0.75 coincidence, peakDemandMW = 750. Even so, the
+    // RATE per MW must still be miso_summer (the override at calculations.ts
+    // line ~1747 forces flexPeakCoincidenceForBilling=1.0 on the trajectory
+    // billing path, so the rate basis doesn't drop seasonally either).
+    const flex = calculateMarginalCapacityCost(750, misoUtility);
+    expect(flex.methodology).toBe('capacity_market');
+    expect(flex.pricePerMWYear).toBe(666.50 * 365); // NOT a weighted blend
+  });
+
+  it('DataCenter.flexCurtailmentEnabled is reserved (no-op) in v2.x', () => {
+    // The flag exists on the DataCenter type but no caller sets it true today
+    // and no code path currently consumes it. This test pins the v2.x scope:
+    // the flag is a forward-looking hook for v2.2 hourly simulation.
+    // (TypeScript-level check that the field is optional + non-defaulted.)
+    type WithFlag = Pick<typeof import('./constants')['DEFAULT_DATA_CENTER'], 'capacityMW'> & {
+      flexCurtailmentEnabled?: boolean;
+    };
+    const dc: WithFlag = { capacityMW: 1000 };
+    expect(dc.flexCurtailmentEnabled).toBeUndefined();
+  });
+});
