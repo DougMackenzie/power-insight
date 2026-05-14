@@ -145,24 +145,26 @@ describe('NBC energy margin cap — boundary conditions', () => {
     energyCharge: 100, // High retail rate to test the cap
   };
 
-  it('caps high-NBC state margin at $40/MWh when raw margin exceeds cap', () => {
-    // Raw margin = 100 - 50 = $50/MWh, but CA cap is $40/MWh
+  it('caps high-NBC state margin at the state-specific cap when raw margin exceeds it', () => {
+    // v2.1 (2026-05-14): per-state caps replaced the blanket $40 cap.
+    // Raw margin = 100 - 50 = $50/MWh; CA cap is now $50/MWh (PCIA + wildfire fund + DWR bond).
+    // CA cap permits the full raw $50 margin (no clamp applied).
     const result = calculateTariffBasedDemandCharges(
       1000, 0.80, 1.0, baseTariff, 50, 'CA'
     );
-    expect(result.breakdown.energyMarginPerMWh).toBe(40);
+    expect(result.breakdown.energyMarginPerMWh).toBe(50);
   });
 
-  it('caps high-NBC at $40/MWh exactly at the boundary', () => {
+  it('caps high-NBC at NY cap of $40/MWh exactly at the boundary', () => {
     const tariff = { ...baseTariff, energyCharge: 90 };
-    // Raw margin = 90 - 50 = $40, equals cap
-    const result = calculateTariffBasedDemandCharges(1000, 0.80, 1.0, tariff, 50, 'CA');
+    // v2.1: NY retains the historical $40/MWh cap. Raw margin = 90 - 50 = $40, equals cap.
+    const result = calculateTariffBasedDemandCharges(1000, 0.80, 1.0, tariff, 50, 'NY');
     expect(result.breakdown.energyMarginPerMWh).toBe(40);
   });
 
-  it('does NOT cap below $40 in high-NBC states (allows raw margin)', () => {
+  it('does NOT cap below the state cap in high-NBC states (allows raw margin)', () => {
     const tariff = { ...baseTariff, energyCharge: 80 };
-    // Raw margin = 80 - 50 = $30, below cap
+    // Raw margin = 80 - 50 = $30, below CA's $50 cap and NY's $40 cap
     const result = calculateTariffBasedDemandCharges(1000, 0.80, 1.0, tariff, 50, 'CA');
     expect(result.breakdown.energyMarginPerMWh).toBe(30);
   });
@@ -174,11 +176,18 @@ describe('NBC energy margin cap — boundary conditions', () => {
     expect(result.breakdown.energyMarginPerMWh).toBe(80);
   });
 
-  it('applies cap to all 6 NBC states (CA, NY, CT, MA, RI, NH)', () => {
+  it('applies per-state caps to all 6 NBC states (CA=50, NY=40, CT/MA=35, RI=30, NH=25)', () => {
+    // v2.1 (2026-05-14): per-state caps replaced the blanket $40 cap. Each state's cap reflects
+    // its actual non-bypassable-charge stack (CA's PCIA/wildfire/DWR pressure pushes higher;
+    // smaller-NBC states like NH/RI rarely exceed $25-30 in true non-bypassables).
     const tariff = { ...baseTariff, energyCharge: 100 };
-    for (const state of ['CA', 'NY', 'CT', 'MA', 'RI', 'NH']) {
+    const expectedByState: Record<string, number> = {
+      CA: 50, NY: 40, CT: 35, MA: 35, RI: 30, NH: 25,
+    };
+    for (const [state, expectedCap] of Object.entries(expectedByState)) {
       const result = calculateTariffBasedDemandCharges(1000, 0.80, 1.0, tariff, 50, state);
-      expect(result.breakdown.energyMarginPerMWh, `state=${state}`).toBe(40);
+      // Raw margin is $50/MWh; clamped to per-state cap.
+      expect(result.breakdown.energyMarginPerMWh, `state=${state}`).toBe(expectedCap);
     }
   });
 

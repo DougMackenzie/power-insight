@@ -55,12 +55,35 @@ export function normalizeStateCode(state: string | undefined): string | undefine
 }
 
 /**
- * Maximum energy margin that represents true fixed cost contribution ($/MWh)
- * In high-NBC states, retail rates include significant pass-through charges.
- * Amounts above this cap are assumed to be pass-through charges, not utility profit.
- * Based on analysis of utility cost structures in regulated markets.
+ * Per-state energy margin caps ($/MWh) — refined per Gemini methodology review (2026-05-14).
+ * California's PCIA + wildfire fund + DWR bond pressures push pass-throughs to ~$50/MWh,
+ * while smaller-NBC states like NH/RI rarely exceed $25/MWh in true non-bypassables.
+ * Replaces the prior blanket $40/MWh cap.
  */
+export const MAX_ENERGY_MARGIN_BY_STATE: Record<string, number> = {
+    CA: 50,
+    NY: 40,
+    CT: 35,
+    MA: 35,
+    RI: 30,
+    NH: 25,
+};
+
+// Backward-compat default (used as fallback for any high-NBC state not explicitly mapped)
 export const MAX_ENERGY_MARGIN_CONTRIBUTION = 40;
+
+/**
+ * Look up the per-state energy margin cap. Returns the state-specific cap if mapped,
+ * otherwise falls back to the default. Use this everywhere the model previously
+ * referenced MAX_ENERGY_MARGIN_CONTRIBUTION directly.
+ */
+export function getMaxEnergyMargin(state: string | undefined): number {
+    const normalized = normalizeStateCode(state);
+    if (normalized && normalized in MAX_ENERGY_MARGIN_BY_STATE) {
+        return MAX_ENERGY_MARGIN_BY_STATE[normalized];
+    }
+    return MAX_ENERGY_MARGIN_CONTRIBUTION;
+}
 
 /**
  * Interconnection cost structure for calculations

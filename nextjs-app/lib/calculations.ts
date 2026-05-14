@@ -16,6 +16,7 @@ import {
     getISODataForMarket,
     HIGH_NBC_STATES,
     MAX_ENERGY_MARGIN_CONTRIBUTION,
+    getMaxEnergyMargin,
     normalizeStateCode,
     type Utility,
     type DataCenter,
@@ -886,10 +887,15 @@ export function calculateTariffBasedDemandCharges(
     // pass-through charges (wildfire funds, PPP, PCIA, nuclear decommissioning).
     // Cap the "contribution to fixed costs" at realistic levels to avoid treating
     // pass-throughs as utility profit margin.
+    //
+    // Per Gemini methodology peer review (2026-05-14, v2.1 item #3): use per-state caps
+    // (CA=50, NY=40, CT/MA=35, RI=30, NH=25) rather than the blanket $40/MWh cap. CA's
+    // PCIA + wildfire fund + DWR bond pressures push pass-throughs higher than the
+    // blanket cap allows, while smaller-NBC states rarely reach $40.
     // Use normalizeStateCode() to handle both full state names ('California') and 2-letter codes ('CA')
     const normalizedState = normalizeStateCode(state);
     const energyMarginPerMWh = (normalizedState && HIGH_NBC_STATES.includes(normalizedState))
-        ? Math.min(rawEnergyMargin, MAX_ENERGY_MARGIN_CONTRIBUTION)
+        ? Math.min(rawEnergyMargin, getMaxEnergyMargin(state))
         : Math.min(rawEnergyMargin, 80); // General cap of $80/MWh for any state
     const energyRevenue = annualMWh * energyMarginPerMWh;
     const totalRevenue = totalDemandRevenue + energyRevenue;
