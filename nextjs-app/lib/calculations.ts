@@ -153,16 +153,32 @@ export interface CapacityPriceResult {
 }
 
 /**
- * Interpolate capacity price from supply curve based on reserve margin
- * Uses linear interpolation between defined slope points
+ * Interpolate capacity price from supply curve based on reserve margin.
+ *
+ * Uses linear interpolation between defined slope points, with optional
+ * regulatory price-cap clamp.
+ *
+ * Per Gemini methodology peer review (2026-05-14): when the auction has
+ * a hard regulatory ceiling (e.g., PJM's FERC-imposed BRA price cap of
+ * $333.44/MW-day), the interpolated value MUST be clamped at that cap.
+ * Additional load beyond the cap-hit threshold cannot legally raise the
+ * clearing price further; reliability shortfalls are instead socialized
+ * via other ISO actions (load shedding, conservation voltage reduction,
+ * emergency procurement), not capacity-market price escalation.
+ *
+ * @param reserveMargin - Reserve margin (e.g., 0.15 for 15%)
+ * @param priceCap - Optional regulatory cap ($/MW-day). Pass undefined for ISOs without a hard cap.
  */
-function interpolateCapacityPrice(reserveMargin: number): number {
+function interpolateCapacityPrice(reserveMargin: number, priceCap?: number): number {
     const { slopes, costOfNewEntry } = SUPPLY_CURVE;
 
     // Clamp reserve margin to curve bounds
     const clampedMargin = Math.max(0, Math.min(slopes[0].margin, reserveMargin));
 
+    let rawPrice: number;
+
     // Find the two slope points to interpolate between
+    let interpolated = false;
     for (let i = 0; i < slopes.length - 1; i++) {
         const upper = slopes[i];
         const lower = slopes[i + 1];
@@ -173,20 +189,28 @@ function interpolateCapacityPrice(reserveMargin: number): number {
             const priceRange = lower.priceMultiplier - upper.priceMultiplier;
             const marginPosition = (upper.margin - clampedMargin) / marginRange;
             const interpolatedMultiplier = upper.priceMultiplier + (priceRange * marginPosition);
-            return costOfNewEntry * interpolatedMultiplier;
+            rawPrice = costOfNewEntry * interpolatedMultiplier;
+            interpolated = true;
+            break;
         }
     }
 
-    // If below lowest defined margin, use exponential spike
-    if (clampedMargin < slopes[slopes.length - 1].margin) {
-        const lowestSlope = slopes[slopes.length - 1];
-        // Exponential increase as margin approaches zero
-        const scarcityFactor = 1 + Math.pow((lowestSlope.margin - clampedMargin) / lowestSlope.margin, 2) * 2;
-        return costOfNewEntry * lowestSlope.priceMultiplier * scarcityFactor;
+    if (!interpolated) {
+        // If below lowest defined margin, use exponential spike
+        if (clampedMargin < slopes[slopes.length - 1].margin) {
+            const lowestSlope = slopes[slopes.length - 1];
+            // Exponential increase as margin approaches zero
+            const scarcityFactor = 1 + Math.pow((lowestSlope.margin - clampedMargin) / lowestSlope.margin, 2) * 2;
+            rawPrice = costOfNewEntry * lowestSlope.priceMultiplier * scarcityFactor;
+        } else {
+            // If above highest defined margin, use lowest multiplier
+            rawPrice = costOfNewEntry * slopes[0].priceMultiplier;
+        }
     }
 
-    // If above highest defined margin, use lowest multiplier
-    return costOfNewEntry * slopes[0].priceMultiplier;
+    // Apply regulatory price cap if defined (e.g., PJM's $333.44 FERC cap).
+    // ! safe: we always assign rawPrice in one of the branches above.
+    return priceCap !== undefined ? Math.min(rawPrice!, priceCap) : rawPrice!;
 }
 
 /**
@@ -241,9 +265,14 @@ export function calculateDynamicCapacityPrice(
     // Reserve Margin = (Total Capacity - Peak Load) / Peak Load
     const newReserveMargin = (totalCapacityMW - newSystemPeakMW) / newSystemPeakMW;
 
-    // Interpolate prices from supply curve
-    const oldPrice = interpolateCapacityPrice(oldReserveMargin);
-    const newPrice = interpolateCapacityPrice(Math.max(0, newReserveMargin));
+    // Interpolate prices from supply curve.
+    // Pass the ISO's regulatory price cap (e.g., PJM FERC cap $333.44/MW-day) so
+    // both old and new clearing prices clamp at the legal ceiling. If the market
+    // is already at the cap pre-DC, additional load yields priceIncrease = 0
+    // (per Gemini methodology review 2026-05-14, Blocker #1).
+    const priceCap = isoData?.priceCap;
+    const oldPrice = interpolateCapacityPrice(oldReserveMargin, priceCap);
+    const newPrice = interpolateCapacityPrice(Math.max(0, newReserveMargin), priceCap);
 
     const priceIncrease = newPrice - oldPrice;
 
@@ -1450,9 +1479,14 @@ const calculateNetResidentialImpact = (
         // Calculate the magnitude of the deficit
         const deficitProportion = 1 - revenueAdequacy.revenueAdequacyRatio;
 
-        // FIX: Full deficit proportion (removed 0.10 multiplier that made clamp ineffective!)
-        // The DC is creating a hole in the bucket. Residents must pay their share of it.
-        const deficitToRecover = grossAnnualInfraCost * deficitProportion;
+        // Per Gemini methodology peer review (2026-05-14, Blocker #2):
+        // The base for deficit-to-recover MUST match the denominator used to
+        // compute the ratio. revenueAdequacyRatio = totalRevenue / totalMarginalCost,
+        // so the deficit dollars = totalMarginalCost × (1 - ratio) = totalMarginalCost - totalRevenue.
+        // Previously this used `grossAnnualInfraCost` (a different cost basis from
+        // calculateNetResidentialImpact, including only annualized infra + capacity),
+        // which mismatched the ratio's denominator and miscalculated the actual shortfall.
+        const deficitToRecover = revenueAdequacy.totalMarginalCost * deficitProportion;
         const minimumCostImpact = deficitToRecover * residentialAllocation;
 
         // Force the impact to be positive (Cost) if below the minimum

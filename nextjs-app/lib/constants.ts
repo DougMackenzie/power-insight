@@ -177,6 +177,18 @@ export interface ISOCapacityData {
     totalCapacityMW: number;       // ISO-wide installed capacity (MW)
     targetReserveMargin: number;   // Target reserve margin (e.g., 0.15 = 15%)
     capacityPrice2024: number;     // Current capacity price ($/MW-day)
+    // Hard regulatory price ceiling for capacity-market clearing prices ($/MW-day).
+    // When the market is already at this cap, additional load cannot raise the
+    // clearing price further — the ISO instead falls back to reliability actions
+    // (load shedding, conservation voltage reduction, emergency procurement).
+    // Per Gemini methodology review (2026-05-14): the supply curve interpolation
+    // MUST clamp at this value to avoid projecting un-capped socialization costs
+    // that contradict the legal mechanics of the auction.
+    // - PJM: FERC-imposed BRA price cap ($333.44/MW-day, hit in 2026/27 + 2027/28 BRAs)
+    // - MISO/NYISO: structural ceilings exist via demand curves but are less rigid;
+    //   leave undefined until v2.1 splits MISO seasonal + adds NYISO zone modeling
+    // - ERCOT: N/A (energy-only market, no capacity auction)
+    priceCap?: number;
     dataSource: string;            // Documentation reference
 }
 
@@ -193,6 +205,11 @@ export const ISO_CAPACITY_DATA: Record<string, ISOCapacityData> = {
         // 2026/27 BRA cleared 2025-07-22 at $329.17/MW-day. Both maxed the FERC price cap.
         // Procured 134,479 MW UCAP for 27/28; short of reliability requirement by ~6,623 MW.
         capacityPrice2024: 333.44,
+        // FERC-imposed hard ceiling on PJM BRA clearing prices. The cap was hit in both
+        // 26/27 and 27/28 auctions; once hit, additional load cannot raise the price
+        // further (the supply curve clamps here, with reliability shortfalls socialized
+        // via other ISO actions, not via capacity-market price escalation).
+        priceCap: 333.44,
         dataSource: 'PJM 2027/28 Base Residual Auction Report (Dec 2025)',
     },
     miso: {
