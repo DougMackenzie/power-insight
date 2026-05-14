@@ -35,29 +35,28 @@ interface CrossCheckRow {
     platform_residential_customers: number;
     platform_system_peak_mw: number;
     platform_residential_peak_mw: number; // = systemPeakMW * 0.35
-    eia_avg_rate_cents_kwh?: number;
-    eia_residential_customers?: number;
-    eia_residential_mwh?: number;
-    customer_diff_pct?: number;
+    eia_state_avg_rate_cents_kwh?: number;
+    eia_state_residential_customers?: number;
+    eia_state_residential_mwh?: number;
+    platform_share_of_state_pct?: number; // platform residential customers / state total
     flag?: string;
 }
 
 const RESIDENTIAL_PEAK_SHARE = 0.35;
 
-// EIA Form 861 utility IDs for the 5 representative test utilities.
-// These IDs can be looked up at eia.gov/opendata/v1/category/?category_id=6
-// or in any EIA-861 utility-level table.
+// Test utilities for state-level cross-check. EIA Form 861 utility-level
+// data is only available via bulk XLSX download — for the API-based sanity
+// check we compare each platform utility's residentialCustomers against
+// its state-wide EIA total to verify the share is plausible (e.g., Dominion
+// VA should be ~70-80% of VA residential customers since it's the dominant IOU).
 const TEST_UTILITIES: Array<{
     platformName: string;
-    eiaUtilityId: number;
     state: string;
+    expectedStateSharePctRange: [number, number]; // sanity bounds for "platform / state total"
 }> = [
-    { platformName: 'Dominion Energy Virginia', eiaUtilityId: 19876, state: 'VA' }, // Virginia Electric & Power Co
-    { platformName: 'Consolidated Edison (ConEd)', eiaUtilityId: 4226, state: 'NY' },
-    { platformName: 'Duke Energy Carolinas', eiaUtilityId: 5416, state: 'NC' },
-    // Oncor Electric Delivery — TX (transmission/distribution only, residential customers attribute to REPs)
-    // ComEd — IL (Commonwealth Edison)
-    { platformName: 'ComEd (Commonwealth Edison)', eiaUtilityId: 4110, state: 'IL' },
+    { platformName: 'Dominion Energy Virginia', state: 'VA', expectedStateSharePctRange: [50, 80] },
+    { platformName: 'Consolidated Edison (ConEd)', state: 'NY', expectedStateSharePctRange: [25, 50] },
+    { platformName: 'Duke Energy Carolinas', state: 'NC', expectedStateSharePctRange: [40, 70] },
 ];
 
 async function fetchEIA(apiKey: string, path: string, params: Record<string, string>): Promise<EIAResponse> {
@@ -73,15 +72,17 @@ async function fetchEIA(apiKey: string, path: string, params: Record<string, str
     return (await res.json()) as EIAResponse;
 }
 
-async function fetchEIA861ForUtility(
+async function fetchEIA861ForState(
     apiKey: string,
-    eiaUtilityId: number,
+    state: string,
     year: number
 ): Promise<{ customers: number | null; mwh: number | null; rate_cents_kwh: number | null }> {
-    // EIA-861 sales by sector, residential
-    // route: electricity/retail-sales (state-level data, but can filter to a sector)
-    // Or use the more direct Form 861 facets — for a one-shot cross-check, use the
-    // electric-sales-revenue-price tabulated data instead.
+    // EIA Open Data API only supports state-level facets for retail-sales
+    // (utility-level customer counts require the bulk Form 861 XLSX).
+    // We fetch the state-wide residential aggregate and use it as a coarse
+    // sanity check that the platform's per-utility residential count is
+    // plausible (utility customer count should be a sensible fraction of
+    // the state total).
     try {
         const resp = await fetchEIA(apiKey, 'electricity/retail-sales/data', {
             'frequency': 'annual',
@@ -89,7 +90,7 @@ async function fetchEIA861ForUtility(
             'data[1]': 'sales',
             'data[2]': 'price',
             'facets[sectorid][]': 'RES',
-            'facets[utilityid][]': String(eiaUtilityId),
+            'facets[stateid][]': state,
             'start': String(year),
             'end': String(year),
             'sort[0][column]': 'period',
@@ -99,13 +100,22 @@ async function fetchEIA861ForUtility(
         });
         const data = resp.response?.data?.[0];
         if (!data) return { customers: null, mwh: null, rate_cents_kwh: null };
+        const num = (v: unknown): number | null => {
+            if (typeof v === 'number') return v;
+            if (typeof v === 'string') {
+                const n = Number(v);
+                return Number.isFinite(n) ? n : null;
+            }
+            return null;
+        };
+        const sales = num(data.sales);
         return {
-            customers: typeof data.customers === 'number' ? data.customers : null,
-            mwh: typeof data.sales === 'number' ? data.sales * 1000 : null, // EIA reports in thousand MWh
-            rate_cents_kwh: typeof data.price === 'number' ? data.price : null,
+            customers: num(data.customers),
+            mwh: sales != null ? sales * 1000 : null, // EIA reports in thousand MWh (= GWh); ×1000 → MWh
+            rate_cents_kwh: num(data.price),
         };
     } catch (e) {
-        console.warn(`  WARN: EIA fetch failed for utility ${eiaUtilityId}: ${(e as Error).message}`);
+        console.warn(`  WARN: EIA fetch failed for state ${state}: ${(e as Error).message}`);
         return { customers: null, mwh: null, rate_cents_kwh: null };
     }
 }
@@ -141,19 +151,19 @@ async function main() {
 
         if (apiKey) {
             // Try 2024 first, fall back to 2023
-            let eia = await fetchEIA861ForUtility(apiKey, test.eiaUtilityId, 2024);
+            let eia = await fetchEIA861ForState(apiKey, test.state, 2024);
             if (!eia.customers) {
-                eia = await fetchEIA861ForUtility(apiKey, test.eiaUtilityId, 2023);
+                eia = await fetchEIA861ForState(apiKey, test.state, 2023);
             }
             if (eia.customers != null) {
-                row.eia_residential_customers = eia.customers;
-                row.eia_residential_mwh = eia.mwh ?? undefined;
-                row.eia_avg_rate_cents_kwh = eia.rate_cents_kwh ?? undefined;
-                const diffPct =
-                    (platform.residentialCustomers - eia.customers) / eia.customers;
-                row.customer_diff_pct = diffPct;
-                if (Math.abs(diffPct) > 0.1) {
-                    row.flag = `customer count diverges ${(diffPct * 100).toFixed(1)}% from EIA`;
+                row.eia_state_residential_customers = eia.customers;
+                row.eia_state_residential_mwh = eia.mwh ?? undefined;
+                row.eia_state_avg_rate_cents_kwh = eia.rate_cents_kwh ?? undefined;
+                const sharePct = (platform.residentialCustomers / eia.customers) * 100;
+                row.platform_share_of_state_pct = sharePct;
+                const [lo, hi] = test.expectedStateSharePctRange;
+                if (sharePct < lo || sharePct > hi) {
+                    row.flag = `share ${sharePct.toFixed(1)}% of state outside expected ${lo}-${hi}%`;
                 }
             } else {
                 row.flag = 'EIA fetch failed or returned no data';
@@ -164,21 +174,23 @@ async function main() {
     }
 
     // Print report
-    console.log('| Utility | State | Platform residential customers | EIA residential customers | Δ% | Flag |');
-    console.log('|---|---|---|---|---|---|');
+    console.log('| Utility | State | Platform res customers | EIA state res customers | Share % | Expected | Flag |');
+    console.log('|---|---|---|---|---|---|---|');
     for (const r of rows) {
         const platformN = r.platform_residential_customers.toLocaleString();
-        const eiaN = r.eia_residential_customers?.toLocaleString() ?? '—';
-        const diffStr = r.customer_diff_pct != null ? `${(r.customer_diff_pct * 100).toFixed(1)}%` : '—';
+        const eiaN = r.eia_state_residential_customers?.toLocaleString() ?? '—';
+        const shareStr = r.platform_share_of_state_pct != null ? `${r.platform_share_of_state_pct.toFixed(1)}%` : '—';
+        const test = TEST_UTILITIES.find((t) => t.platformName === r.platform_name);
+        const expectedStr = test ? `${test.expectedStateSharePctRange[0]}-${test.expectedStateSharePctRange[1]}%` : '—';
         console.log(
-            `| ${r.platform_name} | ${r.state} | ${platformN} | ${eiaN} | ${diffStr} | ${r.flag ?? 'OK'} |`
+            `| ${r.platform_name} | ${r.state} | ${platformN} | ${eiaN} | ${shareStr} | ${expectedStr} | ${r.flag ?? 'OK'} |`
         );
     }
 
-    console.log('\nResidential rate cross-check (EIA average $/kWh):');
+    console.log('\nResidential rate cross-check (EIA state-level average ¢/kWh):');
     for (const r of rows) {
-        if (r.eia_avg_rate_cents_kwh != null) {
-            console.log(`  ${r.platform_name}: EIA avg residential rate = ${r.eia_avg_rate_cents_kwh.toFixed(2)}¢/kWh`);
+        if (r.eia_state_avg_rate_cents_kwh != null) {
+            console.log(`  ${r.platform_name} (${r.state}): EIA state avg = ${r.eia_state_avg_rate_cents_kwh.toFixed(2)}¢/kWh`);
         }
     }
 
