@@ -1429,14 +1429,20 @@ const calculateNetResidentialImpact = (
             // COST SCENARIO: DC creates deficit that must be socialized
             // Apply cost causation protection - reduce residential allocation
             // based on how well DC covers its costs
-            // The formula: allocation = base * (1 - costRecoveryRatio)^0.5
-            // At 100% cost recovery: allocation drops to ~0
-            // At 50% cost recovery: allocation is ~30% of base
+            //
+            // Per Gemini methodology peer review (2026-05-14, v2.1 item #1):
+            // Replaced sqrt(1-r) with linear (1-r) for PUC defensibility. State regulators
+            // generally default to strict linear allocation or full cost assignment for the
+            // deficit-causing class; the square-root curve lacks rate-case-jurisprudence precedent.
+            // Floor raised from 5% to 10% per Gemini's recommended formula.
+            //
+            // The formula: allocation = base * (1 - costRecoveryRatio)
+            // At 100% cost recovery: allocation drops to floor (10%)
+            // At 50% cost recovery: allocation is 50% of base
             // At 0% cost recovery: allocation is 100% of base
             const costRecoveryCapped = Math.min(1.0, dcCostRecoveryRatio);
-            const regulatedCostCausationFactor = Math.pow(1 - costRecoveryCapped, 0.5);
-            // Minimum 5% allocation even for worst-case deficits
-            adjustedAllocation = residentialAllocation * Math.max(0.05, regulatedCostCausationFactor);
+            const regulatedCostCausationFactor = 1 - costRecoveryCapped;
+            adjustedAllocation = residentialAllocation * Math.max(0.10, regulatedCostCausationFactor);
         }
 
         // RATE SPREADING BENEFIT for high load factor loads (applies to both scenarios)
