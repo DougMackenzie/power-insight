@@ -212,19 +212,27 @@ export const ISO_CAPACITY_DATA: Record<string, ISOCapacityData> = {
         priceCap: 333.44,
         dataSource: 'PJM 2027/28 Base Residual Auction Report (Dec 2025)',
     },
-    miso: {
+    // MISO is a SEASONAL capacity construct since 2025/26 (Reliability-Based Demand Curve).
+    // Summer and non-summer prices diverge by an order of magnitude; modeling them as a
+    // single annualized blend (the v2.0 approach) hides the binding-summer signal.
+    // Per Gemini methodology peer review (2026-05-14, v2.1 item #2): split into seasonal
+    // entries. Hourly seasonal selection in cost flow remains a v2.2 item (requires 8760
+    // simulation); for now, getISODataForMarket('miso') returns miso_summer (conservative).
+    miso_summer: {
         totalPeakMW: 127000,           // ~127 GW summer peak
         totalCapacityMW: 155000,       // ~155 GW installed capacity
-        // Historical PRMR ~17-18% before RBDC; MISO moved to seasonal construct in 2025/26.
-        // Summer 2025/26 PRMR was 7.9% (a tighter operational requirement, not a planning target).
-        // Keeping historical planning-target shape since this field is "target" semantics.
         targetReserveMargin: 0.17,
-        // MISO 2025/26 PRA cleared April 2025 with first-ever Reliability-Based Demand Curve.
-        // Summer cleared at record $666.50/MW-day; annualized blended ~$217/MW-day (North/Central),
-        // ~$212 (South). Surplus capacity 43% lower than prior summer.
-        // Using annualized blended figure as the canonical price point.
-        capacityPrice2024: 217.00,
-        dataSource: 'MISO 2025/26 Planning Resource Auction Results (April 2025)',
+        // Summer 2025/26 PRA cleared April 2025 at record $666.50/MW-day under RBDC.
+        capacityPrice2024: 666.50,
+        dataSource: 'MISO 2025/26 Planning Resource Auction Results — Summer (April 2025)',
+    },
+    miso_non_summer: {
+        totalPeakMW: 127000,           // duplicated from summer (same system)
+        totalCapacityMW: 155000,       // duplicated from summer (same system)
+        targetReserveMargin: 0.17,     // duplicated from summer (same planning target)
+        // Winter/spring/fall blended approximation, much lower than summer per RBDC clearing.
+        capacityPrice2024: 30.00,
+        dataSource: 'MISO 2025/26 PRA — winter/spring/fall blended approximation',
     },
     nyiso: {
         totalPeakMW: 32000,            // ~32 GW summer peak
@@ -254,9 +262,14 @@ export const ISO_CAPACITY_DATA: Record<string, ISOCapacityData> = {
  * Returns null for markets without centralized capacity markets (regulated, SPP, TVA)
  */
 export function getISODataForMarket(marketType: MarketType): ISOCapacityData | null {
+    // MISO seasonal split (2026-05-14, v2.1 item #2): the legacy 'miso' MarketType
+    // resolves to 'miso_summer' (the conservative / higher-priced season) for back-compat.
+    // Seasonal selection in calculations is a v2.2 item — it requires hourly 8760
+    // simulation rather than annual aggregates. Today, every MISO scenario uses the
+    // summer figure, which gives a defensible upper bound on capacity costs.
     const mapping: Record<string, string> = {
         pjm: 'pjm',
-        miso: 'miso',
+        miso: 'miso_summer',
         nyiso: 'nyiso',
         ercot: 'ercot',
     };
