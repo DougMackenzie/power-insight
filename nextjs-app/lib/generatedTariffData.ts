@@ -8,8 +8,8 @@
  * DO NOT EDIT MANUALLY. To update tariff data, edit the canonical pool and
  * re-run `npm run build:tariffs` (or run the migrator directly).
  *
- * Generated: 2026-05-17T21:33:00.625Z
- * Records: 89
+ * Generated: 2026-05-17T22:07:09.811Z
+ * Records: 88
  */
 
 import type { LargeLoadTariff } from './tariffDatabase';
@@ -1871,29 +1871,29 @@ export const GENERATED_TARIFFS: EnrichedTariff[] = [
   {
     id: "empire-district-electric-mo",
     utility: "The Empire District Electric Company d.b.a. Liberty",
-    utility_short: "Liberty Utilities (Empire)",
+    utility_short: "Liberty Utilities",
     state: "MO",
     region: "Midwest",
-    iso_rto: "SPP",
-    tariff_name: "Demand-Side Investment Mechanism Rider Schedule DSIM For MEEIA Cycle 1 2021-22 Plan",
-    rate_schedule: "DSIM",
+    iso_rto: "MISO",
+    tariff_name: "Large Power Service Schedule LP",
+    rate_schedule: "LP",
     effective_date: "2022-06-01",
-    status: "Suspended",
-    min_load_mw: 0,
+    status: "Active",
+    min_load_mw: 1,
     voltage_level: "Transmission",
-    peak_demand_charge: 0,
-    off_peak_demand_charge: 0,
-    energy_rate_peak: 0.0013,
-    energy_rate_off_peak: 0.0013,
-    initial_term_years: 0,
+    peak_demand_charge: 18.61,
+    off_peak_demand_charge: 10.27,
+    energy_rate_peak: 0.0679,
+    energy_rate_off_peak: 0.05995,
+    initial_term_years: 1,
     termination_notice_months: 0,
-    blendedRatePerKWh: 0.0013,
-    annualCostM: 4.84,
-    protectionScore: 0,
+    blendedRatePerKWh: 0.06393,
+    annualCostM: 349.67,
+    protectionScore: 3,
     protectionRating: "Low",
     fuelAdjustmentPerKWh: 0,
     protections: {
-      minimum_demand_charge: false,
+      minimum_demand_charge: true,
       demand_ratchet: false,
       ciac_required: false,
       network_upgrade_allocation: false,
@@ -1901,11 +1901,11 @@ export const GENERATED_TARIFFS: EnrichedTariff[] = [
       deposit_required: false,
       letter_of_credit: false,
       parent_guarantee: false,
-      contract_min_term_months: 0,
+      contract_min_term_months: 12,
       take_or_pay: false,
       load_factor_requirement: false,
       ramp_schedule: false,
-      fuel_adjustment_clause: false,
+      fuel_adjustment_clause: true,
       capacity_pass_through: false,
       curtailment_provisions: false,
       force_majeure: false,
@@ -1914,19 +1914,19 @@ export const GENERATED_TARIFFS: EnrichedTariff[] = [
       study_cost_allocation: false,
       commercial_readiness: false,
       interruptible_discount: false,
-      tou_differential: false,
+      tou_differential: true,
       demand_response_credit: false,
       behind_meter_credit: false
     },
     data_center_specific: false,
     citation: {
-      document: "P.S.C. Mo. No. 6 Sec. 4 2nd Revised Sheet No. 21 - Demand-Side Investment Mechanism Rider Schedule DSIM",
-      url: "https://central.libertyutilities.com/uploads/MO_ELE_4.21_DSIM%20060122.pdf",
-      pageReference: "Sheet No. 21f",
-      docketNumber: "MO PSC (Liberty / Empire 2025 refiled rate case Feb 26, 2025, requesting $152M increase; subsequent amendments); 2026 rate adjustment filing pending — Liberty filed for further Missouri electric rates adjustment Q1 2026"
+      document: "THE EMPIRE DISTRICT ELECTRIC COMPANY d.b.a. LIBERTY P.S.C. Mo. No. 6 Sec. 2 1st Revised Sheet No. 8",
+      url: "https://central.libertyutilities.com/uploads/MO_ELE_2.8_LP%20060122.pdf",
+      pageReference: "8",
+      docketNumber: "P.S.C. Mo. No. 6, Section 4"
     },
     last_verified: "2026-05-17",
-    notes: "QUEUE NOTES TO INCLUDE: 197KB PDF — Empire District Electric (now d/b/a Liberty Utilities Central) Missouri Section 4 PSC Mo. No. 6 rate schedules including NS-LG and TC-LG (large general service variants). Effective per Liberty's Feb 2025 rate case filing (DSIM refiled); active 2026 rate adjustment pending. Empire serves MO + KS + AR + OK (canonical pool tags MO/KS/AR/OK; Liberty is the operating company). SPP zone. Important for DC siting in southwest MO (Joplin metro) and eastern Kansas (Kansas City suburbs). Note: DSIM in filename = Demand-Side Investment Mechanism (not the main rate sheet) — but the Section 4 referenced contains the rate schedules. Hermes should confirm via cover page.\n\nEXTRACTION CAVEATS: This PDF contains Schedule DSIM, a rider for energy efficiency cost recovery, not the base Large General Service (NS-LG/TC-LG) tariff rates. The extracted energy rate ($0.00130/kWh for Non-Residential) is the DSIM rider charge only, not the total energy commodity rate. Base demand and energy charges for Large General Service are located in other sheets of P.S.C. Mo. No. 6 Sec. 4 (e.g., Sheets 1-20). This tariff is superseded as the MEEIA Cycle 1 plan period has ended, though the rider may continue for unrecovered costs. No demand charges are listed for DSIM as it is an energy-based rider."
+    notes: "Prior extraction (2026-05-17) pulled the DSIM rider PDF (Schedule 4.21) by mistake — got $0/kW demand + $0.0013/kWh energy. Correct schedule is Large Power Service (Section 4, 2.8). Note: The PDF indicates a minimum monthly bill structure (Customer Charge + Demand + Facilities) rather than a strict MW threshold, but the 'Determination of Billing Demand' section specifies '1000 kW, whichever is greater', implying a 1 MW effective minimum load for billing purposes. Rates are TOU (Summer/Winter). Summer peak demand is $18.61/kW, off-peak is $10.27/kW. Energy rates are $0.06790/kWh (peak) and $0.05995/kWh (off-peak). Facilities charge of $1.88/kW applies. Fuel adjustment clause exists (Rider FAC). Term is 1 year."
   },
   {
     id: "entergy-arkansas-ar",
@@ -4360,67 +4360,6 @@ export const GENERATED_TARIFFS: EnrichedTariff[] = [
     notes: "Queue-author notes pre-pasted; APPEND any extraction caveats: 1.5MB PDF — BPU NJ No. 17 Electric tariff. LPL = Large Power & Light, applicable to >150kW; HTS = High-Tension Service for primary/transmission voltage. NJ has been actively updating tariffs in response to PJM capacity prices. Extraction Caveats: This record targets Rate Schedule LPL (Large Power and Lighting Service) as indicated by the prompt's queue notes. The PDF contains multiple effective dates due to revised sheets. The primary delivery charges extracted are from the First Revised Sheet No. 142 (Effective May 1, 2025). LPL applies to secondary and primary distribution voltages for loads >150kW. Peak demand charge ($13.1189/kW) applies to On-Peak months (June-Sept). Off-peak demand charge ($3.7469/kW) applies to Annual Demand. Energy charges are $0.00 for delivery; supply charges are via BGS or TPS. Termination notice is 5 days. Minimum charge provision exists for seldom-used applications. | MANUAL ADJUST 2026-05-17: energy_rate set to $0.03/kWh distribution kilowatt-hour DCFC charge as placeholder ($0.030094 per LPL tariff Sheet 142). LPL Secondary Voltage is delivery-only; BGS (Basic Generation Service) energy is sold separately at auction-set ~$0.10/kWh blended for large commercial. Customer charge $347.77/mo. Demand: Summer $13.12/kW + Annual $3.75/kW."
   },
   {
-    id: "public-service-company-of-new-mexico-nm",
-    utility: "Public Service Company of New Mexico (PNM)",
-    utility_short: "Public Service Company of...",
-    state: "NM",
-    region: "Southwest",
-    iso_rto: "None",
-    tariff_name: "Large Power Service",
-    rate_schedule: "Schedule 3B",
-    effective_date: "2025-01-30",
-    status: "Active",
-    min_load_mw: 1,
-    voltage_level: "Transmission",
-    peak_demand_charge: 12.45,
-    off_peak_demand_charge: 6.23,
-    energy_rate_peak: 0.0285,
-    energy_rate_off_peak: 0.0215,
-    initial_term_years: 5,
-    termination_notice_months: 12,
-    blendedRatePerKWh: 0.06895239726027397,
-    annualCostM: 289.93,
-    protectionScore: 5,
-    protectionRating: "Low",
-    fuelAdjustmentPerKWh: 0.018,
-    protections: {
-      minimum_demand_charge: true,
-      minimum_demand_pct: 75,
-      demand_ratchet: true,
-      ratchet_pct: 75,
-      ciac_required: false,
-      network_upgrade_allocation: false,
-      credit_requirements: true,
-      deposit_required: false,
-      letter_of_credit: false,
-      parent_guarantee: false,
-      contract_min_term_months: 60,
-      take_or_pay: false,
-      load_factor_requirement: false,
-      ramp_schedule: false,
-      fuel_adjustment_clause: true,
-      capacity_pass_through: false,
-      curtailment_provisions: false,
-      force_majeure: true,
-      queue_deposit: false,
-      milestone_requirements: false,
-      study_cost_allocation: false,
-      commercial_readiness: false,
-      interruptible_discount: false,
-      tou_differential: true,
-      demand_response_credit: false,
-      behind_meter_credit: false
-    },
-    data_center_specific: false,
-    citation: {
-      document: "Base + Fuel Adj + Trans",
-      url: "",
-      pageReference: "",
-      docketNumber: ""
-    },
-    last_verified: "2026-01-31"
-  },
-  {
     id: "public-service-company-of-oklahoma-ok",
     utility: "PUBLIC SERVICE COMPANY OF OKLAHOMA",
     utility_short: "PSO",
@@ -5458,11 +5397,11 @@ export const GENERATED_TARIFFS: EnrichedTariff[] = [
  * Aggregate statistics over GENERATED_TARIFFS — recomputed at every regeneration.
  */
 export const TARIFF_STATS = {
-  "totalUtilities": 89,
+  "totalUtilities": 88,
   "highProtection": 3,
   "midProtection": 3,
-  "lowProtection": 83,
-  "avgBlendedRate": 0.05653833756605609,
+  "lowProtection": 82,
+  "avgBlendedRate": 0.05710897325134905,
   "minBlendedRate": 0,
   "maxBlendedRate": 0.23555,
   "uniqueStates": 45,
