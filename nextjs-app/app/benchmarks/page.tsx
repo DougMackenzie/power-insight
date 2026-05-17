@@ -3,12 +3,10 @@
 /**
  * Utility Benchmarks Page
  *
- * EXAMPLE: This page demonstrates how to protect sensitive content.
- * The utility scoring data is gated behind registration.
+ * Community-first: all content is publicly accessible. Registration wall removed
+ * as part of v2.0 Phase 5 cleanup (2026-05-17).
  */
 
-import ProtectedContent from '@/components/ProtectedContent';
-import { useAuth } from '@/hooks/useAuth';
 import { UTILITY_PROFILES, type UtilityProfile } from '@/lib/utilityData';
 
 // ============================================
@@ -44,7 +42,6 @@ function BenchmarksPreview() {
 // ============================================
 
 function UtilityBenchmarks() {
-  const { user } = useAuth();
   const utilities = Object.values(UTILITY_PROFILES);
 
   // Sort by system peak MW (largest utilities first)
@@ -60,11 +57,6 @@ function UtilityBenchmarks() {
         <p className="text-gray-600">
           Compare utility readiness for large load integration across {utilities.length} utilities.
         </p>
-        {user && (
-          <p className="text-sm text-gray-500 mt-2">
-            Logged in as {user.name} ({user.organization})
-          </p>
-        )}
       </div>
 
       {/* Methodology note */}
@@ -166,14 +158,7 @@ function UtilityBenchmarks() {
 export default function BenchmarksPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProtectedContent
-        title="Utility Benchmarks"
-        description="Access detailed utility readiness scores and comparative analysis across 88+ utilities."
-        preview={<BenchmarksPreview />}
-        registrationReason="Utility benchmarks require expert interpretation. By registering, you help us ensure this data is used responsibly and allow us to provide appropriate context for your use case."
-      >
-        <UtilityBenchmarks />
-      </ProtectedContent>
+      <UtilityBenchmarks />
     </div>
   );
 }

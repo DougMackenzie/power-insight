@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { CalculatorProvider } from '@/hooks/useCalculator';
-import { AuthProvider } from '@/hooks/useAuth';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -66,13 +65,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
       <body className="font-sans antialiased">
-        <AuthProvider>
-          <CalculatorProvider>
-            <Navigation />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-          </CalculatorProvider>
-        </AuthProvider>
+        <CalculatorProvider>
+          <Navigation />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+        </CalculatorProvider>
       </body>
     </html>
   );
