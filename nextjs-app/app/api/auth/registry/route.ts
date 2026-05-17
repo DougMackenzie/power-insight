@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { timingSafeEqual } from 'crypto';
 
 // ============================================
 // TYPES
@@ -58,19 +59,26 @@ async function getRegistry(): Promise<UserRegistry | null> {
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Add admin authentication check here
-    // For now, this is accessible but you should add protection
-    // Options:
-    // 1. Check for admin API key in header
-    // 2. Check for admin session
-    // 3. IP whitelist
-    // 4. Basic auth
-
-    const adminKey = request.headers.get('x-admin-key');
+    // Admin auth: REQUIRE ADMIN_API_KEY env var to be set in production.
+    // Fail-secure: if env var is unset or wrong, return 401/503 — never bypass.
+    // Use crypto.timingSafeEqual to prevent timing attacks on key comparison.
     const expectedKey = process.env.ADMIN_API_KEY;
+    const adminKey = request.headers.get('x-admin-key') || '';
 
-    // If ADMIN_API_KEY is set, require it
-    if (expectedKey && adminKey !== expectedKey) {
+    if (!expectedKey || expectedKey.length === 0) {
+      // Endpoint not configured for production use — refuse to serve PII without auth.
+      return NextResponse.json(
+        { success: false, error: 'Endpoint not configured' },
+        { status: 503 }
+      );
+    }
+
+    const expectedBuf = Buffer.from(expectedKey);
+    const providedBuf = Buffer.from(adminKey);
+    if (
+      providedBuf.length !== expectedBuf.length ||
+      !timingSafeEqual(providedBuf, expectedBuf)
+    ) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }

@@ -28,6 +28,19 @@ credentials.json
 config.local.js
 config.local.json
 
+# User PII data (file-based registry — per 2026-05-17 security audit; data/
+# is ephemeral on Vercel so this is belt-and-suspenders against accidental
+# commit of any test-data file)
+data/user-registry.json
+data/access-log.json
+data/*.json
+!data/.gitkeep
+
+# Office app lock files (per 2026-05-17 security audit)
+.~lock.*
+~$*
+*.docx
+
 # Logs
 logs/
 *.log
