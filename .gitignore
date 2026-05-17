@@ -124,3 +124,4 @@ streamlit_app/
 
 # PDF reference files
 *.pdf
+.vercel
