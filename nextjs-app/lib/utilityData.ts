@@ -1387,6 +1387,38 @@ function estimateResidentialCustomers(tariff: EnrichedTariff): number {
 }
 
 /**
+ * Normalizes `tariff.protections.ratchet_pct` to a fraction in [0, 1].
+ *
+ * Why this exists: the canonical tariff pool stores `ratchet_pct` in two
+ * historically inconsistent units:
+ *   - Pre-Hermes-rescrape (Jan 2026 baseline): whole-percent (60, 75, 95)
+ *   - Post-Hermes-rescrape (May 2026 batch): fractional (0.5, 0.6, 0.85)
+ *
+ * Both conventions appear in the same canonical file today (May 2026): 24 of 64
+ * rescraped records use the fractional form while the other 40 still use whole
+ * percent. The previous code path (`tariff.protections.ratchet_pct / 100`)
+ * divided unconditionally, silently producing a ~100× understatement of the
+ * large-power ratchet floor for the fractional records (0.6 → 0.006 instead of
+ * 0.60). This propagated into demand-charge revenue and revenue-adequacy
+ * ratios. See `docs/GEMINI_REFRESH_DELTA_2026-05-27.md` "RATCHET_RESCALE" for
+ * the 24-utility list and the calculator-level surfacing.
+ *
+ * Convention going forward (canonical schema accepts both for back-compat):
+ *   - raw >= 1  → legacy whole-percent; divide by 100
+ *   - 0 < raw < 1 → already fractional; pass through
+ *   - 0, null, undefined, NaN → no ratchet; return undefined
+ *
+ * Long-term, `migrate_tariff_canonical_to_ts.ts` should normalize at ingest
+ * (Wave 3 candidate); this calculator-boundary check is the defensive guard.
+ */
+export function normalizeRatchetPct(raw: number | null | undefined): number | undefined {
+  if (raw === null || raw === undefined || !Number.isFinite(raw) || raw <= 0) {
+    return undefined;
+  }
+  return raw >= 1 ? raw / 100 : raw;
+}
+
+/**
  * Converts an EnrichedTariff to a UtilityProfile
  * Used to add utilities from tariff database that don't have dedicated profiles
  */
@@ -1416,10 +1448,9 @@ export function enrichedTariffToUtilityProfile(tariff: EnrichedTariff): UtilityP
   // Convert energy rate from $/kWh to $/MWh
   const energyCharge = tariff.blendedRatePerKWh * 1000;
 
-  // Get ratchet percentage if available
-  const ratchetPercent = tariff.protections.ratchet_pct
-    ? tariff.protections.ratchet_pct / 100
-    : undefined;
+  // Get ratchet percentage if available. Boundary-detect whole-percent vs
+  // fractional (see normalizeRatchetPct() docblock).
+  const ratchetPercent = normalizeRatchetPct(tariff.protections.ratchet_pct);
 
   return {
     id: tariff.id,
@@ -1499,9 +1530,9 @@ export function getUtilityById(id: string): UtilityProfile | undefined {
     const peakDemandCharge = (tariff.peak_demand_charge || 5) * 1000; // $/kW to $/MW
     const maxDemandCharge = (tariff.off_peak_demand_charge || tariff.peak_demand_charge * 0.4) * 1000;
     const energyCharge = tariff.blendedRatePerKWh * 1000; // $/kWh to $/MWh
-    const ratchetPercent = tariff.protections.ratchet_pct
-      ? tariff.protections.ratchet_pct / 100
-      : manual.tariff.ratchetPercent;
+    // Boundary-detect whole-percent vs fractional (see normalizeRatchetPct() docblock).
+    const ratchetPercent =
+      normalizeRatchetPct(tariff.protections.ratchet_pct) ?? manual.tariff.ratchetPercent;
 
     return {
       ...manual,

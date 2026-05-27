@@ -40,6 +40,7 @@ import {
 import {
     UTILITY_PROFILES,
     enrichedTariffToUtilityProfile,
+    normalizeRatchetPct,
     type UtilityProfile,
 } from '../lib/utilityData';
 import { GENERATED_TARIFFS } from '../lib/generatedTariffData';
@@ -137,9 +138,12 @@ function buildProfileFromPool(
         const maxDemandCharge =
             (tariff.off_peak_demand_charge || tariff.peak_demand_charge * 0.4) * 1000;
         const energyCharge = tariff.blendedRatePerKWh * 1000;
-        const ratchetPercent = tariff.protections.ratchet_pct
-            ? tariff.protections.ratchet_pct / 100
-            : manual.tariff.ratchetPercent;
+        // Boundary-detect whole-percent vs fractional ratchet_pct (mirrors
+        // lib/utilityData.ts normalizeRatchetPct — kept in sync). Without this
+        // the refreshed leg silently produces 0.5 → 0.005, hiding bucket
+        // compression in delta validation.
+        const ratchetPercent =
+            normalizeRatchetPct(tariff.protections.ratchet_pct) ?? manual.tariff.ratchetPercent;
 
         return {
             ...manual,

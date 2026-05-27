@@ -30,6 +30,7 @@ import {
   calculateDynamicCapacityPrice,
 } from './calculations';
 import type { TariffStructure } from './utilityData';
+import { normalizeRatchetPct } from './utilityData';
 
 // ─── Test fixtures ────────────────────────────────────────────────────────
 
@@ -515,5 +516,56 @@ describe('MISO seasonal split — current v2.x behavior (Option B scoped)', () =
     };
     const dc: WithFlag = { capacityMW: 1000 };
     expect(dc.flexCurtailmentEnabled).toBeUndefined();
+  });
+});
+
+// ─── ratchet_pct unit-scale boundary (Bug #1) ────────────────────────────
+//
+// `tariff.protections.ratchet_pct` is stored inconsistently in the canonical
+// tariff pool: Jan 2026 baseline uses whole-percent (60, 75, 95) while the
+// May 2026 Hermes rescrape batch uses fractional (0.5, 0.6, 0.85). The
+// previous calculator-boundary code divided by 100 unconditionally, producing
+// a silent ~100× understatement of the large-power ratchet floor for the
+// fractional records (0.6 → 0.006). normalizeRatchetPct() implements the
+// boundary detection: >= 1 → whole-percent (divide by 100), < 1 → already
+// fractional (pass through), 0/null/undefined → no ratchet (undefined).
+// See lib/utilityData.ts for the docblock and the 24 affected utilities at
+// docs/GEMINI_REFRESH_DELTA_2026-05-27.md "RATCHET_RESCALE".
+
+describe('normalizeRatchetPct — unit-scale boundary detection', () => {
+  it('converts legacy whole-percent (Jan 2026 baseline form) to fraction', () => {
+    // Baseline form: e.g., Georgia Power had 95 (meaning 95%).
+    expect(normalizeRatchetPct(95)).toBeCloseTo(0.95, 10);
+    expect(normalizeRatchetPct(60)).toBeCloseTo(0.60, 10);
+    expect(normalizeRatchetPct(75)).toBeCloseTo(0.75, 10);
+  });
+
+  it('passes fractional input through unchanged (May 2026 rescrape form)', () => {
+    // Rescraped form: e.g., Georgia Power refresh is 0.5 (meaning 50%, NOT 0.5%).
+    expect(normalizeRatchetPct(0.5)).toBe(0.5);
+    expect(normalizeRatchetPct(0.6)).toBe(0.6);
+    expect(normalizeRatchetPct(0.85)).toBe(0.85);
+  });
+
+  it('treats 0 as no ratchet (returns undefined)', () => {
+    expect(normalizeRatchetPct(0)).toBeUndefined();
+  });
+
+  it('treats null and undefined as no ratchet', () => {
+    expect(normalizeRatchetPct(null)).toBeUndefined();
+    expect(normalizeRatchetPct(undefined)).toBeUndefined();
+  });
+
+  it('handles boundary exactly at 1 (treated as legacy 100% → 1.0)', () => {
+    // The boundary is `>= 1`. A literal 1 is ambiguous in principle but the
+    // legacy interpretation (whole-percent 100% → 1.0 fraction) is the only
+    // reading that doesn't collapse to "1 means 1% ratchet" which no real
+    // tariff would specify. 1.0 = full-month carryforward, which IS a real
+    // tariff posture (some take-or-pay-equivalent contracts).
+    expect(normalizeRatchetPct(1)).toBe(0.01);
+  });
+
+  it('rejects NaN safely (returns undefined, never crashes downstream)', () => {
+    expect(normalizeRatchetPct(NaN)).toBeUndefined();
   });
 });
