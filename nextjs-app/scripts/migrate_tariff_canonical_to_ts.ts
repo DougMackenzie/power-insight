@@ -70,6 +70,56 @@ function mapVoltageToAppShape(canonical: string): string {
     return map[canonical] || 'Transmission';
 }
 
+/**
+ * Canonical blended-rate formula — load-factor-weighted energy + fuel + amortized demand.
+ *
+ * Why we recompute instead of trusting `r.blended_rate_per_kwh`:
+ * the upstream canonical pool's blended_rate semantics drifted between
+ * extractor versions. The Jan 2026 baseline pool used a load-factor-weighted
+ * formula including demand-charge amortization; the May 2026 Hermes rescrape
+ * batch silently switched to a simple `(e_peak + e_off) / 2` average, dropping
+ * the demand-charge component entirely. This produced 25 utilities with >50%
+ * `blendedRatePerKWh` jumps that weren't proportional to underlying energy-rate
+ * changes (see docs/GEMINI_REFRESH_DELTA_2026-05-27.md "BLENDED_JUMP").
+ *
+ * Recomputing here at the migrator boundary forces apples-to-apples blended
+ * rates across baseline + rescraped records using the same formula:
+ *
+ *     blended = e_peak * 0.40
+ *             + e_off  * 0.60
+ *             + fuel_adjustment
+ *             + (peak_demand + off_peak_demand) * 12 / (8760 * 0.95)
+ *
+ * Constants reverse-engineered from the Jan 2026 baseline pool (89 records,
+ * mean absolute error 5e-4 / kWh — i.e. fits to machine-precision rounding).
+ * The (0.40 / 0.60) TOU split approximates a baseload DC profile favoring
+ * off-peak hours; the (8760 * 0.95) denominator amortizes 12 monthly demand
+ * charges over a 95% load factor annual energy delivery.
+ *
+ * Long-term, the canonical pool should store this derived field consistently
+ * (Wave 3 candidate); recomputing in the migrator is the defensive guard.
+ */
+function computeBlendedRatePerKWh(
+    peakDemand: number,
+    offPeakDemand: number,
+    energyPeak: number,
+    energyOffPeak: number,
+    fuelAdjustment: number,
+): number {
+    const ENERGY_PEAK_WEIGHT = 0.4;
+    const ENERGY_OFF_PEAK_WEIGHT = 0.6;
+    const HOURS_PER_YEAR = 8760;
+    const LOAD_FACTOR = 0.95;
+    const MONTHS_PER_YEAR = 12;
+    const energyComponent =
+        energyPeak * ENERGY_PEAK_WEIGHT + energyOffPeak * ENERGY_OFF_PEAK_WEIGHT;
+    const demandComponent =
+        ((peakDemand || 0) + (offPeakDemand || 0)) *
+        MONTHS_PER_YEAR /
+        (HOURS_PER_YEAR * LOAD_FACTOR);
+    return energyComponent + (fuelAdjustment || 0) + demandComponent;
+}
+
 function recordToAppShape(r: TariffRecord): Record<string, unknown> {
     // App's protections shape — derive from canonical's flat + detailed, with safe defaults
     const p = r.protections;
@@ -97,8 +147,15 @@ function recordToAppShape(r: TariffRecord): Record<string, unknown> {
         initial_term_years: r.initial_term_years,
         termination_notice_months: r.termination_notice_months,
 
-        // Derived (cached in canonical)
-        blendedRatePerKWh: r.blended_rate_per_kwh,
+        // Derived — RECOMPUTED at migrator boundary, not trusted from upstream.
+        // See computeBlendedRatePerKWh() docblock for formula reconciliation.
+        blendedRatePerKWh: computeBlendedRatePerKWh(
+            r.peak_demand_charge_per_kw,
+            r.off_peak_demand_charge_per_kw,
+            r.energy_rate_peak_per_kwh,
+            r.energy_rate_off_peak_per_kwh,
+            r.fuel_adjustment_per_kwh,
+        ),
         annualCostM: r.annual_cost_m_at_500mw_85pct ?? 0,
         protectionScore: r.protection_score,
         protectionRating: r.protection_rating,
